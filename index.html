@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ほうじょうれーぬ - 北条</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 2rem; }
+    .tagline {
+      display: inline-block;
+      background: #ffdd57;
+      color: #000;
+      font-weight: bold;
+      padding: .2rem .6rem;
+      border-radius: 8px;
+      margin-top: .4rem;
+    }
+    .mascots img {
+      width: 30%;
+      border-radius: 12px;
+      margin: 0 1%;
+    }
+    .section {
+      margin-top: 2rem;
+    }
+    #talk-ui {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    #chat-log p {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>千葉県 館山市 北条 の非公式ゆるキャラページ</h2>
+  <p class="tagline">勝手にご当地PR</p>
+
+  <h1>ほうじょうれーぬ</h1>
+  <p>〒2940045｜千葉県 館山市 北条</p>
+
+  <div class="mascots">
+    <img src="https://img.mascodex.com/2940045_01.png" alt="ほうじょうれーぬ 1">
+    <img src="https://img.mascodex.com/2940045_02.png" alt="ほうじょうれーぬ 2">
+    <img src="https://img.mascodex.com/2940045_03.png" alt="ほうじょうれーぬ 3">
+  </div>
+
+  <!-- 紹介セクション -->
+  <div class="section">
+    <h2>紹介</h2>
+    <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。地元の人たちに笑顔と温かさを届けながら、観光客にも館山の魅力を教える優しいれーぬです。</p>
+  </div>
+
+  <!-- 会話セクション -->
+  <div id="talk-ui">
+    <h2>ほうじょうれーぬと話そう！</h2>
+    <div id="chat-log" style="min-height: 100px; margin-bottom: 1rem;"></div>
+    <input type="text" id="user-input" placeholder="話しかけてね" style="width: 70%;">
+    <button onclick="talk()">送信</button>
+    <div style="margin-top: 1rem;">
+      <label>レベル：<span id="level">1</span></label>
+      <div style="background:#eee; height:20px; border-radius:10px; overflow:hidden;">
+        <div id="xp-bar" style="height:20px; background:#4caf50; width:5%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ストーリー -->
+  <div class="section">
+    <h2>ストーリー</h2>
+    <p>青い体に貝殻の帽子</p>
+    <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。新鮮な海の幸が大好きで、毎朝、波の音を聞きながらおいしい貝や魚を楽しみます。観光客にも館山の魅力を教える優しいれーぬです。</p>
+  </div>
+
+  <script>
+    let xp = 0;
+    let level = 1;
+
+    const xpBar = document.getElementById("xp-bar");
+    const levelSpan = document.getElementById("level");
+    const chatLog = document.getElementById("chat-log");
+
+    async function talk() {
+      const input = document.getElementById("user-input").value;
+      if (!input) return;
+
+      const userLine = document.createElement("p");
+      userLine.innerText = "あなた: " + input;
+      chatLog.appendChild(userLine);
+
+      const response = await fetchResponseFromAPI(input, level);
+      const charLine = document.createElement("p");
+      charLine.innerText = "れーぬ: " + response;
+      chatLog.appendChild(charLine);
+
+      xp += 10;
+      if (xp >= 100) {
+        level++;
+        xp = 0;
+        levelSpan.innerText = level;
+      }
+      xpBar.style.width = xp + "%";
+      document.getElementById("user-input").value = "";
+    }
+
+    async function fetchResponseFromAPI(userInput, level) {
+      const prompt = `あなたはレベル${level}の館山市北条のゆるキャラ「ほうじょうれーぬ」です。
+過去レベルまでに習得したすべての発話スタイルを適宜使い分けて、以下の発言に返答してください：
+「${userInput}」`;
+
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer sk-xxxxxx" // ← 安全なサーバー経由に必ず変えてください
+          },
+          body: JSON.stringify({
+            model: "gpt-4",
+            messages: [
+              { role: "system", content: "あなたはご当地キャラクターで、地元愛にあふれています。" },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.9
+          })
+        });
+
+        const data = await res.json();
+        return data.choices[0].message.content.trim();
+      } catch (e) {
+        return "ごめんね、れーぬちょっと今うまく話せないみたい…";
+      }
+    }
+  </script>
+</body>
+</html>
+
