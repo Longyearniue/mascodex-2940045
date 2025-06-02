@@ -18,8 +18,14 @@ export async function onRequest(context) {
       
       if (action === 'incrementChat') {
         const today = new Date().toISOString().split('T')[0];
+        const userKey = `user_${userId}_${today}`;
         
-        let userData = {
+        // Get existing data from a simple in-memory store (simulated with global variable)
+        if (!globalThis.userDataStore) {
+          globalThis.userDataStore = {};
+        }
+        
+        let userData = globalThis.userDataStore[userKey] || {
           dailyChats: 0,
           consecutiveDays: 1,
           lastChatDate: today
@@ -40,6 +46,9 @@ export async function onRequest(context) {
           
           userData.lastChatDate = today;
         }
+        
+        // Save updated data
+        globalThis.userDataStore[userKey] = userData;
 
         return new Response(JSON.stringify({
           success: true,
@@ -56,8 +65,13 @@ export async function onRequest(context) {
 
       if (action === 'getUserStats') {
         const today = new Date().toISOString().split('T')[0];
+        const userKey = `user_${userId}_${today}`;
         
-        const userData = {
+        if (!globalThis.userDataStore) {
+          globalThis.userDataStore = {};
+        }
+        
+        const userData = globalThis.userDataStore[userKey] || {
           dailyChats: 0,
           consecutiveDays: 1,
           maxDailyChats: 5
@@ -65,7 +79,9 @@ export async function onRequest(context) {
 
         return new Response(JSON.stringify({
           success: true,
-          ...userData
+          dailyChats: userData.dailyChats,
+          consecutiveDays: userData.consecutiveDays,
+          maxDailyChats: userData.maxDailyChats
         }), {
           headers: {
             'Content-Type': 'application/json',
