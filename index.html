@@ -59,6 +59,27 @@
     <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。地元の人たちに笑顔と温かさを届けながら、観光客にも館山の魅力を教える優しいれーぬです。</p>
   </div>
 
+  <!-- ログインセクション -->
+  <div id="auth-section" style="margin-top: 2rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; background: #f0f8ff;">
+    <div id="login-form">
+      <h3>ログイン・新規登録</h3>
+      <div style="margin-bottom: 1rem;">
+        <input type="email" id="email" placeholder="メールアドレス" style="width: 200px; padding: 8px; margin-right: 10px;">
+        <input type="password" id="password" placeholder="パスワード" style="width: 200px; padding: 8px;">
+      </div>
+      <button onclick="login()" style="margin-right: 10px;">ログイン</button>
+      <button onclick="register()">新規登録</button>
+      <div id="auth-message" style="margin-top: 10px; color: red;"></div>
+    </div>
+    <div id="user-info" style="display: none;">
+      <h3>ユーザー情報</h3>
+      <p>ようこそ、<span id="user-email"></span>さん！</p>
+      <p id="daily-stats">今日は<span id="daily-count">0</span>/5回話しました</p>
+      <p id="streak-stats">連続<span id="consecutive-days">1</span>日会話中！</p>
+      <button onclick="logout()" style="margin-top: 10px;">ログアウト</button>
+    </div>
+  </div>
+
   <!-- 会話セクション -->
   <div id="talk-ui">
     <h2>ほうじょうれーぬと話そう！</h2>
@@ -81,6 +102,10 @@
   </div>
 
   <script>
+    // User authentication state
+    let currentUser = null;
+    let authToken = localStorage.getItem('authToken');
+    
     // Initialize level data from localStorage
     let currentLevel = parseInt(localStorage.getItem('mascotLevel') || '1');
     let currentXP = parseInt(localStorage.getItem('mascotXP') || '0');
@@ -104,9 +129,149 @@
         xpBar.style.width = progress + '%';
     }
 
+    // Authentication functions
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        showAuthMessage('メールアドレスとパスワードを入力してください', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, action: 'login' })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentUser = data.user;
+          authToken = data.token;
+          localStorage.setItem('authToken', authToken);
+          localStorage.setItem('userEmail', email);
+          
+          showUserInfo();
+          updateUserStats();
+          showAuthMessage('ログインしました！', 'success');
+        } else {
+          showAuthMessage(data.error || 'ログインに失敗しました', 'error');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        showAuthMessage('ログインエラーが発生しました', 'error');
+      }
+    }
+
+    async function register() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        showAuthMessage('メールアドレスとパスワードを入力してください', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAuthMessage('パスワードは6文字以上で入力してください', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, action: 'register' })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          currentUser = data.user;
+          authToken = data.token;
+          localStorage.setItem('authToken', authToken);
+          localStorage.setItem('userEmail', email);
+          
+          showUserInfo();
+          updateUserStats();
+          showAuthMessage('登録完了！ログインしました', 'success');
+        } else {
+          showAuthMessage(data.error || '登録に失敗しました', 'error');
+        }
+      } catch (error) {
+        console.error('Register error:', error);
+        showAuthMessage('登録エラーが発生しました', 'error');
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      authToken = null;
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userEmail');
+      
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('user-info').style.display = 'none';
+      showAuthMessage('ログアウトしました', 'success');
+    }
+
+    function showUserInfo() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('user-info').style.display = 'block';
+      document.getElementById('user-email').textContent = localStorage.getItem('userEmail') || '';
+    }
+
+    function showAuthMessage(message, type) {
+      const messageEl = document.getElementById('auth-message');
+      messageEl.textContent = message;
+      messageEl.style.color = type === 'error' ? 'red' : 'green';
+      setTimeout(() => {
+        messageEl.textContent = '';
+      }, 3000);
+    }
+
+    async function updateUserStats() {
+      if (!currentUser) return;
+      
+      try {
+        const response = await fetch('/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            userId: currentUser.id, 
+            action: 'getUserStats' 
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          document.getElementById('daily-count').textContent = data.dailyChats;
+          document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+        }
+      } catch (error) {
+        console.error('Stats update error:', error);
+      }
+    }
+
     async function talk() {
       const input = document.getElementById("user-input").value;
       if (!input) return;
+
+      // Check if user is logged in
+      if (!currentUser && !authToken) {
+        showAuthMessage('チャットするにはログインが必要です', 'error');
+        return;
+      }
 
       const userLine = document.createElement("p");
       userLine.innerText = "あなた: " + input;
@@ -161,6 +326,34 @@
           levelUpLine.style.fontWeight = "bold";
           chatLog.appendChild(levelUpLine);
         }
+
+        // Update user chat stats
+        if (currentUser) {
+          await fetch('/api/user', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+              userId: currentUser.id, 
+              action: 'incrementChat' 
+            })
+          }).then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                document.getElementById('daily-count').textContent = data.dailyChats;
+                document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+                
+                if (data.dailyChats >= data.maxDailyChats) {
+                  const limitLine = document.createElement("p");
+                  limitLine.innerText = "れーぬ: 今日はたくさんお話ししたね！また明日話そうね♪";
+                  limitLine.style.color = "#ff6b35";
+                  limitLine.style.fontWeight = "bold";
+                  chatLog.appendChild(limitLine);
+                }
+              }
+            });
+        }
         
       } catch (error) {
         console.error('Error:', error);
@@ -185,6 +378,16 @@
 
     // Initialize display
     updateLevelDisplay();
+
+    // Check if user is already logged in
+    if (authToken && localStorage.getItem('userEmail')) {
+      currentUser = { 
+        id: 'user_' + Math.random().toString(36).substr(2, 9),
+        email: localStorage.getItem('userEmail')
+      };
+      showUserInfo();
+      updateUserStats();
+    }
 
     // Add initial greeting
     const greetingLine = document.createElement("p");
