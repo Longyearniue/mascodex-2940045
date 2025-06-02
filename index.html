@@ -81,12 +81,28 @@
   </div>
 
   <script>
-    let xp = 0;
-    let level = 1;
+    // Initialize level data from localStorage
+    let currentLevel = parseInt(localStorage.getItem('mascotLevel') || '1');
+    let currentXP = parseInt(localStorage.getItem('mascotXP') || '0');
+    
+    // Level thresholds
+    const levelThresholds = [0, 1, 5, 10, 20, 50, 100, 200, 500, 1000];
 
     const xpBar = document.getElementById("xp-bar");
     const levelSpan = document.getElementById("level");
     const chatLog = document.getElementById("chat-log");
+
+    // Update UI
+    function updateLevelDisplay() {
+        levelSpan.textContent = currentLevel;
+        
+        // Calculate progress to next level
+        const currentThreshold = levelThresholds[currentLevel - 1] || 0;
+        const nextThreshold = levelThresholds[currentLevel] || levelThresholds[levelThresholds.length - 1];
+        const progress = Math.min(100, ((currentXP - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
+        
+        xpBar.style.width = progress + '%';
+    }
 
     async function talk() {
       const input = document.getElementById("user-input").value;
@@ -96,50 +112,85 @@
       userLine.innerText = "あなた: " + input;
       chatLog.appendChild(userLine);
 
-      const response = await fetchResponseFromAPI(input, level);
-      const charLine = document.createElement("p");
-      charLine.innerText = "れーぬ: " + response;
-      chatLog.appendChild(charLine);
-
-      xp += 10;
-      if (xp >= 100) {
-        level++;
-        xp = 0;
-        levelSpan.innerText = level;
-      }
-      xpBar.style.width = xp + "%";
-      document.getElementById("user-input").value = "";
-    }
-
-    async function fetchResponseFromAPI(userInput, level) {
-      const prompt = `あなたはレベル${level}の館山市北条のゆるキャラ「ほうじょうれーぬ」です。
-過去レベルまでに習得したすべての発話スタイルを適宜使い分けて、以下の発言に返答してください：
-「${userInput}」`;
+      // Disable input during request
+      const inputField = document.getElementById("user-input");
+      const sendButton = document.querySelector("button");
+      inputField.disabled = true;
+      sendButton.disabled = true;
+      sendButton.textContent = "送信中...";
 
       try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
+        // Send to chat API
+        const chatResponse = await fetch('/api/chat', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer sk-xxxxxx" // ← 安全なサーバー経由に必ず変えてください
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            model: "gpt-4",
-            messages: [
-              { role: "system", content: "あなたはご当地キャラクターで、地元愛にあふれています。" },
-              { role: "user", content: prompt }
-            ],
-            temperature: 0.9
-          })
+          body: JSON.stringify({ message: input })
         });
-
-        const data = await res.json();
-        return data.choices[0].message.content.trim();
-      } catch (e) {
-        return "ごめんね、れーぬちょっと今うまく話せないみたい…";
+        
+        const chatData = await chatResponse.json();
+        
+        const charLine = document.createElement("p");
+        charLine.innerText = "れーぬ: " + chatData.response;
+        chatLog.appendChild(charLine);
+        
+        // Update level
+        const levelResponse = await fetch('/api/level', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ currentLevel, currentXP })
+        });
+        
+        const levelData = await levelResponse.json();
+        currentLevel = levelData.level;
+        currentXP = levelData.xp;
+        
+        // Save to localStorage
+        localStorage.setItem('mascotLevel', currentLevel.toString());
+        localStorage.setItem('mascotXP', currentXP.toString());
+        
+        updateLevelDisplay();
+        
+        if (levelData.leveledUp) {
+          const levelUpLine = document.createElement("p");
+          levelUpLine.innerText = `🎉 レベルアップ！レベル${currentLevel}になったよ！`;
+          levelUpLine.style.color = "#ff6b35";
+          levelUpLine.style.fontWeight = "bold";
+          chatLog.appendChild(levelUpLine);
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        const errorLine = document.createElement("p");
+        errorLine.innerText = "れーぬ: ごめんなさい、エラーが発生しました。もう一度試してくださいね。";
+        chatLog.appendChild(errorLine);
+      } finally {
+        inputField.disabled = false;
+        sendButton.disabled = false;
+        sendButton.textContent = "送信";
+        inputField.value = "";
+        chatLog.scrollTop = chatLog.scrollHeight;
       }
     }
+
+    // Event listeners
+    document.getElementById("user-input").addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        talk();
+      }
+    });
+
+    // Initialize display
+    updateLevelDisplay();
+
+    // Add initial greeting
+    const greetingLine = document.createElement("p");
+    greetingLine.innerText = "れーぬ: こんにちは！ほうじょうれーぬだよ！館山のことなら何でも聞いてね♪";
+    greetingLine.style.color = "#006600";
+    chatLog.appendChild(greetingLine);
   </script>
 </body>
 </html>
-
