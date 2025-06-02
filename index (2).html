@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ほうじょうれーぬ - 北条</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 2rem; }
+    .tagline {
+      display: inline-block;
+      background: #ffdd57;
+      color: #000;
+      font-weight: bold;
+      padding: .2rem .6rem;
+      border-radius: 8px;
+      margin-top: .4rem;
+    }
+    .mascots img {
+      width: 30%;
+      border-radius: 12px;
+      margin: 0 1%;
+    }
+    .section {
+      margin-top: 2rem;
+    }
+    #talk-ui {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    #chat-log p {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>千葉県 館山市 北条 の非公式ゆるキャラページ</h2>
+  <p class="tagline">勝手にご当地PR</p>
+
+  <h1>ほうじょうれーぬ</h1>
+  <p>〒2940045｜千葉県 館山市 北条</p>
+
+  <div class="mascots">
+    <img src="https://img.mascodex.com/2940045_01.png" alt="ほうじょうれーぬ 1">
+    <img src="https://img.mascodex.com/2940045_02.png" alt="ほうじょうれーぬ 2">
+    <img src="https://img.mascodex.com/2940045_03.png" alt="ほうじょうれーぬ 3">
+  </div>
+
+  <!-- 紹介セクション -->
+  <div class="section">
+    <h2>紹介</h2>
+    <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。地元の人たちに笑顔と温かさを届けながら、観光客にも館山の魅力を教える優しいれーぬです。</p>
+  </div>
+
+  <!-- 会話セクション -->
+  <div id="talk-ui">
+    <h2>ほうじょうれーぬと話そう！</h2>
+    <div id="chat-log" style="min-height: 100px; margin-bottom: 1rem;"></div>
+    <input type="text" id="user-input" placeholder="話しかけてね" style="width: 70%;">
+    <button onclick="talk()">送信</button>
+    <div style="margin-top: 1rem;">
+      <label>レベル：<span id="level">1</span></label>
+      <div style="background:#eee; height:20px; border-radius:10px; overflow:hidden;">
+        <div id="xp-bar" style="height:20px; background:#4caf50; width:5%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ストーリー -->
+  <div class="section">
+    <h2>ストーリー</h2>
+    <p>青い体に貝殻の帽子</p>
+    <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。新鮮な海の幸が大好きで、毎朝、波の音を聞きながらおいしい貝や魚を楽しみます。観光客にも館山の魅力を教える優しいれーぬです。</p>
+  </div>
+
+  <script>
+    // Initialize level data from localStorage
+    let currentLevel = parseInt(localStorage.getItem('mascotLevel') || '1');
+    let currentXP = parseInt(localStorage.getItem('mascotXP') || '0');
+    
+    // Level thresholds
+    const levelThresholds = [0, 1, 5, 10, 20, 50, 100, 200, 500, 1000];
+
+    const xpBar = document.getElementById("xp-bar");
+    const levelSpan = document.getElementById("level");
+    const chatLog = document.getElementById("chat-log");
+
+    // Update UI
+    function updateLevelDisplay() {
+        levelSpan.textContent = currentLevel;
+        
+        // Calculate progress to next level
+        const currentThreshold = levelThresholds[currentLevel - 1] || 0;
+        const nextThreshold = levelThresholds[currentLevel] || levelThresholds[levelThresholds.length - 1];
+        const progress = Math.min(100, ((currentXP - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
+        
+        xpBar.style.width = progress + '%';
+    }
+
+    async function talk() {
+      const input = document.getElementById("user-input").value;
+      if (!input) return;
+
+      const userLine = document.createElement("p");
+      userLine.innerText = "あなた: " + input;
+      chatLog.appendChild(userLine);
+
+      // Disable input during request
+      const inputField = document.getElementById("user-input");
+      const sendButton = document.querySelector("button");
+      inputField.disabled = true;
+      sendButton.disabled = true;
+      sendButton.textContent = "送信中...";
+
+      try {
+        // Send to chat API
+        const chatResponse = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: input })
+        });
+        
+        const chatData = await chatResponse.json();
+        
+        const charLine = document.createElement("p");
+        charLine.innerText = "れーぬ: " + chatData.response;
+        chatLog.appendChild(charLine);
+        
+        // Update level
+        const levelResponse = await fetch('/api/level', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ currentLevel, currentXP })
+        });
+        
+        const levelData = await levelResponse.json();
+        currentLevel = levelData.level;
+        currentXP = levelData.xp;
+        
+        // Save to localStorage
+        localStorage.setItem('mascotLevel', currentLevel.toString());
+        localStorage.setItem('mascotXP', currentXP.toString());
+        
+        updateLevelDisplay();
+        
+        if (levelData.leveledUp) {
+          const levelUpLine = document.createElement("p");
+          levelUpLine.innerText = `🎉 レベルアップ！レベル${currentLevel}になったよ！`;
+          levelUpLine.style.color = "#ff6b35";
+          levelUpLine.style.fontWeight = "bold";
+          chatLog.appendChild(levelUpLine);
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        const errorLine = document.createElement("p");
+        errorLine.innerText = "れーぬ: ごめんなさい、エラーが発生しました。もう一度試してくださいね。";
+        chatLog.appendChild(errorLine);
+      } finally {
+        inputField.disabled = false;
+        sendButton.disabled = false;
+        sendButton.textContent = "送信";
+        inputField.value = "";
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+    }
+
+    // Event listeners
+    document.getElementById("user-input").addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        talk();
+      }
+    });
+
+    // Initialize display
+    updateLevelDisplay();
+
+    // Add initial greeting
+    const greetingLine = document.createElement("p");
+    greetingLine.innerText = "れーぬ: こんにちは！ほうじょうれーぬだよ！館山のことなら何でも聞いてね♪";
+    greetingLine.style.color = "#006600";
+    chatLog.appendChild(greetingLine);
+  </script>
+</body>
+</html>
+
