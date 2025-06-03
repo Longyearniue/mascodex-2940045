@@ -1,427 +1,739 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ほうじょうれーぬ - 北条</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 2rem;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 { font-size: 2rem; }
-    .tagline {
-      display: inline-block;
-      background: #ffdd57;
-      color: #000;
-      font-weight: bold;
-      padding: .2rem .6rem;
-      border-radius: 8px;
-      margin-top: .4rem;
-    }
-    .mascots img {
-      width: 30%;
-      border-radius: 12px;
-      margin: 0 1%;
-    }
-    .section {
-      margin-top: 2rem;
-    }
-    #talk-ui {
-      margin-top: 2rem;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #f9f9f9;
-    }
-    #chat-log p {
-      margin: 0.5rem 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ほうじょうれーぬ - 北条</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Yu Gothic', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .mascot-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .mascot-gallery img {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2E8B57;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+        
+        .intro {
+            background: #F0F8FF;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #4682B4;
+        }
+        
+        .auth-section {
+            background: #F5F5F5;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .auth-section.show {
+            display: block;
+        }
+        
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 300px;
+        }
+        
+        .auth-form input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            autocomplete: off;
+        }
+        
+        .auth-form input[type="email"] {
+            autocomplete: new-email;
+        }
+        
+        .auth-form input[type="password"] {
+            autocomplete: new-password;
+        }
+        
+        .auth-form button {
+            padding: 10px;
+            background: #4682B4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .auth-form button:hover {
+            background: #5A9BD4;
+        }
+        
+        .auth-toggle {
+            color: #4682B4;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 10px;
+        }
+        
+        .user-info {
+            background: #E6F3FF;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .user-info.show {
+            display: block;
+        }
+        
+        .logout-btn {
+            background: #DC143C;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .chat-section {
+            background: #F0FFF0;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .chat-section.show {
+            display: block;
+        }
+        
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #98FB98;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .user-message {
+            background: #E3F2FD;
+            text-align: right;
+        }
+        
+        .mascot-message {
+            background: #F1F8E9;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #98FB98;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            autocomplete: off;
+        }
+        
+        .chat-input input:focus {
+            border-color: #32CD32;
+        }
+        
+        .chat-input button {
+            padding: 12px 24px;
+            background: #32CD32;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .chat-input button:hover {
+            background: #228B22;
+        }
+        
+        .level-display {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .level-bar {
+            width: 100%;
+            height: 20px;
+            background: #E0E0E0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .level-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #32CD32, #228B22);
+            transition: width 0.3s ease;
+        }
+        
+        .story-section {
+            background: #FFF8DC;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #DAA520;
+        }
+        
+        .story-section h2 {
+            color: #B8860B;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #DC143C;
+            background: #FFE4E1;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .success-message {
+            color: #006400;
+            background: #F0FFF0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            .mascot-gallery {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mascot-gallery img {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>千葉県 館山市 北条 の非公式ゆるキャラページ</h2>
-  <p class="tagline">勝手にご当地PR</p>
-
-  <h1>ほうじょうれーぬ</h1>
-  <p>〒2940045｜千葉県 館山市 北条</p>
-
-  <div class="mascots">
-    <img src="https://img.mascodex.com/2940045_01.png" alt="ほうじょうれーぬ 1">
-    <img src="https://img.mascodex.com/2940045_02.png" alt="ほうじょうれーぬ 2">
-    <img src="https://img.mascodex.com/2940045_03.png" alt="ほうじょうれーぬ 3">
-  </div>
-
-  <!-- 紹介セクション -->
-  <div class="section">
-    <h2>紹介</h2>
-    <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。地元の人たちに笑顔と温かさを届けながら、観光客にも館山の魅力を教える優しいれーぬです。</p>
-  </div>
-
-  <!-- ログインセクション -->
-  <div id="auth-section" style="margin-top: 2rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; background: #f0f8ff;">
-    <div id="login-form">
-      <h3>ログイン・新規登録</h3>
-      <div style="margin-bottom: 1rem;">
-        <input type="email" id="email" placeholder="メールアドレス" style="width: 200px; padding: 8px; margin-right: 10px;" autocomplete="username">
-        <input type="password" id="password" placeholder="パスワード" style="width: 200px; padding: 8px;" autocomplete="current-password">
-      </div>
-      <button onclick="login()" style="margin-right: 10px;">ログイン</button>
-      <button onclick="register()">新規登録</button>
-      <div id="auth-message" style="margin-top: 10px; color: red;"></div>
+    <div class="container">
+        <div class="mascot-gallery">
+            <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=150&h=150&fit=crop" alt="ほうじょうれーぬ 1">
+            <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&h=150&fit=crop" alt="ほうじょうれーぬ 2">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=150&h=150&fit=crop" alt="館山の海">
+        </div>
+        
+        <h1>紹介</h1>
+        <div class="intro">
+            館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。地元の人たちに笑顔と温かさを届けながら、観光客にも館山の魅力を教える優しいれーぬです。
+        </div>
+        
+        <!-- 認証セクション -->
+        <div id="auth-section" class="auth-section show">
+            <h2>ユーザー登録・ログイン</h2>
+            <div id="login-form" class="auth-form">
+                <input type="email" id="login-email" placeholder="メールアドレス" autocomplete="new-email">
+                <input type="password" id="login-password" placeholder="パスワード (6文字以上)" autocomplete="new-password">
+                <button onclick="login()">ログイン</button>
+                <div class="auth-toggle" onclick="showRegister()">新規登録はこちら</div>
+            </div>
+            
+            <div id="register-form" class="auth-form" style="display: none;">
+                <input type="email" id="register-email" placeholder="メールアドレス" autocomplete="new-email">
+                <input type="password" id="register-password" placeholder="パスワード (6文字以上)" autocomplete="new-password">
+                <button onclick="register()">新規登録</button>
+                <div class="auth-toggle" onclick="showLogin()">ログインはこちら</div>
+            </div>
+            
+            <div id="auth-error" class="error-message"></div>
+            <div id="auth-success" class="success-message"></div>
+        </div>
+        
+        <!-- ユーザー情報セクション -->
+        <div id="user-info" class="user-info">
+            <h2>ユーザー情報</h2>
+            <p id="user-greeting">ようこそ、<span id="user-email-display"></span>さん！</p>
+            <p>今日は<span id="daily-count">0</span>/5回話しました</p>
+            <p>連続<span id="consecutive-days">1</span>日会話中！</p>
+            <button class="logout-btn" onclick="logout()">ログアウト</button>
+        </div>
+        
+        <!-- チャットセクション -->
+        <div id="chat-section" class="chat-section">
+            <h2>ほうじょうれーぬと話そう！</h2>
+            <div id="chat-messages" class="chat-messages">
+                <div class="message mascot-message">
+                    れーぬ: こんにちは！ほうじょうれーぬだよ！館山のことなら何でも聞いてね♪
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="話しかけてね" autocomplete="off">
+                <button onclick="sendMessage()">送信</button>
+            </div>
+            
+            <div class="level-display">
+                <p>レベル：<span id="level">4</span></p>
+                <div class="level-bar">
+                    <div id="level-progress" class="level-progress"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="story-section">
+            <h2>ストーリー</h2>
+            <h3>青い体に貝殻の帽子</h3>
+            <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。新鮮な海の幸が大好きで、毎朝、波の音を聞きながらおいしい貝や魚を楽しみます。観光客にも館山の魅力を教える優しいれーぬです。</p>
+        </div>
     </div>
-    <div id="user-info" style="display: none;">
-      <h3>ユーザー情報</h3>
-      <p>ようこそ、<span id="user-email"></span>さん！</p>
-      <p id="daily-stats">今日は<span id="daily-count">0</span>/5回話しました</p>
-      <p id="streak-stats">連続<span id="consecutive-days">1</span>日会話中！</p>
-      <button onclick="logout()" style="margin-top: 10px;">ログアウト</button>
-    </div>
-  </div>
 
-  <!-- 会話セクション -->
-  <div id="talk-ui">
-    <h2>ほうじょうれーぬと話そう！</h2>
-    <div id="chat-log" style="min-height: 100px; margin-bottom: 1rem;"></div>
-    <input type="text" id="user-input" placeholder="話しかけてね" style="width: 70%;" autocomplete="off" name="chat-message">
-    <button onclick="talk()">送信</button>
-    <div style="margin-top: 1rem;">
-      <label>レベル：<span id="level">1</span></label>
-      <div style="background:#eee; height:20px; border-radius:10px; overflow:hidden;">
-        <div id="xp-bar" style="height:20px; background:#4caf50; width:5%;"></div>
-      </div>
-    </div>
-  </div>
+    <script>
+        // グローバル変数
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+        let mascotLevel = parseInt(localStorage.getItem('mascotLevel')) || 1;
+        let mascotXP = parseInt(localStorage.getItem('mascotXP')) || 0;
 
-  <!-- ストーリー -->
-  <div class="section">
-    <h2>ストーリー</h2>
-    <p>青い体に貝殻の帽子</p>
-    <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。新鮮な海の幸が大好きで、毎朝、波の音を聞きながらおいしい貝や魚を楽しみます。観光客にも館山の魅力を教える優しいれーぬです。</p>
-  </div>
-
-  <script>
-    // User authentication state
-    let currentUser = null;
-    let authToken = localStorage.getItem('authToken');
-    
-    // Initialize level data from localStorage
-    let currentLevel = parseInt(localStorage.getItem('mascotLevel') || '1');
-    let currentXP = parseInt(localStorage.getItem('mascotXP') || '0');
-    
-    // Level thresholds
-    const levelThresholds = [0, 1, 5, 10, 20, 50, 100, 200, 500, 1000];
-
-    const xpBar = document.getElementById("xp-bar");
-    const levelSpan = document.getElementById("level");
-    const chatLog = document.getElementById("chat-log");
-
-    // Update UI
-    function updateLevelDisplay() {
-        levelSpan.textContent = currentLevel;
-        
-        // Calculate progress to next level
-        const currentThreshold = levelThresholds[currentLevel - 1] || 0;
-        const nextThreshold = levelThresholds[currentLevel] || levelThresholds[levelThresholds.length - 1];
-        const progress = Math.min(100, ((currentXP - currentThreshold) / (nextThreshold - currentThreshold)) * 100);
-        
-        xpBar.style.width = progress + '%';
-    }
-
-    // Authentication functions
-    async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email || !password) {
-        showAuthMessage('メールアドレスとパスワードを入力してください', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password, action: 'login' })
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize display
+            updateLevelDisplay();
+            
+            // Immediately show cached stats if available
+            const userEmail = localStorage.getItem('userEmail');
+            if (userEmail) {
+              const today = new Date().toISOString().split('T')[0];
+              const userStatsKey = `userStats_${userEmail}_${today}`;
+              const cachedStats = localStorage.getItem(userStatsKey);
+              
+              if (cachedStats) {
+                const stats = JSON.parse(cachedStats);
+                document.getElementById('daily-count').textContent = stats.dailyChats;
+                document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
+              } else {
+                // Initialize with default values only if no cached stats exist
+                document.getElementById('daily-count').textContent = '0';
+                document.getElementById('consecutive-days').textContent = '1';
+                
+                // Create initial localStorage entry with default values
+                localStorage.setItem(userStatsKey, JSON.stringify({
+                  dailyChats: 0,
+                  consecutiveDays: 1,
+                  lastUpdated: new Date().toISOString()
+                }));
+              }
+            }
+            
+            // Check if user is already logged in
+            if (authToken && localStorage.getItem('userEmail')) {
+                currentUser = { 
+                    id: 'user_' + Math.random().toString(36).substr(2, 9),
+                    email: localStorage.getItem('userEmail')
+                };
+                showUserInfo();
+                updateUserStats();
+            }
+            
+            // Enter key support for inputs
+            document.getElementById('login-email').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            document.getElementById('login-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            document.getElementById('register-email').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') register();
+            });
+            document.getElementById('register-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') register();
+            });
+            document.getElementById('message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          currentUser = data.user;
-          authToken = data.token;
-          localStorage.setItem('authToken', authToken);
-          localStorage.setItem('userEmail', email);
+
+        // 認証関数
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            clearMessages();
+        }
+
+        function showLogin() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-success').style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('auth-success').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('auth-success');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('auth-error').style.display = 'none';
+        }
+
+        async function register() {
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            if (!email.includes('@')) {
+                showError('有効なメールアドレスを入力してください');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('パスワードは6文字以上で入力してください');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        action: 'register', 
+                        email: email, 
+                        password: password 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('登録が完了しました！ログインしてください。');
+                    setTimeout(() => {
+                        showLogin();
+                    }, 1500);
+                } else {
+                    showError(data.error || '登録に失敗しました');
+                }
+            } catch (error) {
+                showError('ネットワークエラーが発生しました');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email.includes('@')) {
+                showError('有効なメールアドレスを入力してください');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('パスワードは6文字以上で入力してください');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        action: 'login', 
+                        email: email, 
+                        password: password 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    authToken = data.token;
+                    currentUser = { 
+                        id: data.userId,
+                        email: email
+                    };
+                    
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userEmail', email);
+                    
+                    showUserInfo();
+                    updateUserStats();
+                } else {
+                    showError(data.error || 'ログインに失敗しました');
+                }
+            } catch (error) {
+                showError('ネットワークエラーが発生しました');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userEmail');
+            
+            document.getElementById('auth-section').classList.add('show');
+            document.getElementById('user-info').classList.remove('show');
+            document.getElementById('chat-section').classList.remove('show');
+            
+            showLogin();
+        }
+
+        function showUserInfo() {
+            document.getElementById('auth-section').classList.remove('show');
+            document.getElementById('user-info').classList.add('show');
+            document.getElementById('chat-section').classList.add('show');
+            
+            document.getElementById('user-email-display').textContent = currentUser.email;
+        }
+
+        // ユーザー統計更新
+        async function updateUserStats() {
+          const userEmail = currentUser?.email || localStorage.getItem('userEmail');
+          if (!userEmail) return;
           
-          showUserInfo();
-          updateUserStats();
-          showAuthMessage('ログインしました！', 'success');
-        } else {
-          showAuthMessage(data.error || 'ログインに失敗しました', 'error');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
-        showAuthMessage('ログインエラーが発生しました', 'error');
-      }
-    }
-
-    async function register() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email || !password) {
-        showAuthMessage('メールアドレスとパスワードを入力してください', 'error');
-        return;
-      }
-
-      if (password.length < 6) {
-        showAuthMessage('パスワードは6文字以上で入力してください', 'error');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, password, action: 'register' })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          currentUser = data.user;
-          authToken = data.token;
-          localStorage.setItem('authToken', authToken);
-          localStorage.setItem('userEmail', email);
+          const today = new Date().toISOString().split('T')[0];
+          const userStatsKey = `userStats_${userEmail}_${today}`;
           
-          showUserInfo();
-          updateUserStats();
-          showAuthMessage('登録完了！ログインしました', 'success');
-        } else {
-          showAuthMessage(data.error || '登録に失敗しました', 'error');
-        }
-      } catch (error) {
-        console.error('Register error:', error);
-        showAuthMessage('登録エラーが発生しました', 'error');
-      }
-    }
-
-    function logout() {
-      currentUser = null;
-      authToken = null;
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userEmail');
-      
-      document.getElementById('login-form').style.display = 'block';
-      document.getElementById('user-info').style.display = 'none';
-      showAuthMessage('ログアウトしました', 'success');
-    }
-
-    function showUserInfo() {
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('user-info').style.display = 'block';
-      document.getElementById('user-email').textContent = localStorage.getItem('userEmail') || '';
-    }
-
-    function showAuthMessage(message, type) {
-      const messageEl = document.getElementById('auth-message');
-      messageEl.textContent = message;
-      messageEl.style.color = type === 'error' ? 'red' : 'green';
-      setTimeout(() => {
-        messageEl.textContent = '';
-      }, 3000);
-    }
-
-    async function updateUserStats() {
-      if (!currentUser) return;
-      
-      // First try to load from localStorage
-      const today = new Date().toISOString().split('T')[0];
-      const userStatsKey = `userStats_${currentUser.email}_${today}`;
-      const cachedStats = localStorage.getItem(userStatsKey);
-      
-      if (cachedStats) {
-        const stats = JSON.parse(cachedStats);
-        document.getElementById('daily-count').textContent = stats.dailyChats;
-        document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
-      }
-      
-      try {
-        const response = await fetch('/api/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            userId: currentUser.id, 
-            action: 'getUserStats' 
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          document.getElementById('daily-count').textContent = data.dailyChats;
-          document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+          // First try to load from localStorage
+          const cachedStats = localStorage.getItem(userStatsKey);
+          if (cachedStats) {
+            const stats = JSON.parse(cachedStats);
+            document.getElementById('daily-count').textContent = stats.dailyChats;
+            document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
+            return;
+          }
           
-          // Save to localStorage
-          localStorage.setItem(userStatsKey, JSON.stringify({
-            dailyChats: data.dailyChats,
-            consecutiveDays: data.consecutiveDays,
-            lastUpdated: new Date().toISOString()
-          }));
-        }
-      } catch (error) {
-        console.error('Stats update error:', error);
-      }
-    }
-
-    async function talk() {
-      const input = document.getElementById("user-input").value;
-      if (!input) return;
-
-      // Check if user is logged in
-      if (!currentUser && !authToken) {
-        showAuthMessage('チャットするにはログインが必要です', 'error');
-        return;
-      }
-
-      const userLine = document.createElement("p");
-      userLine.innerText = "あなた: " + input;
-      chatLog.appendChild(userLine);
-
-      // Disable input during request
-      const inputField = document.getElementById("user-input");
-      const sendButton = document.querySelector("button");
-      inputField.disabled = true;
-      sendButton.disabled = true;
-      sendButton.textContent = "送信中...";
-
-      try {
-        // Send to chat API
-        const chatResponse = await fetch('/api/chat', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ message: input })
-        });
-        
-        const chatData = await chatResponse.json();
-        
-        const charLine = document.createElement("p");
-        charLine.innerText = "れーぬ: " + chatData.response;
-        chatLog.appendChild(charLine);
-        
-        // Update level
-        const levelResponse = await fetch('/api/level', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ currentLevel, currentXP })
-        });
-        
-        const levelData = await levelResponse.json();
-        currentLevel = levelData.level;
-        currentXP = levelData.xp;
-        
-        // Save to localStorage
-        localStorage.setItem('mascotLevel', currentLevel.toString());
-        localStorage.setItem('mascotXP', currentXP.toString());
-        
-        updateLevelDisplay();
-        
-        if (levelData.leveledUp) {
-          const levelUpLine = document.createElement("p");
-          levelUpLine.innerText = `🎉 レベルアップ！レベル${currentLevel}になったよ！`;
-          levelUpLine.style.color = "#ff6b35";
-          levelUpLine.style.fontWeight = "bold";
-          chatLog.appendChild(levelUpLine);
-        }
-
-        // Update user chat stats
-        if (currentUser) {
-          await fetch('/api/user', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-              userId: currentUser.id, 
-              action: 'incrementChat' 
-            })
-          }).then(response => response.json())
-            .then(data => {
-              if (data.success) {
+          // If no localStorage, try to get from API
+          if (currentUser) {
+            try {
+              const response = await fetch('/api/user', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                  userId: currentUser.id, 
+                  action: 'getUserStats' 
+                })
+              });
+              
+              const data = await response.json();
+              
+              if (data.success && !data.useLocalStorage) {
                 document.getElementById('daily-count').textContent = data.dailyChats;
                 document.getElementById('consecutive-days').textContent = data.consecutiveDays;
                 
-                // Save updated stats to localStorage
-                const today = new Date().toISOString().split('T')[0];
-                const userStatsKey = `userStats_${currentUser.email}_${today}`;
+                // Save to localStorage for future use
                 localStorage.setItem(userStatsKey, JSON.stringify({
                   dailyChats: data.dailyChats,
                   consecutiveDays: data.consecutiveDays,
                   lastUpdated: new Date().toISOString()
                 }));
-                
-                if (data.dailyChats >= data.maxDailyChats) {
-                  const limitLine = document.createElement("p");
-                  limitLine.innerText = "れーぬ: 今日はたくさんお話ししたね！また明日話そうね♪";
-                  limitLine.style.color = "#ff6b35";
-                  limitLine.style.fontWeight = "bold";
-                  chatLog.appendChild(limitLine);
-                }
+                return;
               }
-            });
+            } catch (error) {
+              console.error('Stats update error:', error);
+            }
+          }
+          
+          // Fallback: create default stats
+          const defaultStats = {
+            dailyChats: 0,
+            consecutiveDays: 1,
+            lastUpdated: new Date().toISOString()
+          };
+          
+          localStorage.setItem(userStatsKey, JSON.stringify(defaultStats));
+          document.getElementById('daily-count').textContent = defaultStats.dailyChats;
+          document.getElementById('consecutive-days').textContent = defaultStats.consecutiveDays;
         }
-        
-      } catch (error) {
-        console.error('Error:', error);
-        const errorLine = document.createElement("p");
-        errorLine.innerText = "れーぬ: ごめんなさい、エラーが発生しました。もう一度試してくださいね。";
-        chatLog.appendChild(errorLine);
-      } finally {
-        inputField.disabled = false;
-        sendButton.disabled = false;
-        sendButton.textContent = "送信";
-        inputField.value = "";
-        chatLog.scrollTop = chatLog.scrollHeight;
-      }
-    }
 
-    // Event listeners
-    document.getElementById("user-input").addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        talk();
-      }
-    });
+        // チャット機能
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            if (!currentUser) {
+                alert('チャットするにはログインが必要です');
+                return;
+            }
 
-    // Initialize display
-    updateLevelDisplay();
+            // Check daily limit
+            const dailyCount = parseInt(document.getElementById('daily-count').textContent);
+            if (dailyCount >= 5) {
+                alert('今日の会話回数上限（5回）に達しました。明日また話しかけてね！');
+                return;
+            }
 
-    // Check if user is already logged in
-    if (authToken && localStorage.getItem('userEmail')) {
-      currentUser = { 
-        id: 'user_' + Math.random().toString(36).substr(2, 9),
-        email: localStorage.getItem('userEmail')
-      };
-      showUserInfo();
-      updateUserStats();
-    }
+            // Add user message to chat
+            addMessage('あなた: ' + message, 'user-message');
+            input.value = '';
 
-    // Add initial greeting
-    const greetingLine = document.createElement("p");
-    greetingLine.innerText = "れーぬ: こんにちは！ほうじょうれーぬだよ！館山のことなら何でも聞いてね♪";
-    greetingLine.style.color = "#006600";
-    chatLog.appendChild(greetingLine);
-  </script>
+            try {
+                // Send to chat API
+                const chatResponse = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const chatData = await chatResponse.json();
+
+                if (chatData.success) {
+                    addMessage('れーぬ: ' + chatData.response, 'mascot-message');
+                    
+                    // Update user stats
+                    await updateChatCount();
+                    
+                    // Add XP and check for level up
+                    addXP(10);
+                } else {
+                    addMessage('れーぬ: ごめんね、今ちょっと調子が悪いの...', 'mascot-message');
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                addMessage('れーぬ: ネットワークエラーが発生したよ...', 'mascot-message');
+            }
+        }
+
+        function addMessage(text, className) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + className;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function updateChatCount() {
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        userId: currentUser.id, 
+                        action: 'incrementChat' 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('daily-count').textContent = data.dailyChats;
+                    document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+                    
+                    // Update localStorage
+                    const userEmail = currentUser.email;
+                    const today = new Date().toISOString().split('T')[0];
+                    const userStatsKey = `userStats_${userEmail}_${today}`;
+                    
+                    localStorage.setItem(userStatsKey, JSON.stringify({
+                        dailyChats: data.dailyChats,
+                        consecutiveDays: data.consecutiveDays,
+                        lastUpdated: new Date().toISOString()
+                    }));
+                }
+            } catch (error) {
+                console.error('Chat count update error:', error);
+            }
+        }
+
+        // レベルシステム
+        function addXP(amount) {
+            mascotXP += amount;
+            localStorage.setItem('mascotXP', mascotXP);
+            
+            // Check for level up
+            const xpNeeded = mascotLevel * 100;
+            if (mascotXP >= xpNeeded) {
+                mascotLevel++;
+                mascotXP = 0;
+                localStorage.setItem('mascotLevel', mascotLevel);
+                localStorage.setItem('mascotXP', mascotXP);
+                
+                addMessage('🎉 レベルアップ！レベル' + mascotLevel + 'になったよ！', 'mascot-message');
+            }
+            
+            updateLevelDisplay();
+        }
+
+        function updateLevelDisplay() {
+            document.getElementById('level').textContent = mascotLevel;
+            
+            const xpNeeded = mascotLevel * 100;
+            const progress = (mascotXP / xpNeeded) * 100;
+            document.getElementById('level-progress').style.width = progress + '%';
+        }
+    </script>
 </body>
 </html>
-
