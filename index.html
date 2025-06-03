@@ -22,19 +22,17 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         
-        .mascot-gallery {
+        .mascots {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin-bottom: 30px;
         }
         
-        .mascot-gallery img {
-            width: 150px;
-            height: 150px;
-            border-radius: 15px;
-            object-fit: cover;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .mascots img {
+            width: 30%;
+            border-radius: 12px;
+            margin: 0 1%;
         }
         
         h1 {
@@ -251,14 +249,14 @@
         }
         
         @media (max-width: 600px) {
-            .mascot-gallery {
+            .mascots {
                 flex-direction: column;
                 align-items: center;
             }
             
-            .mascot-gallery img {
-                width: 120px;
-                height: 120px;
+            .mascots img {
+                width: 80%;
+                margin: 10px 0;
             }
             
             .container {
@@ -270,10 +268,10 @@
 </head>
 <body>
     <div class="container">
-        <div class="mascot-gallery">
-            <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=150&h=150&fit=crop" alt="ほうじょうれーぬ 1">
-            <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=150&h=150&fit=crop" alt="ほうじょうれーぬ 2">
-            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=150&h=150&fit=crop" alt="館山の海">
+        <div class="mascots">
+            <img src="https://img.mascodex.com/2940045_01.png" alt="ほうじょうれーぬ 1">
+            <img src="https://img.mascodex.com/2940045_02.png" alt="ほうじょうれーぬ 2">
+            <img src="https://img.mascodex.com/2940045_03.png" alt="ほうじょうれーぬ 3">
         </div>
         
         <h1>紹介</h1>
@@ -281,7 +279,6 @@
             館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。地元の人たちに笑顔と温かさを届けながら、観光客にも館山の魅力を教える優しいれーぬです。
         </div>
         
-        <!-- 認証セクション -->
         <div id="auth-section" class="auth-section show">
             <h2>ユーザー登録・ログイン</h2>
             <div id="login-form" class="auth-form">
@@ -302,7 +299,6 @@
             <div id="auth-success" class="success-message"></div>
         </div>
         
-        <!-- ユーザー情報セクション -->
         <div id="user-info" class="user-info">
             <h2>ユーザー情報</h2>
             <p id="user-greeting">ようこそ、<span id="user-email-display"></span>さん！</p>
@@ -311,7 +307,6 @@
             <button class="logout-btn" onclick="logout()">ログアウト</button>
         </div>
         
-        <!-- チャットセクション -->
         <div id="chat-section" class="chat-section">
             <h2>ほうじょうれーぬと話そう！</h2>
             <div id="chat-messages" class="chat-messages">
@@ -335,59 +330,44 @@
         
         <div class="story-section">
             <h2>ストーリー</h2>
-            <h3>青い体に貝殻の帽子</h3>
-            <p>館山湾の穏やかな海のそばで育ったほうじょうれーぬは、青い体と貝殻の帽子がチャームポイント。新鮮な海の幸が大好きで、毎朝、波の音を聞きながらおいしい貝や魚を楽しみます。観光客にも館山の魅力を教える優しいれーぬです。</p>
+            <p>館山市北条からやってきた「ほうじょうれーぬ」は、北条海岸の風と砂をまとって生まれた、不思議な力を持つゆるキャラです。地域の歴史と未来をつなぐ「記憶の貝殻」を集めていて、旅人と出会うたびにレベルアップします。あなたの訪問が、れーぬの成長に繋がります！</p>
         </div>
     </div>
 
     <script>
-        // グローバル変数
         let currentUser = null;
         let authToken = localStorage.getItem('authToken');
         let mascotLevel = parseInt(localStorage.getItem('mascotLevel')) || 1;
         let mascotXP = parseInt(localStorage.getItem('mascotXP')) || 0;
 
-        // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize display
             updateLevelDisplay();
             
-            // Immediately show cached stats if available
             const userEmail = localStorage.getItem('userEmail');
             if (userEmail) {
-              const today = new Date().toISOString().split('T')[0];
-              const userStatsKey = `userStats_${userEmail}_${today}`;
-              const cachedStats = localStorage.getItem(userStatsKey);
-              
-              if (cachedStats) {
-                const stats = JSON.parse(cachedStats);
-                document.getElementById('daily-count').textContent = stats.dailyChats;
-                document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
-              } else {
-                // Initialize with default values only if no cached stats exist
-                document.getElementById('daily-count').textContent = '0';
-                document.getElementById('consecutive-days').textContent = '1';
+                const today = new Date().toISOString().split('T')[0];
+                const userStatsKey = `userStats_${userEmail}_${today}`;
+                const cachedStats = localStorage.getItem(userStatsKey);
                 
-                // Create initial localStorage entry with default values
-                localStorage.setItem(userStatsKey, JSON.stringify({
-                  dailyChats: 0,
-                  consecutiveDays: 1,
-                  lastUpdated: new Date().toISOString()
-                }));
-              }
+                if (cachedStats) {
+                    const stats = JSON.parse(cachedStats);
+                    document.getElementById('daily-count').textContent = stats.dailyChats;
+                    document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
+                }
             }
             
-            // Check if user is already logged in
             if (authToken && localStorage.getItem('userEmail')) {
                 currentUser = { 
                     id: 'user_' + Math.random().toString(36).substr(2, 9),
                     email: localStorage.getItem('userEmail')
                 };
                 showUserInfo();
-                updateUserStats();
+                
+                setTimeout(() => {
+                    updateUserStats();
+                }, 0);
             }
             
-            // Enter key support for inputs
             document.getElementById('login-email').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') login();
             });
@@ -405,7 +385,6 @@
             });
         });
 
-        // 認証関数
         function showRegister() {
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('register-form').style.display = 'block';
@@ -549,69 +528,53 @@
             document.getElementById('user-email-display').textContent = currentUser.email;
         }
 
-        // ユーザー統計更新
         async function updateUserStats() {
-          const userEmail = currentUser?.email || localStorage.getItem('userEmail');
-          if (!userEmail) return;
-          
-          const today = new Date().toISOString().split('T')[0];
-          const userStatsKey = `userStats_${userEmail}_${today}`;
-          
-          // First try to load from localStorage
-          const cachedStats = localStorage.getItem(userStatsKey);
-          if (cachedStats) {
-            const stats = JSON.parse(cachedStats);
-            document.getElementById('daily-count').textContent = stats.dailyChats;
-            document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
-            return;
-          }
-          
-          // If no localStorage, try to get from API
-          if (currentUser) {
-            try {
-              const response = await fetch('/api/user', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                  userId: currentUser.id, 
-                  action: 'getUserStats' 
-                })
-              });
-              
-              const data = await response.json();
-              
-              if (data.success && !data.useLocalStorage) {
-                document.getElementById('daily-count').textContent = data.dailyChats;
-                document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+            const userEmail = currentUser?.email || localStorage.getItem('userEmail');
+            if (!userEmail) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const userStatsKey = `userStats_${userEmail}_${today}`;
+            const cachedStats = localStorage.getItem(userStatsKey);
+            
+            if (cachedStats) {
+                const stats = JSON.parse(cachedStats);
+                document.getElementById('daily-count').textContent = stats.dailyChats;
+                document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
                 
-                // Save to localStorage for future use
-                localStorage.setItem(userStatsKey, JSON.stringify({
-                  dailyChats: data.dailyChats,
-                  consecutiveDays: data.consecutiveDays,
-                  lastUpdated: new Date().toISOString()
-                }));
-                return;
-              }
-            } catch (error) {
-              console.error('Stats update error:', error);
+                if (!currentUser) return;
             }
-          }
-          
-          // Fallback: create default stats
-          const defaultStats = {
-            dailyChats: 0,
-            consecutiveDays: 1,
-            lastUpdated: new Date().toISOString()
-          };
-          
-          localStorage.setItem(userStatsKey, JSON.stringify(defaultStats));
-          document.getElementById('daily-count').textContent = defaultStats.dailyChats;
-          document.getElementById('consecutive-days').textContent = defaultStats.consecutiveDays;
+            
+            if (!currentUser) return;
+            
+            try {
+                const response = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        userId: currentUser.id, 
+                        action: 'getUserStats' 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('daily-count').textContent = data.dailyChats;
+                    document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+                    
+                    localStorage.setItem(userStatsKey, JSON.stringify({
+                        dailyChats: data.dailyChats,
+                        consecutiveDays: data.consecutiveDays,
+                        lastUpdated: new Date().toISOString()
+                    }));
+                }
+            } catch (error) {
+                console.error('Stats update error:', error);
+            }
         }
 
-        // チャット機能
         async function sendMessage() {
             const input = document.getElementById('message-input');
             const message = input.value.trim();
@@ -622,19 +585,16 @@
                 return;
             }
 
-            // Check daily limit
             const dailyCount = parseInt(document.getElementById('daily-count').textContent);
             if (dailyCount >= 5) {
                 alert('今日の会話回数上限（5回）に達しました。明日また話しかけてね！');
                 return;
             }
 
-            // Add user message to chat
             addMessage('あなた: ' + message, 'user-message');
             input.value = '';
 
             try {
-                // Send to chat API
                 const chatResponse = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
@@ -648,10 +608,8 @@
                 if (chatData.success) {
                     addMessage('れーぬ: ' + chatData.response, 'mascot-message');
                     
-                    // Update user stats
                     await updateChatCount();
                     
-                    // Add XP and check for level up
                     addXP(10);
                 } else {
                     addMessage('れーぬ: ごめんね、今ちょっと調子が悪いの...', 'mascot-message');
@@ -692,7 +650,6 @@
                     document.getElementById('daily-count').textContent = data.dailyChats;
                     document.getElementById('consecutive-days').textContent = data.consecutiveDays;
                     
-                    // Update localStorage
                     const userEmail = currentUser.email;
                     const today = new Date().toISOString().split('T')[0];
                     const userStatsKey = `userStats_${userEmail}_${today}`;
@@ -708,12 +665,10 @@
             }
         }
 
-        // レベルシステム
         function addXP(amount) {
             mascotXP += amount;
             localStorage.setItem('mascotXP', mascotXP);
             
-            // Check for level up
             const xpNeeded = mascotLevel * 100;
             if (mascotXP >= xpNeeded) {
                 mascotLevel++;
