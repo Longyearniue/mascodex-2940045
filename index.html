@@ -64,8 +64,8 @@
     <div id="login-form">
       <h3>ログイン・新規登録</h3>
       <div style="margin-bottom: 1rem;">
-        <input type="email" id="email" placeholder="メールアドレス" style="width: 200px; padding: 8px; margin-right: 10px;">
-        <input type="password" id="password" placeholder="パスワード" style="width: 200px; padding: 8px;">
+        <input type="email" id="email" placeholder="メールアドレス" style="width: 200px; padding: 8px; margin-right: 10px;" autocomplete="username">
+        <input type="password" id="password" placeholder="パスワード" style="width: 200px; padding: 8px;" autocomplete="current-password">
       </div>
       <button onclick="login()" style="margin-right: 10px;">ログイン</button>
       <button onclick="register()">新規登録</button>
@@ -84,7 +84,7 @@
   <div id="talk-ui">
     <h2>ほうじょうれーぬと話そう！</h2>
     <div id="chat-log" style="min-height: 100px; margin-bottom: 1rem;"></div>
-    <input type="text" id="user-input" placeholder="話しかけてね" style="width: 70%;" autocomplete="off">
+    <input type="text" id="user-input" placeholder="話しかけてね" style="width: 70%;" autocomplete="off" name="chat-message">
     <button onclick="talk()">送信</button>
     <div style="margin-top: 1rem;">
       <label>レベル：<span id="level">1</span></label>
@@ -397,4 +397,5 @@
   </script>
 </body>
 </html>
+
 
