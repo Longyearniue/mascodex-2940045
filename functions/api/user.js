@@ -20,7 +20,6 @@ export async function onRequest(context) {
         const today = new Date().toISOString().split('T')[0];
         const userKey = `user_${userId}_${today}`;
         
-        // Get existing data from a simple in-memory store (simulated with global variable)
         if (!globalThis.userDataStore) {
           globalThis.userDataStore = {};
         }
@@ -47,7 +46,6 @@ export async function onRequest(context) {
           userData.lastChatDate = today;
         }
         
-        // Save updated data
         globalThis.userDataStore[userKey] = userData;
 
         return new Response(JSON.stringify({
