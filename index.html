@@ -240,6 +240,17 @@
     async function updateUserStats() {
       if (!currentUser) return;
       
+      // First try to load from localStorage
+      const today = new Date().toISOString().split('T')[0];
+      const userStatsKey = `userStats_${currentUser.email}_${today}`;
+      const cachedStats = localStorage.getItem(userStatsKey);
+      
+      if (cachedStats) {
+        const stats = JSON.parse(cachedStats);
+        document.getElementById('daily-count').textContent = stats.dailyChats;
+        document.getElementById('consecutive-days').textContent = stats.consecutiveDays;
+      }
+      
       try {
         const response = await fetch('/api/user', {
           method: 'POST',
@@ -257,6 +268,13 @@
         if (data.success) {
           document.getElementById('daily-count').textContent = data.dailyChats;
           document.getElementById('consecutive-days').textContent = data.consecutiveDays;
+          
+          // Save to localStorage
+          localStorage.setItem(userStatsKey, JSON.stringify({
+            dailyChats: data.dailyChats,
+            consecutiveDays: data.consecutiveDays,
+            lastUpdated: new Date().toISOString()
+          }));
         }
       } catch (error) {
         console.error('Stats update error:', error);
@@ -344,6 +362,15 @@
                 document.getElementById('daily-count').textContent = data.dailyChats;
                 document.getElementById('consecutive-days').textContent = data.consecutiveDays;
                 
+                // Save updated stats to localStorage
+                const today = new Date().toISOString().split('T')[0];
+                const userStatsKey = `userStats_${currentUser.email}_${today}`;
+                localStorage.setItem(userStatsKey, JSON.stringify({
+                  dailyChats: data.dailyChats,
+                  consecutiveDays: data.consecutiveDays,
+                  lastUpdated: new Date().toISOString()
+                }));
+                
                 if (data.dailyChats >= data.maxDailyChats) {
                   const limitLine = document.createElement("p");
                   limitLine.innerText = "れーぬ: 今日はたくさんお話ししたね！また明日話そうね♪";
@@ -397,5 +424,4 @@
   </script>
 </body>
 </html>
-
 
