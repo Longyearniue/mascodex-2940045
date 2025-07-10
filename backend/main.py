@@ -17,7 +17,7 @@ load_dotenv()
 Base.metadata.create_all(bind=engine)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
 
 # ElevenLabs
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
@@ -104,8 +104,14 @@ def _save_upload(ceo_id: int, upload_file: UploadFile, base_dir: str):
     ceo_dir = os.path.join(base_dir, f"ceo_{ceo_id}")
     os.makedirs(ceo_dir, exist_ok=True)
     file_path = os.path.join(ceo_dir, upload_file.filename)
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(upload_file.file, buffer)
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(upload_file.file, buffer)
+    except Exception as e:
+        # Cleanup partial file if exists
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {e}")
     return file_path
 
 
@@ -222,13 +228,24 @@ def synthesize_voice(ceo_id: int, payload: schemas.ChatRequest):
     }
 
     import requests
-    resp = requests.post(url, headers=headers, json=data)
+    try:
+        resp = requests.post(url, headers=headers, json=data, stream=True, timeout=60)
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=500, detail=f"ElevenLabs network error: {exc}")
+
     if resp.status_code != 200:
         raise HTTPException(status_code=500, detail=f"ElevenLabs error: {resp.text}")
 
-    # Stream audio back to client
+    def iter_audio():
+        try:
+            for chunk in resp.iter_content(chunk_size=1024):
+                if chunk:
+                    yield chunk
+        finally:
+            resp.close()
+
     return StreamingResponse(
-        iter([resp.content]),
+        iter_audio(),
         media_type="audio/mpeg",
         headers={"Content-Disposition": "inline; filename=voice.mp3"},
     )

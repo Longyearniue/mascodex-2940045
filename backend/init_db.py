@@ -1,4 +1,7 @@
-from database import engine, Base
+try:
+    from database import engine, Base
+except ImportError:  # when run as module
+    from .database import engine, Base
 
 
 def init_db():

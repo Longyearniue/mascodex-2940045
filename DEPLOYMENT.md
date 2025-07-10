@@ -103,3 +103,28 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 • Run `poetry update` / `npm update` monthly.  
 • Review OpenAI / ElevenLabs quota usage and costs.  
 • Rotate API keys at least every 90 days.
+
+---
+
+## 8. Scaling & Performance
+
+| Layer | Strategy |
+|-------|----------|
+| Backend | • Use **Gunicorn** with `uvicorn.workers.UvicornWorker`, e.g. `gunicorn -k uvicorn.workers.UvicornWorker -w 8 -b 0.0.0.0:8000 backend.main:app`  
+• Enable HTTP/2 and keep-alive with a front Nginx / Traefik proxy  
+• Add a Redis cache for conversation history if DB load grows |
+| Database | • Migrate from SQLite → PostgreSQL for concurrency  
+• Use connection pooling (e.g. `asyncpg`)  |
+| AI API | • Batch requests when possible  
+• Use streaming responses from OpenAI to reduce latency |
+| Frontend | • Enable gzip / brotli compression  
+• Serve static assets from a CDN |
+
+## 9. Advanced Security Hardening
+
+1. **Secrets management** – store API keys in AWS Secrets Manager / Vault rather than `.env` in prod.  
+2. **CSP headers** – add a strict Content-Security-Policy via the reverse proxy.  
+3. **Rate limiting** – protect the `/api/chat` and synthesis endpoints (e.g. Traefik plugin or FastAPI middleware).  
+4. **Audit logging** – record all admin actions & file uploads.  
+5. **Supply-chain scanning** – run `pip-audit` & `npm audit` in CI.  
+6. **Automatic DB migrations** – introduce Alembic for schema management.
