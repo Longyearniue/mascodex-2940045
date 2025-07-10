@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 import os
 import shutil
@@ -16,12 +17,23 @@ load_dotenv()
 Base.metadata.create_all(bind=engine)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+
+# ElevenLabs
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "Rachel")
 
 app = FastAPI(title="AI CEO Clone API", version="0.1.0")
 
+# ---------------------------------------------
+# CORS configuration
+# ---------------------------------------------
+frontend_origins_env = os.getenv("FRONTEND_ORIGINS", "http://localhost:5173")
+allow_origins = [origin.strip() for origin in frontend_origins_env.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -97,6 +109,10 @@ def _save_upload(ceo_id: int, upload_file: UploadFile, base_dir: str):
     return file_path
 
 
+# Allowed file extensions
+DOC_ALLOWED_EXTS = {".pdf", ".docx", ".txt"}
+VOICE_ALLOWED_EXTS = {".mp3", ".wav"}
+
 @app.post("/api/ceos/{ceo_id}/documents", response_model=schemas.DocumentOut)
 def upload_document(
     ceo_id: int,
@@ -107,6 +123,10 @@ def upload_document(
     ceo = db.query(models.CeoProfile).filter(models.CeoProfile.id == ceo_id).first()
     if not ceo:
         raise HTTPException(status_code=404, detail="CEO not found")
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in DOC_ALLOWED_EXTS:
+        raise HTTPException(status_code=400, detail="Unsupported document type")
 
     path = _save_upload(ceo_id, file, DOC_DIR)
     doc = models.Document(ceo_id=ceo_id, filename=file.filename, filepath=path)
@@ -125,6 +145,10 @@ def upload_voice(
     ceo = db.query(models.CeoProfile).filter(models.CeoProfile.id == ceo_id).first()
     if not ceo:
         raise HTTPException(status_code=404, detail="CEO not found")
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in VOICE_ALLOWED_EXTS:
+        raise HTTPException(status_code=400, detail="Unsupported audio type")
 
     path = _save_upload(ceo_id, file, VOICE_DIR)
     voice = models.VoiceSample(ceo_id=ceo_id, filename=file.filename, filepath=path)
@@ -156,7 +180,7 @@ def chat(ceo_id: int, payload: schemas.ChatRequest, db: Session = Depends(get_db
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",  # adjust model as needed
+            model=OPENAI_MODEL,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": payload.message},
@@ -171,3 +195,40 @@ def chat(ceo_id: int, payload: schemas.ChatRequest, db: Session = Depends(get_db
     db.commit()
 
     return {"reply": reply_content}
+
+
+# ---------------------------------------------
+# ElevenLabs Voice Synthesis
+# ---------------------------------------------
+
+
+@app.post("/api/ceos/{ceo_id}/synthesize_voice")
+def synthesize_voice(ceo_id: int, payload: schemas.ChatRequest):
+    if not ELEVENLABS_API_KEY:
+        raise HTTPException(status_code=500, detail="ElevenLabs API key not configured")
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"
+    headers = {
+        "xi-api-key": ELEVENLABS_API_KEY,
+        "Content-Type": "application/json",
+    }
+    data = {
+        "text": payload.message,
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75,
+        },
+    }
+
+    import requests
+    resp = requests.post(url, headers=headers, json=data)
+    if resp.status_code != 200:
+        raise HTTPException(status_code=500, detail=f"ElevenLabs error: {resp.text}")
+
+    # Stream audio back to client
+    return StreamingResponse(
+        iter([resp.content]),
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": "inline; filename=voice.mp3"},
+    )
