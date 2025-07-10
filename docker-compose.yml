@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./ai_clone.db
+      - SECRET_KEY=your-secret-key-here-change-in-production
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - MAX_FILE_SIZE=10485760
+      - UPLOAD_DIR=./uploads
+      - ALLOWED_ORIGINS=["http://localhost:3000", "http://localhost:5173"]
+      - DEBUG=true
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/ai_clone.db:/app/ai_clone.db
+    command: poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    command: npm run dev
+
+volumes:
+  uploads:
+  database:
