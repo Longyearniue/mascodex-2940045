@@ -20,15 +20,16 @@ This document describes how to deploy the full-stack application (FastAPI + Reac
 ### Backend (`backend/.env`)
 ```
 OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-4o-mini          # (optional) override default model
+OPENAI_MODEL=gpt-4          # (optional) override default model
 ELEVENLABS_API_KEY=your_elevenlabs_api_key
 ELEVENLABS_VOICE_ID=Rachel        # (optional) ElevenLabs voice ID
 DATABASE_URL=sqlite:///./ai_clone.db
 UPLOAD_DIR=uploads                # (optional) where files are stored
 FRONTEND_ORIGINS=http://localhost:5173  # comma-separated list for CORS
+RATE_LIMIT=60                   # requests per minute per IP
 ```
 
-### Frontend (`frontend/.env`)
+# Frontend (`frontend/.env`)
 ```
 VITE_API_BASE_URL=http://localhost:8000/api
 ```
@@ -73,7 +74,7 @@ The `dist/` directory can be served by any static file server or copied to an S3
 ```bash
 cd backend
 poetry install --no-root --no-dev  # or pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 main:app
 ```
 
 > Consider using **systemd**, **supervisord** or **Docker** for process management.

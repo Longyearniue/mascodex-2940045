@@ -7,6 +7,10 @@ import shutil
 from typing import List
 from dotenv import load_dotenv
 import openai
+import time
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from .database import get_db, Base, engine
 from . import models, schemas
@@ -45,6 +49,57 @@ VOICE_DIR = os.path.join(UPLOAD_DIR, "voices")
 
 os.makedirs(DOC_DIR, exist_ok=True)
 os.makedirs(VOICE_DIR, exist_ok=True)
+
+# ---------------------------------------------
+# Security headers middleware
+# ---------------------------------------------
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        # HSTS – enabled only if HTTPS is used. Comment out during local dev without TLS
+        if request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+        return response
+
+
+# ---------------------------------------------
+# Simple in-memory IP rate limiting
+# ---------------------------------------------
+
+
+RATE_LIMIT = int(os.getenv("RATE_LIMIT", "60"))  # requests per minute
+_ip_buckets: dict[str, list[float]] = {}
+
+
+class RateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        client_ip = request.client.host if request.client else "anonymous"
+        now = time.time()
+        window_start = now - 60  # 1 minute window
+
+        bucket = _ip_buckets.setdefault(client_ip, [])
+        # prune old timestamps
+        while bucket and bucket[0] < window_start:
+            bucket.pop(0)
+
+        if len(bucket) >= RATE_LIMIT:
+            return Response(
+                content="Rate limit exceeded",
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        bucket.append(now)
+        return await call_next(request)
+
+
+# Register middlewares
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware)
 
 # ---------------------------------------------
 # CEO Profiles
@@ -118,6 +173,30 @@ def _save_upload(ceo_id: int, upload_file: UploadFile, base_dir: str):
 # Allowed file extensions
 DOC_ALLOWED_EXTS = {".pdf", ".docx", ".txt"}
 VOICE_ALLOWED_EXTS = {".mp3", ".wav"}
+DOC_ALLOWED_MIMES = {
+    "application/pdf",
+    "text/plain",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+}
+VOICE_ALLOWED_MIMES = {"audio/mpeg", "audio/wav"}
+
+
+def _validate_upload(file: UploadFile, allowed_exts: set[str], allowed_mimes: set[str]):
+    # extension check
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed_exts:
+        raise HTTPException(status_code=400, detail=f"Unsupported file extension: {ext}")
+
+    # mime check
+    if file.content_type not in allowed_mimes:
+        raise HTTPException(status_code=400, detail=f"Unsupported content type: {file.content_type}")
+
+    # optional: size limit via header
+    size_header = file.headers.get("content-length")
+    max_size_mb = 10
+    if size_header and int(size_header) > max_size_mb * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large (limit 10 MB)")
+
 
 @app.post("/api/ceos/{ceo_id}/documents", response_model=schemas.DocumentOut)
 def upload_document(
@@ -130,9 +209,7 @@ def upload_document(
     if not ceo:
         raise HTTPException(status_code=404, detail="CEO not found")
 
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in DOC_ALLOWED_EXTS:
-        raise HTTPException(status_code=400, detail="Unsupported document type")
+    _validate_upload(file, DOC_ALLOWED_EXTS, DOC_ALLOWED_MIMES)
 
     path = _save_upload(ceo_id, file, DOC_DIR)
     doc = models.Document(ceo_id=ceo_id, filename=file.filename, filepath=path)
@@ -152,9 +229,7 @@ def upload_voice(
     if not ceo:
         raise HTTPException(status_code=404, detail="CEO not found")
 
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in VOICE_ALLOWED_EXTS:
-        raise HTTPException(status_code=400, detail="Unsupported audio type")
+    _validate_upload(file, VOICE_ALLOWED_EXTS, VOICE_ALLOWED_MIMES)
 
     path = _save_upload(ceo_id, file, VOICE_DIR)
     voice = models.VoiceSample(ceo_id=ceo_id, filename=file.filename, filepath=path)
