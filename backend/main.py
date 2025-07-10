@@ -61,6 +61,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        # Basic CSP allowing APIs and self static. Adjust for production as needed.
+        response.headers["Content-Security-Policy"] = "default-src 'self'; connect-src *; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
         # HSTS – enabled only if HTTPS is used. Comment out during local dev without TLS
         if request.url.scheme == "https":
             response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
@@ -72,7 +75,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 # ---------------------------------------------
 
 
-RATE_LIMIT = int(os.getenv("RATE_LIMIT", "60"))  # requests per minute
+RATE_LIMIT = int(os.getenv("RATE_LIMIT", "60"))  # requests per window per IP
+RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))  # seconds
 _ip_buckets: dict[str, list[float]] = {}
 
 
@@ -80,7 +84,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         client_ip = request.client.host if request.client else "anonymous"
         now = time.time()
-        window_start = now - 60  # 1 minute window
+        window_start = now - RATE_LIMIT_WINDOW
 
         bucket = _ip_buckets.setdefault(client_ip, [])
         # prune old timestamps
