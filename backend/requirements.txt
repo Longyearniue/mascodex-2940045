@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+SQLAlchemy==2.0.30
+pydantic>=2
+python-multipart
+aiofiles
+openai
+requests
