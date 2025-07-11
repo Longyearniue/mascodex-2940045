@@ -1,6 +1,6 @@
 import os
 import asyncio
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from openai import AsyncOpenAI
 from elevenlabs import generate, save, set_api_key
 from config import settings
@@ -76,6 +76,7 @@ class AIService:
 3. 質問に対しては、CEOとしての視点から回答してください
 4. 日本語で自然な会話を心がけてください
 5. 回答は簡潔で分かりやすくしてください
+6. 経営者としての洞察とリーダーシップを表現してください
 """
         
         # Build conversation history
@@ -101,6 +102,65 @@ class AIService:
         except Exception as e:
             logger.error(f"OpenAI API error: {e}")
             return "申し訳ございませんが、現在回答を生成できません。しばらく時間をおいてから再度お試しください。"
+    
+    async def analyze_sentiment(self, text: str) -> Dict[str, Any]:
+        """Analyze sentiment of user input"""
+        async with self._initialization_lock:
+            await self._initialize_openai()
+        
+        try:
+            response = await self._openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "テキストの感情分析を行い、以下のJSON形式で返してください：{\"sentiment\": \"positive/negative/neutral\", \"confidence\": 0.0-1.0, \"emotions\": [\"emotion1\", \"emotion2\"]}"},
+                    {"role": "user", "content": text}
+                ],
+                max_tokens=100,
+                temperature=0.3
+            )
+            
+            import json
+            return json.loads(response.choices[0].message.content.strip())
+        
+        except Exception as e:
+            logger.error(f"Sentiment analysis error: {e}")
+            return {"sentiment": "neutral", "confidence": 0.5, "emotions": []}
+    
+    async def generate_personality_insights(self, ceo_context: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate personality insights based on CEO context"""
+        async with self._initialization_lock:
+            await self._initialize_openai()
+        
+        try:
+            context_text = f"""
+CEO情報:
+名前: {ceo_context.get('name', 'N/A')}
+会社: {ceo_context.get('company', 'N/A')}
+役職: {ceo_context.get('position', 'N/A')}
+経歴: {ceo_context.get('bio', 'N/A')}
+"""
+            
+            response = await self._openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "CEOの情報から性格分析を行い、以下のJSON形式で返してください：{\"leadership_style\": \"style\", \"communication_style\": \"style\", \"key_traits\": [\"trait1\", \"trait2\"], \"business_philosophy\": \"philosophy\"}"},
+                    {"role": "user", "content": context_text}
+                ],
+                max_tokens=200,
+                temperature=0.5
+            )
+            
+            import json
+            return json.loads(response.choices[0].message.content.strip())
+        
+        except Exception as e:
+            logger.error(f"Personality analysis error: {e}")
+            return {
+                "leadership_style": "transformational",
+                "communication_style": "direct",
+                "key_traits": ["visionary", "decisive"],
+                "business_philosophy": "顧客第一主義"
+            }
     
     def generate_voice(self, text: str, voice_id: str = "21m00Tcm4TlvDq8ikWAM") -> Optional[str]:
         """Generate voice using ElevenLabs"""
