@@ -212,7 +212,7 @@
       <h2>ほうじょうれーぬと話そう！</h2>
       <div id="chat-log"></div>
       <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="話しかけてね" autocomplete="off" name="chat-message">
+        <input type="text" id="user-input" placeholder="話しかけてね" autocomplete="new-password" name="not-email" inputmode="text">
         <button onclick="talk()">送信</button>
       </div>
       <div style="margin-top: 1rem;">
@@ -229,6 +229,8 @@
     <p id="stats-content"></p>
   </div>
 
+  <div id="paypal-button-container-P-9UK13921P9061903NNA7SKCQ"></div>
+  <script src="https://www.paypal.com/sdk/js?client-id=AfFD6qAHmDGQczfVEpQKTuTQCYlsZwVcjirUAO6URjCaNnmMMBPVScis-aMltnruvbf7acuVytHwpB7L&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
   <script>
     let currentUser = null;
     let userToken = null;
@@ -250,16 +252,13 @@
     function showAuthInterface() {
       document.getElementById('auth-ui').style.display = 'block';
       document.getElementById('user-info').style.display = 'none';
-      document.getElementById('talk-ui').style.display = 'none';
       document.getElementById('user-stats').style.display = 'none';
     }
 
     function showUserInterface() {
       document.getElementById('auth-ui').style.display = 'none';
       document.getElementById('user-info').style.display = 'block';
-      document.getElementById('talk-ui').style.display = 'block';
       document.getElementById('user-stats').style.display = 'block';
-      
       document.getElementById('welcome-message').textContent = `ようこそ、${currentUser.email}さん！`;
       updateUserStats();
     }
@@ -351,27 +350,31 @@
 
     async function updateUserStats() {
       if (!currentUser) return;
-
-      const today = new Date().toISOString().split('T')[0];
-      const userStatsKey = `userStats_${currentUser.email}_${today}`;
-      const cumulativeKey = `cumulativeChats_${currentUser.email}`;
-      
-      let userStats = JSON.parse(localStorage.getItem(userStatsKey)) || {
-        dailyChats: 0,
-        consecutiveDays: 1,
-        level: 1,
-        xp: 0
-      };
-      
-      let cumulativeChats = parseInt(localStorage.getItem(cumulativeKey)) || 0;
-
-      document.getElementById('daily-chats').textContent = `今日は${userStats.dailyChats}/5回話しました`;
-      document.getElementById('consecutive-days').textContent = `連続${userStats.consecutiveDays}日会話中！`;
-      document.getElementById('cumulative-experience').textContent = `チャット経験値: ${cumulativeChats}回`;
-      document.getElementById('level').textContent = userStats.level;
-      
-      const xpPercent = (userStats.xp % 100);
-      document.getElementById('xp-bar').style.width = `${xpPercent}%`;
+      try {
+        const response = await fetch('/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            action: 'getUserStats'
+          })
+        });
+        const data = await response.json();
+        console.log('user stats api response', data);
+        if (data.success) {
+          document.getElementById('welcome-message').textContent = `ようこそ、${data.email}さん！`;
+          document.getElementById('daily-chats').textContent = `今日は${data.dailyChats}/5回話しました`;
+          document.getElementById('consecutive-days').textContent = `連続${data.consecutiveDays}日会話中！`;
+          document.getElementById('cumulative-experience').textContent = `チャット経験値: ${data.dailyChats}回`;
+          document.getElementById('level').textContent = data.level;
+          const xpPercent = (data.xp % 100);
+          document.getElementById('xp-bar').style.width = `${xpPercent}%`;
+        }
+      } catch (error) {
+        console.error('Failed to update user stats:', error);
+      }
     }
 
     async function talk() {
@@ -380,27 +383,29 @@
       
       if (!message || !currentUser) return;
 
-      const today = new Date().toISOString().split('T')[0];
-      const userStatsKey = `userStats_${currentUser.email}_${today}`;
-      const cumulativeKey = `cumulativeChats_${currentUser.email}`;
-      
-      let userStats = JSON.parse(localStorage.getItem(userStatsKey)) || {
-        dailyChats: 0,
-        consecutiveDays: 1,
-        level: 1,
-        xp: 0
-      };
-
-      if (userStats.dailyChats >= 5) {
-        alert('今日の会話回数上限に達しました。明日また話しかけてください！');
-        return;
-      }
-
-      const chatLog = document.getElementById('chat-log');
-      chatLog.innerHTML += `<div class="message user-message">${message}</div>`;
-      userInput.value = '';
-
       try {
+        // First increment chat count on server
+        const incrementResponse = await fetch('/api/user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            action: 'incrementChat'
+          })
+        });
+
+        const incrementData = await incrementResponse.json();
+        if (!incrementData.success) {
+          alert(incrementData.error || '今日の会話回数上限に達しました。明日また話しかけてください！');
+          return;
+        }
+
+        const chatLog = document.getElementById('chat-log');
+        chatLog.innerHTML += `<div class="message user-message">${message}</div>`;
+        userInput.value = '';
+
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -413,26 +418,14 @@
         } else {
           chatLog.innerHTML += `<div class="message bot-message">すみません、今は話せません。後でもう一度試してください。</div>`;
         }
+
+        // Update stats after successful chat
+        await updateUserStats();
       } catch (error) {
         console.error('Chat error:', error);
-        chatLog.innerHTML += `<div class="message bot-message">こんにちは！館山の美しい海岸で生まれた、ほうじょうれーぬです。何かお聞きしたいことはありますか？</div>`;
+        chatLog.innerHTML += `<div class="message bot-message">すみません、エラーが発生しました。もう一度試してください。</div>`;
       }
 
-      userStats.dailyChats++;
-      userStats.xp += 10;
-      
-      if (userStats.xp >= userStats.level * 100) {
-        userStats.level++;
-        chatLog.innerHTML += `<div class="message bot-message">🎉 レベルアップ！レベル${userStats.level}になりました！</div>`;
-      }
-
-      localStorage.setItem(userStatsKey, JSON.stringify(userStats));
-      
-      let cumulativeChats = parseInt(localStorage.getItem(cumulativeKey)) || 0;
-      cumulativeChats++;
-      localStorage.setItem(cumulativeKey, cumulativeChats.toString());
-
-      updateUserStats();
       chatLog.scrollTop = chatLog.scrollHeight;
     }
 
@@ -441,6 +434,42 @@
         talk();
       }
     });
+
+    paypal.Buttons({
+        style: {
+            shape: 'rect',
+            color: 'gold',
+            layout: 'vertical',
+            label: 'subscribe'
+        },
+        createSubscription: function(data, actions) {
+          return actions.subscription.create({
+            plan_id: 'P-9UK13921P9061903NNA7SKCQ'
+          });
+        },
+        onApprove: function(data, actions) {
+          // currentUser.idが利用可能である前提
+          if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
+            fetch('/api/premium', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: currentUser.id,
+                subscriptionID: data.subscriptionID
+              })
+            }).then(res => res.json())
+              .then(res => {
+                if (res.success) {
+                  alert('プレミアム登録が完了しました！');
+                } else {
+                  alert('登録に失敗しました。');
+                }
+              });
+          } else {
+            alert('ログインしてからご購入ください。');
+          }
+        }
+    }).render('#paypal-button-container-P-9UK13921P9061903NNA7SKCQ');
 
     window.onload = initializeApp;
   </script>

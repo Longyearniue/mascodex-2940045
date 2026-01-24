@@ -1,0 +1,10 @@
+name = "mascodex-2940045"
+compatibility_date = "2024-01-01"
+
+# Static content configuration
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "USER_KV"
+id = "341800e6a62d4efa886e69e08ca04cef"
+preview_id = "65ddc6c899c94cf89e825099c1c1d329" 

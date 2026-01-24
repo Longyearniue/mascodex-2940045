@@ -18,7 +18,7 @@ export async function onRequest(context) {
 
       if (action === 'register') {
         const hashedPassword = await hashPassword(password);
-        const userId = generateUserId();
+        const userId = generateUserId(email);
         
         const userData = {
           id: userId,
@@ -32,7 +32,7 @@ export async function onRequest(context) {
           level: 1,
           xp: 0
         };
-
+        await env.USER_KV.put(`profile_${userId}`, JSON.stringify(userData));
         return new Response(JSON.stringify({
           success: true,
           user: {
@@ -56,18 +56,22 @@ export async function onRequest(context) {
         const isValid = await validatePassword(password, email);
         
         if (isValid) {
-          const userId = generateUserId();
+          const userId = generateUserId(email);
           const today = new Date().toISOString().split('T')[0];
           
-          const userData = {
-            id: userId,
-            email: email,
-            lastLoginDate: today,
-            consecutiveDays: calculateConsecutiveDays(today),
-            dailyChats: 0,
-            level: 1,
-            xp: 0
-          };
+          let userData = await env.USER_KV.get(`profile_${userId}`, { type: 'json' });
+          if (!userData) {
+            userData = {
+              id: userId,
+              email: email,
+              lastLoginDate: today,
+              consecutiveDays: 1,
+              dailyChats: 0,
+              level: 1,
+              xp: 0
+            };
+            await env.USER_KV.put(`profile_${userId}`, JSON.stringify(userData));
+          }
 
           return new Response(JSON.stringify({
             success: true,
@@ -142,8 +146,8 @@ async function validatePassword(password, email) {
   return password.length >= 6 && email.includes('@');
 }
 
-function generateUserId() {
-  return 'user_' + Math.random().toString(36).substr(2, 9);
+function generateUserId(email) {
+  return 'user_' + btoa(email);
 }
 
 function generateToken(userId) {
