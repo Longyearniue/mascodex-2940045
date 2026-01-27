@@ -1,0 +1,18 @@
+{
+  "name": "goenchan-worker",
+  "version": "1.0.0",
+  "description": "Founder visibility detection API for Goenchan",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "htmlparser2": "^9.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
+    "wrangler": "^3.22.1",
+    "typescript": "^5.3.3"
+  }
+}
