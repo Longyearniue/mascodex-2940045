@@ -72,3 +72,65 @@ export function containsFounderKeywords(html: string): boolean {
     lowerHtml.includes(keyword.toLowerCase())
   );
 }
+
+/**
+ * Check if URL is a "top message" type page
+ * Required patterns: message, greeting, president, ceo-message, top-message, founder
+ */
+export function hasTopMessagePage(url: string): boolean {
+  const topMessagePatterns = [
+    'message',
+    'greeting',
+    'president',
+    'ceo-message',
+    'top-message',
+    'founder'
+  ];
+
+  const lowerPath = new URL(url).pathname.toLowerCase();
+  return topMessagePatterns.some(pattern => lowerPath.includes(pattern));
+}
+
+/**
+ * Detect if the site is a large chain by checking URL and content
+ * Exclusion signals:
+ * - URL path contains: store, shoplist, shop, tenpo, recruit, ir, franchise
+ * - Content contains: 店舗一覧, 店舗検索, 全国, グループ, 採用情報, フランチャイズ, IR
+ */
+export function isLargeChain(url: string, html: string): boolean {
+  const urlExclusionPatterns = [
+    'store',
+    'shoplist',
+    'shop',
+    'tenpo',
+    'recruit',
+    'ir',
+    'franchise'
+  ];
+
+  const contentExclusionKeywords = [
+    '店舗一覧',
+    '店舗検索',
+    '全国',
+    'グループ',
+    '採用情報',
+    'フランチャイズ',
+    'IR'
+  ];
+
+  const lowerPath = new URL(url).pathname.toLowerCase();
+  const lowerUrl = url.toLowerCase();
+  const lowerHtml = html.toLowerCase();
+
+  // Check URL path
+  const hasExcludedUrlPattern = urlExclusionPatterns.some(pattern =>
+    lowerPath.includes(pattern) || lowerUrl.includes(pattern)
+  );
+
+  // Check content
+  const hasExcludedContent = contentExclusionKeywords.some(keyword =>
+    lowerHtml.includes(keyword.toLowerCase())
+  );
+
+  return hasExcludedUrlPattern || hasExcludedContent;
+}

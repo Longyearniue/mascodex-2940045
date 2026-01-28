@@ -1,5 +1,5 @@
 import { fetchWithTimeout } from '../utils/fetcher';
-import { extractLinks, containsFounderKeywords } from '../utils/parser';
+import { extractLinks, containsFounderKeywords, hasTopMessagePage, isLargeChain } from '../utils/parser';
 import { checkRobotsTxt } from '../utils/robots';
 
 export interface FounderVisibilityRequest {
@@ -74,7 +74,9 @@ export async function handleFounderVisibility(
     const checkedUrls: string[] = [];
     const evidence: string[] = [];
     const hitKeywords: string[] = [];
-    let foundVisibility = false;
+    let hasTopMessage = false;
+    let hasChainSignal = false;
+    let keywordsAdded = false;
 
     // Step 1: Fetch the main page
     const mainResult = await fetchWithTimeout(body.url);
@@ -93,11 +95,21 @@ export async function handleFounderVisibility(
       );
     }
 
-    // Check main page for keywords
+    // Check main page
     if (containsFounderKeywords(mainResult.html)) {
-      foundVisibility = true;
-      evidence.push(body.url);
-      hitKeywords.push('代表挨拶', 'CEO', 'Founder');
+      if (hasTopMessagePage(body.url)) {
+        hasTopMessage = true;
+        evidence.push(body.url);
+        if (!keywordsAdded) {
+          hitKeywords.push('代表挨拶', '社長挨拶', '代表メッセージ', '代表取締役', 'CEO', 'Founder');
+          keywordsAdded = true;
+        }
+      }
+    }
+
+    // Check for large chain signals
+    if (isLargeChain(body.url, mainResult.html)) {
+      hasChainSignal = true;
     }
 
     // Step 2: Extract candidate links from main page
@@ -124,15 +136,27 @@ export async function handleFounderVisibility(
       checkedUrls.push(url);
 
       if (result.success && result.html) {
+        // Check for chain signals
+        if (isLargeChain(url, result.html)) {
+          hasChainSignal = true;
+        }
+
+        // Check for founder keywords and top message page
         if (containsFounderKeywords(result.html)) {
-          foundVisibility = true;
-          evidence.push(url);
-          if (hitKeywords.length === 0) {
-            hitKeywords.push('代表挨拶', 'CEO', 'Founder');
+          if (hasTopMessagePage(url)) {
+            hasTopMessage = true;
+            evidence.push(url);
+            if (!keywordsAdded) {
+              hitKeywords.push('代表挨拶', '社長挨拶', '代表メッセージ', '代表取締役', 'CEO', 'Founder');
+              keywordsAdded = true;
+            }
           }
         }
       }
     }
+
+    // Final decision: PASS only if has top message AND NOT large chain
+    const foundVisibility = hasTopMessage && !hasChainSignal;
 
     const response: FounderVisibilityResponse = {
       url: body.url,
