@@ -1,3 +1,5 @@
+import { handleFounderVisibility } from './handlers/founderVisibility';
+
 export default {
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
@@ -16,9 +18,14 @@ export default {
 
     // Route handling
     if (url.pathname === '/api/founder-visibility' && request.method === 'POST') {
-      return new Response(JSON.stringify({ message: 'Not implemented' }), {
-        status: 501,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const response = await handleFounderVisibility(request);
+      const newHeaders = new Headers(response.headers);
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        newHeaders.set(key, value);
+      });
+      return new Response(response.body, {
+        status: response.status,
+        headers: newHeaders,
       });
     }
 
