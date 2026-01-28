@@ -1,4 +1,5 @@
 import { handleFounderVisibility } from './handlers/founderVisibility';
+import { handleOutreachGenerate } from './handlers/outreachGenerate';
 
 export default {
   async fetch(request: Request): Promise<Response> {
@@ -30,9 +31,14 @@ export default {
     }
 
     if (url.pathname === '/api/outreach/generate' && request.method === 'POST') {
-      return new Response(JSON.stringify({ message: 'Not implemented' }), {
-        status: 501,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const response = await handleOutreachGenerate(request);
+      const newHeaders = new Headers(response.headers);
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        newHeaders.set(key, value);
+      });
+      return new Response(response.body, {
+        status: response.status,
+        headers: newHeaders,
       });
     }
 
