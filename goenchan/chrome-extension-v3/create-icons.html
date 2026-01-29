@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Icons</title>
+</head>
+<body>
+  <h2>Icon Generator</h2>
+  <p>Icons will auto-download. Save them in the extension folder.</p>
+
+  <div style="display: flex; gap: 20px; margin: 20px;">
+    <div>
+      <p><strong>icon16.png</strong></p>
+      <canvas id="icon16" width="16" height="16"></canvas>
+    </div>
+    <div>
+      <p><strong>icon48.png</strong></p>
+      <canvas id="icon48" width="48" height="48"></canvas>
+    </div>
+    <div>
+      <p><strong>icon128.png</strong></p>
+      <canvas id="icon128" width="128" height="128"></canvas>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+
+      // Green gradient background (inspector theme)
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#34a853');
+      gradient.addColorStop(1, '#2d8e47');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, size, size);
+
+      // White text
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.45}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('AF', size / 2, size / 2);
+    }
+
+    drawIcon('icon16', 16);
+    drawIcon('icon48', 48);
+    drawIcon('icon128', 128);
+
+    // Auto-download icons
+    setTimeout(() => {
+      ['icon16', 'icon48', 'icon128'].forEach(id => {
+        const canvas = document.getElementById(id);
+        const link = document.createElement('a');
+        link.download = `${id}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+      alert('Icons downloaded! Move them to the chrome-extension-v2 folder.');
+    }, 500);
+  </script>
+</body>
+</html>
