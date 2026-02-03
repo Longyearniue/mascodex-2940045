@@ -1317,6 +1317,47 @@ function detectSplitFields(fields) {
   return 0;
 }
 
+/**
+ * Generate field mapping based on detected pattern
+ * Returns mapping object similar to SITE_MAPPINGS structure
+ */
+function generatePatternMapping(patternName, formFields) {
+  console.log(`🗺️ [MAPPING GENERATION] Pattern: ${patternName}`);
+
+  if (!formFields || formFields.length === 0) {
+    console.log('⚠️ [MAPPING] No fields found for pattern generation');
+    return {};
+  }
+
+  let mapping = {};
+
+  switch(patternName) {
+    case 'wordpress-cf7':
+      mapping = generateWordPressCF7Mapping(formFields);
+      break;
+    case 'japanese-direct':
+      mapping = generateJapaneseDirectMapping(formFields);
+      break;
+    case 'required-marks':
+      mapping = generateRequiredMarksMapping(formFields);
+      break;
+    case 'mailform-cgi':
+      mapping = generateMailFormCGIMapping(formFields);
+      break;
+    case 'split-fields':
+      mapping = generateSplitFieldsMapping(formFields);
+      break;
+    default:
+      console.log(`⚠️ [MAPPING] Unknown pattern: ${patternName}`);
+      return {};
+  }
+
+  console.log('Generated mapping:', mapping);
+  console.log(`  - Mapped ${Object.keys(mapping).length} field types`);
+
+  return mapping;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
