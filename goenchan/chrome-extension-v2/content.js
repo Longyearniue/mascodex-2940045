@@ -1428,6 +1428,46 @@ function generateJapaneseDirectMapping(fields) {
   return mapping;
 }
 
+/**
+ * Generate mapping for required marks pattern
+ * Strip (必須) from field names and match
+ */
+function generateRequiredMarksMapping(fields) {
+  const mapping = {};
+  const requiredRegex = /[（(]必須[)）]/g;
+
+  const keywordMap = {
+    '会社名': { field: 'company', confidence: 80 },
+    '企業名': { field: 'company', confidence: 80 },
+    'お名前': { field: 'name', confidence: 75 },
+    '氏名': { field: 'name', confidence: 75 },
+    '名前': { field: 'name', confidence: 75 },
+    'メール': { field: 'email', confidence: 80 },
+    'メールアドレス': { field: 'email', confidence: 85 },
+    '電話': { field: 'phone', confidence: 75 },
+    '電話番号': { field: 'phone', confidence: 80 },
+    '件名': { field: 'subject', confidence: 75 },
+    'お問い合わせ内容': { field: 'message', confidence: 75 },
+    'メッセージ': { field: 'message', confidence: 70 }
+  };
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    // Strip required marks
+    const cleanName = name.replace(requiredRegex, '').trim();
+
+    if (keywordMap[cleanName]) {
+      const { field: fieldType, confidence } = keywordMap[cleanName];
+      mapping[fieldType] = {
+        selector: `[name="${name}"]`,
+        confidence: confidence
+      };
+    }
+  });
+
+  return mapping;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
