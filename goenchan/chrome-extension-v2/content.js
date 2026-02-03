@@ -1358,6 +1358,38 @@ function generatePatternMapping(patternName, formFields) {
   return mapping;
 }
 
+/**
+ * Generate mapping for WordPress Contact Form 7
+ */
+function generateWordPressCF7Mapping(fields) {
+  const mapping = {};
+
+  const cf7FieldMap = {
+    'your-name': { field: 'name', confidence: 90 },
+    'your-email': { field: 'email', confidence: 95 },
+    'your-subject': { field: 'subject', confidence: 90 },
+    'your-message': { field: 'message', confidence: 90 },
+    'your-tel': { field: 'phone', confidence: 85 },
+    'your-phone': { field: 'phone', confidence: 85 },
+    'your-company': { field: 'company', confidence: 85 },
+    'your-zipcode': { field: 'zipcode', confidence: 85 },
+    'your-address': { field: 'address', confidence: 85 }
+  };
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    if (cf7FieldMap[name]) {
+      const { field: fieldType, confidence } = cf7FieldMap[name];
+      mapping[fieldType] = {
+        selector: `[name="${name}"]`,
+        confidence: confidence
+      };
+    }
+  });
+
+  return mapping;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
