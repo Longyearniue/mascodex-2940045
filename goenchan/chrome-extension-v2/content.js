@@ -1156,6 +1156,10 @@ function detectFormPattern() {
  * Looks for fields with name="your-*"
  */
 function detectWordPressCF7(fields) {
+  if (!fields || fields.length === 0) {
+    return 0;
+  }
+
   let yourFieldCount = 0;
 
   fields.forEach(field => {
