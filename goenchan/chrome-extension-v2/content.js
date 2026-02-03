@@ -6,8 +6,34 @@
 const isInIframe = window.self !== window.top;
 const frameContext = isInIframe ? '[IFRAME]' : '[MAIN]';
 
+// Check if this iframe should be skipped (third-party services)
+function shouldSkipIframe() {
+  if (!isInIframe) return false;
+
+  const url = window.location.href;
+  const skipPatterns = [
+    'google.com/recaptcha',     // reCAPTCHA
+    'google-analytics.com',     // Google Analytics
+    'googletagmanager.com',     // Google Tag Manager
+    'doubleclick.net',          // Ads
+    'googlesyndication.com',    // AdSense
+    'facebook.com/plugins',     // Facebook widgets
+    'twitter.com/widgets',      // Twitter widgets
+    'youtube.com/embed',        // YouTube embeds (unless it's a form)
+    'accounts.google.com'       // Google login
+  ];
+
+  return skipPatterns.some(pattern => url.includes(pattern));
+}
+
+const shouldSkip = shouldSkipIframe();
+
 if (isInIframe) {
-  console.log('🖼️ [IFRAME] Content script loaded in iframe:', window.location.href);
+  if (shouldSkip) {
+    console.log('⏭️ [IFRAME] Skipping third-party iframe:', window.location.href);
+  } else {
+    console.log('🖼️ [IFRAME] Content script loaded in iframe:', window.location.href);
+  }
 } else {
   console.log('📄 [MAIN] Content script loaded in main page:', window.location.href);
 }
@@ -83,6 +109,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // =============================================================================
 
 async function checkAndAutoFill() {
+  // Skip third-party iframes
+  if (shouldSkip) {
+    return;
+  }
+
   try {
     console.log(`🔍 [DEBUG] ${frameContext} checkAndAutoFill started`);
 
