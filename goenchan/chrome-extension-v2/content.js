@@ -1468,6 +1468,61 @@ function generateRequiredMarksMapping(fields) {
   return mapping;
 }
 
+/**
+ * Generate mapping for MailForm CGI pattern
+ * Uses inference based on field order and Email fields
+ */
+function generateMailFormCGIMapping(fields) {
+  const mapping = {};
+  const fFields = [];
+
+  // Collect F-fields in order
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    const match = name.match(/^F(\d+)$/);
+    if (match) {
+      fFields.push({ num: parseInt(match[1]), name: name, field: field });
+    }
+
+    // Email fields are usually explicit
+    if (name.match(/^Email\d+$/i)) {
+      mapping.email = {
+        selector: `[name="${name}"]`,
+        confidence: 85
+      };
+    }
+  });
+
+  // Sort by field number
+  fFields.sort((a, b) => a.num - b.num);
+
+  // Infer field types based on common patterns
+  // F1 or F2 is often name or company
+  if (fFields.length >= 1 && !mapping.name) {
+    mapping.name = {
+      selector: `[name="${fFields[0].name}"]`,
+      confidence: 65
+    };
+  }
+
+  if (fFields.length >= 2 && !mapping.company) {
+    mapping.company = {
+      selector: `[name="${fFields[1].name}"]`,
+      confidence: 60
+    };
+  }
+
+  // Later fields might be phone, address
+  if (fFields.length >= 3) {
+    mapping.phone = {
+      selector: `[name="${fFields[2].name}"]`,
+      confidence: 55
+    };
+  }
+
+  return mapping;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
