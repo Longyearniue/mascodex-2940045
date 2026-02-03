@@ -1,4 +1,18 @@
 // =============================================================================
+// IFRAME DETECTION
+// =============================================================================
+
+// Detect if this script is running in an iframe
+const isInIframe = window.self !== window.top;
+const frameContext = isInIframe ? '[IFRAME]' : '[MAIN]';
+
+if (isInIframe) {
+  console.log('🖼️ [IFRAME] Content script loaded in iframe:', window.location.href);
+} else {
+  console.log('📄 [MAIN] Content script loaded in main page:', window.location.href);
+}
+
+// =============================================================================
 // SALES LETTER API
 // =============================================================================
 
@@ -70,7 +84,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function checkAndAutoFill() {
   try {
-    console.log('🔍 [DEBUG] checkAndAutoFill started');
+    console.log(`🔍 [DEBUG] ${frameContext} checkAndAutoFill started`);
 
     // Load settings and profile from chrome.storage
     const { autoFillEnabled = true, profile } =
@@ -93,7 +107,7 @@ async function checkAndAutoFill() {
     }
 
     // Check 3: Detect form pattern (new!)
-    console.log('🔍 [DEBUG] Detecting form pattern...');
+    console.log(`🔍 [DEBUG] ${frameContext} Detecting form pattern...`);
     const detectedPattern = detectFormPattern();
 
     if (detectedPattern && detectedPattern.score >= 50) {
