@@ -1238,6 +1238,41 @@ function detectRequiredMarks(fields) {
   return 0;
 }
 
+/**
+ * Detect MailForm CGI pattern
+ * Looks for F[digit] or Email[digit] naming
+ */
+function detectMailFormCGI(fields) {
+  if (!fields || fields.length === 0) {
+    return 0;
+  }
+
+  let fFieldCount = 0;
+  let emailFieldCount = 0;
+  const fFieldRegex = /^F\d+$/;
+  const emailFieldRegex = /^Email\d+$/i;
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    if (fFieldRegex.test(name)) {
+      fFieldCount++;
+    } else if (emailFieldRegex.test(name)) {
+      emailFieldCount++;
+    }
+  });
+
+  const totalCount = fFieldCount + emailFieldCount;
+
+  // Need 3+ CGI-style fields
+  if (totalCount >= 3) {
+    const score = Math.min(100, 40 + (totalCount * 12));
+    console.log(`  [MailForm] Found ${fFieldCount} F-fields, ${emailFieldCount} Email-fields, score: ${score}`);
+    return score;
+  }
+
+  return 0;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
