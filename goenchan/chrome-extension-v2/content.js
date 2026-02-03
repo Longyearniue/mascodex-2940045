@@ -1151,6 +1151,31 @@ function detectFormPattern() {
   }
 }
 
+/**
+ * Detect WordPress Contact Form 7 pattern
+ * Looks for fields with name="your-*"
+ */
+function detectWordPressCF7(fields) {
+  let yourFieldCount = 0;
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    if (name.startsWith('your-')) {
+      yourFieldCount++;
+    }
+  });
+
+  // Need 3+ fields to confidently detect
+  if (yourFieldCount >= 3) {
+    // Base score 50 + 10 per field, max 100
+    const score = Math.min(100, 50 + (yourFieldCount * 10));
+    console.log(`  [CF7] Found ${yourFieldCount} 'your-*' fields, score: ${score}`);
+    return score;
+  }
+
+  return 0;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
