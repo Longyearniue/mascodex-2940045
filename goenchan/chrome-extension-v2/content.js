@@ -601,9 +601,29 @@ async function autoFillForm(profile) {
 
   debugInfo.mappingUsed = bestMappingKey;
 
-  // Use stored mapping if found
-  if (bestMapping) {
-    for (const [key, fieldInfo] of Object.entries(bestMapping.fields)) {
+  // Priority-based mapping merge (Task 14)
+  // Priority 1: SITE_MAPPINGS (already processed above)
+  // Priority 2: Pattern mapping (from cached detection)
+  // Priority 3: Learned mappings (from chrome.storage)
+
+  const patternMapping = cachedPatternMapping || {};
+  const learnedMapping = bestMapping ? bestMapping.fields : {};
+
+  // Merge with priority (later overrides earlier)
+  const mergedMapping = {
+    ...patternMapping,      // Base: pattern-detected fields
+    ...learnedMapping       // Override: user-learned fields
+  };
+
+  console.log('🔀 [MERGE] Final mapping:');
+  console.log('  - SITE_MAPPINGS fields:', siteMapping ? Object.keys(siteMapping).length : 0);
+  console.log('  - Pattern fields:', Object.keys(patternMapping).length);
+  console.log('  - Learned fields:', Object.keys(learnedMapping).length);
+  console.log('  - Total merged fields:', Object.keys(mergedMapping).length);
+
+  // Use merged mapping if available
+  if (Object.keys(mergedMapping).length > 0) {
+    for (const [key, fieldInfo] of Object.entries(mergedMapping)) {
       const value = getProfileValue(profile, key);
       if (!value) continue;
 
@@ -617,15 +637,17 @@ async function autoFillForm(profile) {
         debugInfo.errors.push(`Selector failed for ${key}: ${fieldInfo.selector}`);
       }
 
-      // Fallback: try to find by fingerprint
-      if (!element) {
+      // Fallback: try to find by fingerprint (only if fieldInfo has fingerprint)
+      if (!element && fieldInfo.fingerprint) {
         element = findElementByFingerprint(fieldInfo.fingerprint, fieldInfo.type);
         if (element) {
           debugInfo.errors.push(`Found ${key} by fingerprint fallback`);
-          // Update selector for future use
-          const newSelector = generateSelector(element, document.body, 0);
-          bestMapping.fields[key].selector = newSelector;
-          await chrome.storage.sync.set({ formMappings: allMappings });
+          // Update selector for future use (only if this came from learned mapping)
+          if (bestMapping && bestMapping.fields[key]) {
+            const newSelector = generateSelector(element, document.body, 0);
+            bestMapping.fields[key].selector = newSelector;
+            await chrome.storage.sync.set({ formMappings: allMappings });
+          }
         }
       }
 
@@ -634,12 +656,20 @@ async function autoFillForm(profile) {
         filledFields.add(element);
         debugInfo.fieldsFilled++;
 
+        // Determine method based on source
+        let method = 'auto';
+        if (learnedMapping[key]) {
+          method = 'stored';
+        } else if (patternMapping[key]) {
+          method = 'pattern';
+        }
+
         results.push({
           fieldType: key,
           selector: fieldInfo.selector,
-          confidence: 100,
-          method: 'stored',
-          label: fieldInfo.labelText
+          confidence: fieldInfo.confidence || 100,
+          method: method,
+          label: fieldInfo.labelText || fieldInfo.label || key
         });
       } else {
         debugInfo.errors.push(`Could not find element for ${key}`);
