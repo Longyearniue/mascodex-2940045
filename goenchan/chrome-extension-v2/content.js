@@ -1180,6 +1180,35 @@ function detectWordPressCF7(fields) {
   return 0;
 }
 
+/**
+ * Detect Japanese direct name attributes pattern
+ * Looks for Japanese characters in name attributes
+ */
+function detectJapaneseDirect(fields) {
+  if (!fields || fields.length === 0) {
+    return 0;
+  }
+
+  let japaneseFieldCount = 0;
+  const japaneseRegex = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/; // Hiragana, Katakana, Kanji
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    if (japaneseRegex.test(name)) {
+      japaneseFieldCount++;
+    }
+  });
+
+  // Need 3+ Japanese fields
+  if (japaneseFieldCount >= 3) {
+    const score = Math.min(100, 50 + (japaneseFieldCount * 10));
+    console.log(`  [Japanese] Found ${japaneseFieldCount} Japanese name fields, score: ${score}`);
+    return score;
+  }
+
+  return 0;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
