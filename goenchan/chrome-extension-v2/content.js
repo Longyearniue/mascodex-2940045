@@ -1390,6 +1390,44 @@ function generateWordPressCF7Mapping(fields) {
   return mapping;
 }
 
+/**
+ * Generate mapping for Japanese direct name attributes
+ */
+function generateJapaneseDirectMapping(fields) {
+  const mapping = {};
+
+  const japaneseFieldMap = {
+    'お名前': { field: 'name', confidence: 85 },
+    '氏名': { field: 'name', confidence: 85 },
+    '会社名': { field: 'company', confidence: 90 },
+    '企業名': { field: 'company', confidence: 90 },
+    'メール': { field: 'email', confidence: 85 },
+    'メールアドレス': { field: 'email', confidence: 90 },
+    'Eメール': { field: 'email', confidence: 85 },
+    '電話': { field: 'phone', confidence: 80 },
+    '電話番号': { field: 'phone', confidence: 85 },
+    '件名': { field: 'subject', confidence: 85 },
+    'お問い合わせ内容': { field: 'message', confidence: 85 },
+    'メッセージ': { field: 'message', confidence: 80 },
+    '本文': { field: 'message', confidence: 80 },
+    '郵便番号': { field: 'zipcode', confidence: 85 },
+    '住所': { field: 'address', confidence: 85 }
+  };
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    if (japaneseFieldMap[name]) {
+      const { field: fieldType, confidence } = japaneseFieldMap[name];
+      mapping[fieldType] = {
+        selector: `[name="${name}"]`,
+        confidence: confidence
+      };
+    }
+  });
+
+  return mapping;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
