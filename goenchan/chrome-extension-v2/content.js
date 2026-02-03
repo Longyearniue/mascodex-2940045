@@ -92,7 +92,20 @@ async function checkAndAutoFill() {
       return;
     }
 
-    // Check 3: Is this a known site?
+    // Check 3: Detect form pattern (new!)
+    console.log('🔍 [DEBUG] Detecting form pattern...');
+    const detectedPattern = detectFormPattern();
+
+    if (detectedPattern && detectedPattern.score >= 50) {
+      const formFields = document.querySelectorAll('input, textarea, select');
+      cachedPatternMapping = generatePatternMapping(detectedPattern.name, formFields);
+      cachedPatternInfo = detectedPattern;
+      console.log('💾 [CACHE] Pattern mapping cached:', cachedPatternMapping);
+    } else {
+      console.log('ℹ️ [CACHE] No pattern mapping cached (using auto-detection fallback)');
+    }
+
+    // Check 4: Is this a known site? (renumber from Check 3)
     const currentUrl = window.location.href;
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
