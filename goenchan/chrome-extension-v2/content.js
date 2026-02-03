@@ -1523,6 +1523,76 @@ function generateMailFormCGIMapping(fields) {
   return mapping;
 }
 
+/**
+ * Generate mapping for split fields pattern
+ * Detect name1/name2, tel1/tel2/tel3, etc.
+ */
+function generateSplitFieldsMapping(fields) {
+  const mapping = {};
+  const fieldGroups = {};
+  const splitRegex = /^(.+?)(\d+)$/;
+
+  // Group fields by base name
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    const match = name.match(splitRegex);
+    if (match) {
+      const baseName = match[1];
+      const number = parseInt(match[2]);
+
+      if (!fieldGroups[baseName]) {
+        fieldGroups[baseName] = [];
+      }
+      fieldGroups[baseName].push({ number, name, field });
+    }
+  });
+
+  // Identify split patterns
+  for (const [baseName, group] of Object.entries(fieldGroups)) {
+    if (group.length >= 2) {
+      group.sort((a, b) => a.number - b.number);
+      const names = group.map(g => g.name);
+
+      // Name splits (name1, name2 or sei, mei)
+      if (baseName.match(/name|名前|氏名|sei|mei/i)) {
+        mapping.name1 = { selector: `[name="${names[0]}"]`, confidence: 80 };
+        if (names[1]) {
+          mapping.name2 = { selector: `[name="${names[1]}"]`, confidence: 80 };
+        }
+      }
+
+      // Kana splits
+      if (baseName.match(/kana|カナ|かな|フリガナ/i)) {
+        mapping.name_kana1 = { selector: `[name="${names[0]}"]`, confidence: 80 };
+        if (names[1]) {
+          mapping.name_kana2 = { selector: `[name="${names[1]}"]`, confidence: 80 };
+        }
+      }
+
+      // Phone splits (tel1, tel2, tel3)
+      if (baseName.match(/tel|phone|電話/i)) {
+        mapping.phone1 = { selector: `[name="${names[0]}"]`, confidence: 85 };
+        if (names[1]) {
+          mapping.phone2 = { selector: `[name="${names[1]}"]`, confidence: 85 };
+        }
+        if (names[2]) {
+          mapping.phone3 = { selector: `[name="${names[2]}"]`, confidence: 85 };
+        }
+      }
+
+      // Zipcode splits
+      if (baseName.match(/zip|postal|郵便/i)) {
+        mapping.zipcode1 = { selector: `[name="${names[0]}"]`, confidence: 85 };
+        if (names[1]) {
+          mapping.zipcode2 = { selector: `[name="${names[1]}"]`, confidence: 85 };
+        }
+      }
+    }
+  }
+
+  return mapping;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
