@@ -1209,6 +1209,35 @@ function detectJapaneseDirect(fields) {
   return 0;
 }
 
+/**
+ * Detect required marks pattern
+ * Looks for fields with (必須) or （必須） in name
+ */
+function detectRequiredMarks(fields) {
+  if (!fields || fields.length === 0) {
+    return 0;
+  }
+
+  let requiredFieldCount = 0;
+  const requiredRegex = /[（(]必須[)）]/;
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    if (requiredRegex.test(name)) {
+      requiredFieldCount++;
+    }
+  });
+
+  // Need 2+ required mark fields (threshold lower than others)
+  if (requiredFieldCount >= 2) {
+    const score = Math.min(100, 50 + (requiredFieldCount * 15));
+    console.log(`  [Required] Found ${requiredFieldCount} required mark fields, score: ${score}`);
+    return score;
+  }
+
+  return 0;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
