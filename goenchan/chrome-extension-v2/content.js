@@ -1662,7 +1662,7 @@ function generateSplitFieldsMapping(fields) {
 function detectFieldType(field) {
   const patterns = {
     company: {
-      keywords: ['company', '会社', '企業', '法人', '団体', 'corporation', '会社名', '企業名', '貴社名', '御社名', 'organization', '勤務先', '勤務先名'],
+      keywords: ['company', '会社', '企業', '法人', '団体', 'corporation', '会社名', '企業名', '貴社名', '御社名', 'organization', '勤務先', '勤務先名', '法人名', '団体名', '組織名'],
       weight: { label: 30, name: 20, placeholder: 15 }
     },
     name: {
@@ -1678,7 +1678,7 @@ function detectFieldType(field) {
       weight: { label: 30, name: 20, placeholder: 15 }
     },
     phone: {
-      keywords: ['phone', 'tel', '電話', '電話番号', 'telephone', 'your-tel', 'tel番号', 'telnumber', '連絡先電話番号', '携帯電話'],
+      keywords: ['phone', 'tel', '電話', '電話番号', 'telephone', 'your-tel', 'tel番号', 'telnumber', '連絡先電話番号', '携帯電話', 'ご連絡先', '連絡先', 'お電話'],
       weight: { label: 30, name: 20, placeholder: 15 }
     },
     subject: {
@@ -1698,7 +1698,7 @@ function detectFieldType(field) {
       weight: { label: 30, name: 20, placeholder: 15 }
     },
     address: {
-      keywords: ['address', 'addr', '住所', 'じゅうしょ', '所在地', 'your-address', 'street', 'location'],
+      keywords: ['address', 'addr', '住所', 'ご住所', 'じゅうしょ', '所在地', 'your-address', 'street', 'location', 'ご住所・所在地'],
       weight: { label: 30, name: 20, placeholder: 15 }
     },
     address1: {
