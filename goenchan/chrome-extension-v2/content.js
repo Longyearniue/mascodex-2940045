@@ -1587,6 +1587,14 @@ function generateSplitFieldsMapping(fields) {
           mapping.zipcode2 = { selector: `[name="${names[1]}"]`, confidence: 85 };
         }
       }
+
+      // Address splits
+      if (baseName.match(/addr|address|住所/i)) {
+        mapping.address1 = { selector: `[name="${names[0]}"]`, confidence: 85 };
+        if (names[1]) {
+          mapping.address2 = { selector: `[name="${names[1]}"]`, confidence: 85 };
+        }
+      }
     }
   }
 
