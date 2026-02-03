@@ -1273,6 +1273,50 @@ function detectMailFormCGI(fields) {
   return 0;
 }
 
+/**
+ * Detect split fields pattern
+ * Looks for numbered sequential fields (name1/name2, tel1/tel2/tel3)
+ */
+function detectSplitFields(fields) {
+  if (!fields || fields.length === 0) {
+    return 0;
+  }
+
+  const fieldGroups = {};
+  const splitRegex = /^(.+?)(\d+)$/;
+
+  fields.forEach(field => {
+    const name = field.getAttribute('name') || '';
+    const match = name.match(splitRegex);
+    if (match) {
+      const baseName = match[1];
+      const number = parseInt(match[2]);
+
+      if (!fieldGroups[baseName]) {
+        fieldGroups[baseName] = [];
+      }
+      fieldGroups[baseName].push(number);
+    }
+  });
+
+  // Count groups with 2+ sequential numbers
+  let splitGroupCount = 0;
+  for (const [baseName, numbers] of Object.entries(fieldGroups)) {
+    if (numbers.length >= 2) {
+      splitGroupCount++;
+    }
+  }
+
+  // Need 2+ split groups
+  if (splitGroupCount >= 2) {
+    const score = Math.min(100, 50 + (splitGroupCount * 12));
+    console.log(`  [Split] Found ${splitGroupCount} split field groups, score: ${score}`);
+    return score;
+  }
+
+  return 0;
+}
+
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
