@@ -622,6 +622,100 @@ function analyzeFieldSemantics(field) {
 }
 
 // =============================================================================
+// GENERIC FALLBACK (Layer 6)
+// =============================================================================
+
+/**
+ * Last resort: Fill ALL remaining visible fields with profile data in order
+ * Strategy: text/email/tel fields get filled with: company → name → email → phone → address
+ */
+function genericFallbackFill(profile, filledFields, debugInfo, results) {
+  console.log('🎲 [FALLBACK] Starting generic fallback for remaining fields...');
+
+  const unfilledFields = getAllFormFields().filter(field => {
+    // Skip already filled
+    if (filledFields.has(field)) return false;
+
+    // Only fill text-like inputs, textareas, email, tel
+    const type = field.type || field.tagName.toLowerCase();
+    const fillableTypes = ['text', 'email', 'tel', 'textarea', 'search', 'url'];
+
+    return fillableTypes.includes(type);
+  });
+
+  if (unfilledFields.length === 0) {
+    console.log('ℹ️ [FALLBACK] No unfilled fields remaining');
+    return 0;
+  }
+
+  // Fill order priority: company → name → email → phone → address → department → subject
+  const fillOrder = [
+    { key: 'company', value: profile.company },
+    { key: 'name', value: profile.name },
+    { key: 'email', value: profile.email },
+    { key: 'phone', value: profile.phone },
+    { key: 'address', value: profile.address },
+    { key: 'department', value: profile.department },
+    { key: 'subject', value: profile.subject }
+  ].filter(item => item.value); // Only items with values
+
+  let fallbackFilledCount = 0;
+  let fillIndex = 0;
+
+  for (const field of unfilledFields) {
+    if (fillIndex >= fillOrder.length) {
+      // Out of values, cycle back to start
+      fillIndex = 0;
+    }
+
+    const item = fillOrder[fillIndex];
+
+    // Special handling for email/tel types
+    const fieldType = field.type || field.tagName.toLowerCase();
+    let valueToFill = item.value;
+
+    if (fieldType === 'email' && profile.email) {
+      valueToFill = profile.email;
+    } else if (fieldType === 'tel' && profile.phone) {
+      valueToFill = profile.phone;
+    }
+
+    try {
+      fillField(field, valueToFill, fieldType);
+      filledFields.add(field);
+      debugInfo.fieldsFilled++;
+      fallbackFilledCount++;
+
+      const resultInfo = {
+        fieldType: item.key,
+        selector: getSelector(field),
+        confidence: 5, // Very low confidence - this is a guess
+        method: 'generic-fallback',
+        label: getFieldLabel(field) || `field-${fallbackFilledCount}`
+      };
+
+      results.push(resultInfo);
+      debugInfo.detailedResults.push({
+        ...resultInfo,
+        value: valueToFill.substring(0, 20) + (valueToFill.length > 20 ? '...' : ''),
+        fieldName: field.name,
+        fieldId: field.id,
+        fieldType: fieldType
+      });
+
+      console.log(`✅ [FALLBACK] Filled field #${fallbackFilledCount} with ${item.key}: ${valueToFill.substring(0, 20)}`);
+    } catch (e) {
+      console.error(`❌ [FALLBACK] Error filling field:`, e);
+    }
+
+    fillIndex++;
+  }
+
+  console.log(`📊 [FALLBACK] Filled ${fallbackFilledCount} fields via generic fallback`);
+  return fallbackFilledCount;
+}
+
+// =============================================================================
 // AUTO-FILL
 // =============================================================================
 
@@ -944,7 +1038,20 @@ async function autoFillForm(profile) {
 
   console.log(`📊 [SEMANTIC] Filled ${semanticFilledCount} fields via semantic analysis`);
 
+  // =============================================================================
+  // LAYER 6: GENERIC FALLBACK (NEW)
+  // =============================================================================
+
+  const fallbackCount = genericFallbackFill(profile, filledFields, debugInfo, results);
+
   console.log(`📊 Total filled: ${debugInfo.fieldsFilled}/${debugInfo.fieldsProcessed} fields`);
+  console.log(`📊 [SUMMARY] Layers used:`);
+  console.log(`  - SITE_MAPPINGS: ${siteMapping ? Object.keys(siteMapping).length : 0} fields`);
+  console.log(`  - Pattern/Learned: ${Object.keys(mergedMapping).length} fields`);
+  console.log(`  - Auto-detection: ${results.filter(r => r.method === 'auto').length} fields`);
+  console.log(`  - Semantic analysis: ${results.filter(r => r.method.startsWith('semantic-')).length} fields`);
+  console.log(`  - Generic fallback: ${results.filter(r => r.method === 'generic-fallback').length} fields`);
+  console.log(`  - TOTAL FILLED: ${debugInfo.fieldsFilled}/${debugInfo.fieldsProcessed} fields`);
 
   return {
     success: true,
