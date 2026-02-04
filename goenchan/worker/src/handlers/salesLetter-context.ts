@@ -308,59 +308,83 @@ function generateUniqueNarrative(
     }
   }
 
-  // 複数の要素を組み合わせてユニークな物語を構築
+  // 複数の要素を組み合わせて、コマーシャルのような深い物語を構築
   if (uniqueElements.length >= 2) {
-    // パターン1: 要素A、要素B、そしてC
+    // パターン1: 哲学的な深い表現（2つ以上の要素がある場合）
     const elem1 = uniqueElements[0];
     const elem2 = uniqueElements[1];
 
+    // 業種に応じた深い導入文
+    const philosophicalIntro = getPhilosophicalIntro(businessType);
+
     if (location && foundedYear) {
-      return `${elem1}。${elem2}。それこそが${location}の${businessType}として歩み続ける道である`;
+      return `「${philosophicalIntro}${elem1}。そして${elem2}。${location}という土地で、その想いを形にし続けてきた。それこそが、この事業の本質である」`;
     } else if (location) {
-      return `${elem1}。そして${elem2}。これらが${location}で選ばれる理由となっている`;
+      return `「${philosophicalIntro}${elem1}。${elem2}。${location}という場所で、これらを大切にしながら、一歩一歩進んでいる。それが、ここで選ばれ続ける理由なのだ」`;
     } else if (foundedYear) {
-      return `${elem1}。${elem2}。これが創業以来変わらぬ姿勢である`;
+      return `「${philosophicalIntro}${elem1}。そして${elem2}。創業以来変わらぬこの姿勢が、人々の信頼を得てきた。これからも、この道を歩み続ける」`;
     } else {
-      return `${elem1}。${elem2}。それが真の${businessType}の在り方なのだ`;
+      return `「${philosophicalIntro}${elem1}。そして${elem2}。その想いを日々の営みの中で体現し続けること。それこそが、真の${businessType}の姿である」`;
     }
   } else if (uniqueElements.length === 1) {
-    // パターン2: 単一要素をより深く
+    // パターン2: 単一要素を深く掘り下げる
     const elem = uniqueElements[0];
+    const philosophicalIntro = getPhilosophicalIntro(businessType);
 
     if (coreConcept) {
-      return `${coreConcept}。${elem}。この一貫した姿勢こそが、顧客から信頼される所以である`;
+      return `「${philosophicalIntro}${coreConcept}。そして${elem}。この一貫した想いが、お客様との深い信頼関係を生み出している。それが、変わらぬ価値なのだ」`;
     } else {
-      return `${elem}。それを体現し続けることで、真の価値を生み出している`;
+      return `「${philosophicalIntro}${elem}。その想いを、一つ一つの行動で示し続けること。それが、真の価値を生み出す源となっている」`;
     }
   } else {
-    // パターン3: コアコンセプトをベースに
+    // パターン3: コアコンセプトをベースに深く
+    const philosophicalIntro = getPhilosophicalIntro(businessType);
+
     if (coreConcept) {
       if (location) {
-        return `${coreConcept}という信念。それを${location}という土地で実践し続けることで、地域に根ざした存在となっている`;
+        return `「${philosophicalIntro}${coreConcept}という信念。それを${location}という土地で、日々実践し続けている。人と人とのつながりを大切にし、地域に根ざした存在であり続ける。それこそが、この事業の在り方である」`;
       } else {
-        return `${coreConcept}という信念を貫き、お客様一人ひとりに向き合い続けることで、揺るぎない信頼を築いている`;
+        return `「${philosophicalIntro}${coreConcept}という信念を貫き、お客様一人ひとりに真摯に向き合い続ける。その積み重ねが、揺るぎない信頼を築き上げてきた。これからも、この想いを大切にしていく」`;
       }
     } else {
-      // フォールバック: 業種に応じた最低限のユニークな表現
+      // フォールバック: 業種に応じた深いユニークな表現
       return generateMinimalUniqueNarrative(businessType, location);
     }
   }
 }
 
-// Minimal unique narrative as fallback
+// Get philosophical introduction for each business type
+function getPhilosophicalIntro(businessType: string): string {
+  const intros: { [key: string]: string } = {
+    'マッサージ・整体': '癒やしとは、ただ痛みを取り除くことではない。',
+    '美容業': '美しさとは、表面を整えることだけではない。',
+    '飲食店': '食とは、ただ空腹を満たすものではない。',
+    '宿泊施設': '宿とは、ただ休息を提供する場ではない。',
+    '製造業': 'ものづくりとは、単に製品を生み出すことではない。',
+    'IT企業': '技術とは、それ自体が目的ではない。',
+    '医療機関': '医療とは、ただ病を治すことではない。',
+    '教育機関': '教育とは、知識を授けるだけではない。',
+    '小売業': '商いとは、品物を売ることだけではない。',
+  };
+
+  return intros[businessType] || '事業とは、利益を追求するだけではない。';
+}
+
+// Minimal unique narrative as fallback (commercial-style with depth)
 function generateMinimalUniqueNarrative(businessType: string, location: string): string {
   const locationStr = location || 'この地';
 
   const narratives: { [key: string]: string } = {
-    'マッサージ・整体': `一人ひとりの体に真摯に向き合い、その人本来の健やかさを取り戻す。それが${locationStr}で続けてきた施術の道である`,
-    '美容業': `お客様の個性と魅力を引き出し、心からの笑顔を実現する。それこそが美容の本質である`,
-    '飲食店': `食材と向き合い、お客様と語らい、心通う空間を創り続ける。それが${locationStr}の食文化を支える`,
-    '宿泊施設': `${locationStr}の風土と文化を伝え、訪れる方々に特別な時間を提供し続けることで、真のおもてなしを実現している`,
-    '製造業': `ものづくりへのこだわりと技術の継承。それを次世代へつなぎ、社会に価値を届け続けている`,
-    'IT企業': `技術革新と人の心をつなぎ、社会課題の解決に取り組み続けることで、デジタル時代の価値を創造している`,
-    '医療機関': `患者一人ひとりの声に耳を傾け、心と体の両面からケアを提供することで、地域医療を支え続けている`,
-    '教育機関': `生徒の個性を大切にし、それぞれの可能性を信じて伸ばし続けることで、未来を担う人材を育んでいる`
+    'マッサージ・整体': `「癒やしとは、ただ痛みを取り除くことではない。一人ひとりの体に真摯に向き合い、その人本来の健やかさを取り戻す。心と体、その両方に寄り添いながら、${locationStr}で丁寧な施術を続けてきた。それこそが、真の癒やしなのだ」`,
+    '美容業': `「美しさとは、表面を整えることだけではない。お客様一人ひとりの個性と魅力を引き出し、内側から輝く笑顔を実現する。その人らしさを大切にしながら、心からの美しさを追求し続ける。それこそが、真の美容である」`,
+    '飲食店': `「食とは、ただ空腹を満たすものではない。食材一つ一つと真摯に向き合い、お客様と心を通わせ、温かな空間を創り続ける。${locationStr}の食文化を守りながら、人と人とのつながりを大切にする。それこそが、真の『食』の役割なのだ」`,
+    '宿泊施設': `「宿とは、ただ休息を提供する場ではない。${locationStr}の風土と文化を伝え、訪れる方々に特別な時間と新たな気づきをもたらす。一期一会の心を大切にしながら、真のおもてなしを実践し続ける。それこそが、宿の本質である」`,
+    '製造業': `「ものづくりとは、単に製品を生み出すことではない。職人の技と心を一つ一つの製品に込め、品質へのこだわりを次世代へと受け継いでいく。${locationStr}で培われた技術を大切にしながら、社会に価値を届け続ける。それこそが、真のものづくりである」`,
+    'IT企業': `「技術とは、それ自体が目的ではない。技術革新と人の心をつなぎ、社会の課題を一つずつ解決していく。デジタルの力で人々の暮らしを豊かにし、新しい価値を創造し続ける。それこそが、技術の本質なのだ」`,
+    '医療機関': `「医療とは、ただ病を治すことではない。患者一人ひとりの声に真摯に耳を傾け、心と体の両面から丁寧にケアを提供する。${locationStr}で地域医療を支えながら、信頼される存在であり続ける。それこそが、真の医療である」`,
+    '教育機関': `「教育とは、知識を授けるだけではない。生徒一人ひとりの個性を大切にし、それぞれの可能性を信じて伸ばしていく。自ら考え、学び、成長する力を育みながら、未来を担う人材を育てる。それこそが、真の教育なのだ」`,
+    '小売業': `「商いとは、品物を売ることだけではない。お客様一人ひとりと真摯に向き合い、人と人とのつながりを大切にする。${locationStr}で地域に根ざしながら、信頼関係を築き続ける。それこそが、真の商いの姿である」`,
   };
 
-  return narratives[businessType] || `お客様と真摯に向き合い、価値を提供し続けることで、${locationStr}で信頼される存在となっている`;
+  return narratives[businessType] || `「事業とは、利益を追求するだけではない。お客様と真摯に向き合い、一つ一つの仕事に心を込めて価値を提供し続ける。${locationStr}という土地で、人々の暮らしに寄り添いながら、信頼される存在であり続ける。それこそが、真の事業の在り方なのだ」`;
 }
