@@ -1274,6 +1274,14 @@ const SITE_MAPPINGS = {
     zipcode: { selector: 'input[name="entry.784507651"]', confidence: 100 },
     address: { selector: 'textarea[name="entry.1693933473"]', confidence: 100 },
     phone: { selector: 'input[name="entry.527314570"]', confidence: 100 }
+  },
+  // autostage.co.jp - Japanese Direct (mixed case Email)
+  'autostage.co.jp/contacts.html': {
+    company_url: 'https://autostage.co.jp/',
+    name: { selector: 'input[name="お名前"]', confidence: 100 },
+    email: { selector: 'input[name="Email"]', confidence: 100 },
+    phone: { selector: 'input[name="電話番号"]', confidence: 100 },
+    message: { selector: 'textarea[name="ご質問内容"]', confidence: 100 }
   }
 };
 
