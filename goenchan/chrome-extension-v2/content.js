@@ -1263,6 +1263,17 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="data[Block7_1][item][10][1]"]', confidence: 100 },
     email_confirm: { selector: 'input[name="data[Block7_1][item][10][2]"]', confidence: 100 },
     message: { selector: 'textarea[name="data[Block7_1][item][3]"]', confidence: 100 }
+  },
+  // Google Forms - Oz Nail & Eye contact form
+  'docs.google.com/forms/d/e/1FAIpQLSfp0gmPn5XuDLWMqd3H1x5nN6CxCfGlEeUnVH1Drz6aaV9wkg': {
+    company_url: 'https://oz-nail-eye.com/',
+    email: { selector: 'input[name="entry.144889441"]', confidence: 100 },
+    message: { selector: 'textarea[name="entry.1792479827"]', confidence: 100 },
+    name: { selector: 'input[name="entry.698195928"]', confidence: 100 },
+    name_kana: { selector: 'input[name="entry.788864870"]', confidence: 100 },
+    zipcode: { selector: 'input[name="entry.784507651"]', confidence: 100 },
+    address: { selector: 'textarea[name="entry.1693933473"]', confidence: 100 },
+    phone: { selector: 'input[name="entry.527314570"]', confidence: 100 }
   }
 };
 
