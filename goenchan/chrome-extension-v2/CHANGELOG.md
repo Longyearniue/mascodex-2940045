@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.13.0] - 2026-02-04
+
+### Added
+- **SITE_MAPPINGS Format Conversion**: Download button now generates content.js-ready format
+  - Converts Worker output to proper SITE_MAPPINGS structure
+  - Wraps field names in CSS selector format `[name="fieldname"]`
+  - Includes confidence values from pattern detection
+  - Outputs JavaScript file (.js) instead of JSON for easy integration
+  - Field type name normalization (personName → name, companyName → company, etc.)
+
+### Changed
+- Download button now outputs `site-mappings-[timestamp].js` instead of JSON
+- Generated file includes merge instructions for content.js
+
+### Improved
+- Eliminated manual mapping format conversion step
+- Streamlined workflow from crawl → download → integrate
+
 ## [2.12.0] - 2026-02-04
 
 ### Added
