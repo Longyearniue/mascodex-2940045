@@ -475,65 +475,154 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
     return;
   }
 
+  // Split URLs into batches of 50
+  const BATCH_SIZE = 50;
+  const batches = [];
+  for (let i = 0; i < urls.length; i += BATCH_SIZE) {
+    batches.push(urls.slice(i, i + BATCH_SIZE));
+  }
+
   // Show progress and disable button
   document.getElementById('startBulkCrawl').disabled = true;
   document.getElementById('crawlProgress').style.display = 'block';
   document.getElementById('crawlResults').style.display = 'none';
-  document.getElementById('progressText').textContent = `Processing ${urls.length} URL(s)...`;
+
+  // Initialize progress list
+  const progressList = document.getElementById('urlProgressList');
+  progressList.innerHTML = '';
+
+  // Accumulate results from all batches
+  let allMappings = [];
+  let allErrors = [];
+  let totalProcessed = 0;
+  let totalSuccess = 0;
+  let totalFailed = 0;
 
   try {
-    // Call Worker API
-    const response = await fetch('https://goenchan-worker.taiichifox.workers.dev/bulk-crawler', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ urls })
-    });
+    // Process each batch sequentially
+    for (let i = 0; i < batches.length; i++) {
+      const batch = batches[i];
+      const batchNum = i + 1;
+      const totalBatches = batches.length;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+      document.getElementById('progressText').textContent =
+        `Batch ${batchNum}/${totalBatches}: Processing ${batch.length} URL(s)... (${totalProcessed}/${urls.length} total completed)`;
+
+      // Add batch URLs to progress list
+      const batchUrls = {};
+      batch.forEach(url => {
+        const urlItem = document.createElement('div');
+        urlItem.id = `url-${url.replace(/[^a-zA-Z0-9]/g, '-')}`;
+        urlItem.style.cssText = 'padding: 4px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 6px;';
+        urlItem.innerHTML = `
+          <span style="color: #ff9800;">⏳</span>
+          <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(url)}</span>
+          <span style="font-size: 9px; color: #666;">処理中...</span>
+        `;
+        progressList.appendChild(urlItem);
+        batchUrls[url] = urlItem;
+      });
+
+      // Call Worker API for this batch
+      const response = await fetch('https://goenchan-worker.taiichifox.workers.dev/bulk-crawler', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ urls: batch })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Batch ${batchNum} failed: HTTP ${response.status}, ${errorData.error || 'Unknown error'}`);
+      }
+
+      const result = await response.json();
+
+      // Update each URL status based on results
+      if (result.results) {
+        result.results.forEach(urlResult => {
+          const urlItem = batchUrls[urlResult.url];
+          if (urlItem) {
+            if (urlResult.success) {
+              urlItem.innerHTML = `
+                <span style="color: #34a853;">✓</span>
+                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(urlResult.url)}</span>
+                <span style="font-size: 9px; color: #34a853;">成功</span>
+              `;
+            } else {
+              urlItem.innerHTML = `
+                <span style="color: #ea4335;">✗</span>
+                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(urlResult.error || '')}">${escapeHtml(urlResult.url)}</span>
+                <span style="font-size: 9px; color: #ea4335;">失敗</span>
+              `;
+            }
+          }
+        });
+      }
+
+      // Accumulate results
+      if (result.mappings && result.mappings.length > 0) {
+        allMappings = allMappings.concat(result.mappings);
+      }
+      if (result.errors && result.errors.length > 0) {
+        allErrors = allErrors.concat(result.errors);
+      }
+      totalProcessed += result.totalProcessed || 0;
+      totalSuccess += result.successCount || 0;
+      totalFailed += result.failureCount || 0;
+
+      // Small delay between batches to avoid rate limiting
+      if (i < batches.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
 
-    const result = await response.json();
-
-    // Store mappings globally for download
-    window.crawlMappings = result.mappings;
+    // Store all mappings globally for download
+    window.crawlMappings = allMappings;
 
     // Hide progress, show results
     document.getElementById('crawlProgress').style.display = 'none';
     document.getElementById('crawlResults').style.display = 'block';
 
-    // Display statistics (use correct field names from Worker response)
+    // Display combined statistics
     const stats = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <div><strong>Total:</strong> ${result.totalProcessed || 0}</div>
-        <div><strong>Success:</strong> <span style="color: #34a853;">${result.successCount || 0}</span></div>
-        <div><strong>Failed:</strong> <span style="color: #ea4335;">${result.failureCount || 0}</span></div>
-        <div><strong>Mappings:</strong> ${result.mappings ? result.mappings.length : 0}</div>
+        <div><strong>Total:</strong> ${totalProcessed}</div>
+        <div><strong>Success:</strong> <span style="color: #34a853;">${totalSuccess}</span></div>
+        <div><strong>Failed:</strong> <span style="color: #ea4335;">${totalFailed}</span></div>
+        <div><strong>Mappings:</strong> ${allMappings.length}</div>
       </div>
+      ${batches.length > 1 ? `<div style="margin-top: 8px; font-size: 11px; color: #666;">Processed in ${batches.length} batches</div>` : ''}
     `;
     document.getElementById('resultsStats').innerHTML = stats;
 
-    // Display errors if any
-    if (result.errors && result.errors.length > 0) {
+    // Display all errors
+    if (allErrors.length > 0) {
       const errorList = document.getElementById('errorList');
       errorList.style.display = 'block';
-      errorList.innerHTML = '<div style="font-weight: 600; margin-bottom: 6px; color: #ea4335;">Errors:</div>';
+      errorList.innerHTML = `<div style="font-weight: 600; margin-bottom: 6px; color: #ea4335;">Errors (${allErrors.length}):</div>`;
 
-      result.errors.forEach(error => {
+      // Limit displayed errors to first 50 to avoid UI overload
+      const displayErrors = allErrors.slice(0, 50);
+      displayErrors.forEach(error => {
         const errorItem = document.createElement('div');
         errorItem.style.cssText = 'padding: 6px; border-bottom: 1px solid #f0f0f0; font-size: 10px;';
-        // Error is a string in format "url: error message"
         errorItem.textContent = error;
         errorList.appendChild(errorItem);
       });
+
+      if (allErrors.length > 50) {
+        const moreItem = document.createElement('div');
+        moreItem.style.cssText = 'padding: 6px; font-size: 10px; color: #666; font-style: italic;';
+        moreItem.textContent = `... and ${allErrors.length - 50} more errors`;
+        errorList.appendChild(moreItem);
+      }
     } else {
       document.getElementById('errorList').style.display = 'none';
     }
 
-    showStatus(`Crawl complete! ${result.successCount}/${result.totalProcessed} successful`, 'success');
+    showStatus(`Crawl complete! ${totalSuccess}/${totalProcessed} successful (${batches.length} batches)`, 'success');
 
   } catch (error) {
     console.error('Bulk crawl error:', error);
