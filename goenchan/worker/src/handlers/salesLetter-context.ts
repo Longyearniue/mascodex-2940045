@@ -13,8 +13,17 @@ export function generateContextFromDeepAnalysis(analysis: any): any {
     specificInitiatives
   } = analysis;
 
-  // 業種に応じた深い考察を生成
-  const deepInsight = generateDeepInsight(businessType, location, keywords, philosophy, presidentMessage);
+  // 業種に応じた深い考察を生成（全データを渡してより独自性の高い文章を生成）
+  const deepInsight = generateDeepInsight(
+    businessType,
+    location,
+    keywords,
+    philosophy,
+    presidentMessage,
+    uniqueStrengths,
+    specificInitiatives,
+    foundedYear
+  );
 
   // 1つの魅力ポイント（統合版）
   const attraction = deepInsight.attraction;
@@ -90,7 +99,10 @@ function generateDeepInsight(
   location: string,
   keywords: string[],
   philosophy: string,
-  presidentMessage: string
+  presidentMessage: string,
+  uniqueStrengths: string[],
+  specificInitiatives: string[],
+  foundedYear: string
 ): { attraction: string; uniqueApproach: string; historicalNarrative: string } {
 
   const locationStr = location || 'この地';
@@ -101,102 +113,57 @@ function generateDeepInsight(
   // 企業特徴から核となる概念を抽出（historicalNarrativeで使用）
   const coreConcept = extractCoreConcept(companyFeature);
 
-  // マッサージ・整体
-  if (businessType === 'マッサージ・整体') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : 'お客様一人ひとりに合わせた丁寧な施術により、高い満足度とリピート率を実現しておられること'}`,
-      uniqueApproach: companyFeature || 'お客様との信頼関係を大切にし、きめ細かい対応を続けておられること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、長く支持される事業の基盤となる`
-        : '施術の質と、お客様への誠実な対応が、長く支持される事業の基盤となる'
-    };
-  }
+  // ユニークな物語を生成（複数の要素を組み合わせて独自性を高める）
+  const uniqueNarrative = generateUniqueNarrative(
+    businessType,
+    locationStr,
+    foundedYear,
+    coreConcept,
+    philosophy,
+    presidentMessage,
+    uniqueStrengths,
+    specificInitiatives,
+    keywords
+  );
 
-  // 美容業
-  if (businessType === '美容業') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : 'お客様一人ひとりの個性を活かした施術により、高い満足度を実現しておられること'}`,
-      uniqueApproach: companyFeature || 'お客様との信頼関係を重視し、きめ細かい対応を続けておられること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、長く支持される事業の基盤となる`
-        : '美容サービスの質と、お客様への誠実な対応が、長く支持される事業の基盤となる'
-    };
-  }
-
-  // 飲食店
-  if (businessType === '飲食店') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : '地域に根ざした営業と、お客様との信頼関係を大切にした飲食店経営を続けておられること'}`,
-      uniqueApproach: companyFeature || '一皿一皿の品質にこだわり、お客様に支持される店づくりを続けておられること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、お客様との長い信頼関係を築く。それが${locationStr}で支持される店の基盤となる`
-        : `料理の質と接客の心が、お客様との長い信頼関係を築く。それが${locationStr}で支持される店の基盤となる`
-    };
-  }
-
-  // 宿泊施設
-  if (businessType === '宿泊施設') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : 'お客様に満足いただけるおもてなしと、質の高いサービスを提供し続けておられること'}`,
-      uniqueApproach: companyFeature || 'お客様一人ひとりに合わせたきめ細かい対応を大切にされていること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}と、${locationStr}ならではの魅力が、お客様に選ばれる宿の基盤となる`
-        : `サービスの質と、${locationStr}ならではの魅力が、お客様に選ばれる宿の基盤となる`
-    };
-  }
-
-  // 製造業
-  if (businessType === '製造業') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : '品質へのこだわりと顧客満足を重視したものづくりを続けておられること'}`,
-      uniqueApproach: companyFeature || '一つ一つの製品に真摯に向き合い、品質と信頼を大切にされていること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、${locationStr}で信頼される企業の基盤となる`
-        : `製品の質と顧客への誠実さが、${locationStr}で信頼される企業の基盤となる`
-    };
-  }
-
-  // IT企業
-  if (businessType === 'IT企業') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : '顧客の課題解決を第一に考えたサービス提供を続けておられること'}`,
-      uniqueApproach: companyFeature || '技術力と顧客対応の両立により、信頼される企業として事業を展開されていること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、長く支持される企業の基盤となる`
-        : '技術力と顧客満足の両立が、長く支持される企業の基盤となる'
-    };
-  }
-
-  // 医療機関
-  if (businessType === '医療機関') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : '患者一人ひとりに丁寧に向き合う医療を提供し続けておられること'}`,
-      uniqueApproach: companyFeature || '患者との信頼関係を大切にし、心身両面からのケアを重視されていること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、地域に信頼される医療機関の基盤となる`
-        : '医療の質と患者への誠実さが、地域に信頼される医療機関の基盤となる'
-    };
-  }
-
-  // 教育機関
-  if (businessType === '教育機関') {
-    return {
-      attraction: `${locationStr}で、${companyFeature ? companyFeature : '一人ひとりの生徒に向き合った教育を提供し続けておられること'}`,
-      uniqueApproach: companyFeature || '生徒の個性を大切にし、それぞれの可能性を引き出す教育を続けておられること',
-      historicalNarrative: coreConcept
-        ? `${coreConcept}が、支持される教育機関の基盤となる`
-        : '教育の質と生徒への真摯な姿勢が、支持される教育機関の基盤となる'
-    };
-  }
-
-  // デフォルト（一般企業）
+  // すべての業種で共通のアプローチ: uniqueNarrativeを使用
   return {
-    attraction: `${locationStr}で、${companyFeature ? companyFeature : '地域社会との長期的な関係を大切にし、価値ある事業を続けておられること'}`,
-    uniqueApproach: companyFeature || '顧客満足と地域貢献を重視し、持続可能な事業展開を続けておられること',
-    historicalNarrative: coreConcept
-      ? `${coreConcept}が、${locationStr}で信頼される企業の基盤となる`
-      : `事業の質と地域への貢献が、${locationStr}で信頼される企業の基盤となる`
+    attraction: `${locationStr}で、${companyFeature ? companyFeature : getDefaultAttraction(businessType)}`,
+    uniqueApproach: companyFeature || getDefaultApproach(businessType),
+    historicalNarrative: uniqueNarrative
   };
+}
+
+// Get default attraction text for each business type
+function getDefaultAttraction(businessType: string): string {
+  const defaults: { [key: string]: string } = {
+    'マッサージ・整体': 'お客様一人ひとりに合わせた丁寧な施術により、高い満足度とリピート率を実現しておられること',
+    '美容業': 'お客様一人ひとりの個性を活かした施術により、高い満足度を実現しておられること',
+    '飲食店': '地域に根ざした営業と、お客様との信頼関係を大切にした飲食店経営を続けておられること',
+    '宿泊施設': 'お客様に満足いただけるおもてなしと、質の高いサービスを提供し続けておられること',
+    '製造業': '品質へのこだわりと顧客満足を重視したものづくりを続けておられること',
+    'IT企業': '顧客の課題解決を第一に考えたサービス提供を続けておられること',
+    '医療機関': '患者一人ひとりに丁寧に向き合う医療を提供し続けておられること',
+    '教育機関': '一人ひとりの生徒に向き合った教育を提供し続けておられること'
+  };
+
+  return defaults[businessType] || '地域社会との長期的な関係を大切にし、価値ある事業を続けておられること';
+}
+
+// Get default approach text for each business type
+function getDefaultApproach(businessType: string): string {
+  const defaults: { [key: string]: string } = {
+    'マッサージ・整体': 'お客様との信頼関係を大切にし、きめ細かい対応を続けておられること',
+    '美容業': 'お客様との信頼関係を重視し、きめ細かい対応を続けておられること',
+    '飲食店': '一皿一皿の品質にこだわり、お客様に支持される店づくりを続けておられること',
+    '宿泊施設': 'お客様一人ひとりに合わせたきめ細かい対応を大切にされていること',
+    '製造業': '一つ一つの製品に真摯に向き合い、品質と信頼を大切にされていること',
+    'IT企業': '技術力と顧客対応の両立により、信頼される企業として事業を展開されていること',
+    '医療機関': '患者との信頼関係を大切にし、心身両面からのケアを重視されていること',
+    '教育機関': '生徒の個性を大切にし、それぞれの可能性を引き出す教育を続けておられること'
+  };
+
+  return defaults[businessType] || '顧客満足と地域貢献を重視し、持続可能な事業展開を続けておられること';
 }
 
 // Generate natural description based on company data
@@ -325,4 +292,164 @@ function extractCoreConcept(feature: string): string {
     .replace(/と.*?を両立させながら.*?追求しておられること$/, '')
     .replace(/を重視した事業展開により.*?信頼関係を大切にしておられること$/, '')
     .trim();
+}
+
+// Generate truly unique narrative by combining multiple company aspects
+// 企業の複数の特徴を組み合わせて、本当にユニークな物語を生成
+function generateUniqueNarrative(
+  businessType: string,
+  location: string,
+  foundedYear: string,
+  coreConcept: string,
+  philosophy: string,
+  presidentMessage: string,
+  uniqueStrengths: string[],
+  specificInitiatives: string[],
+  keywords: string[]
+): string {
+  // 企業の独自性を示す要素を抽出
+  const uniqueElements: string[] = [];
+
+  // 1. 創業年・歴史的背景
+  if (foundedYear && foundedYear.match(/[0-9]{4}/)) {
+    const year = foundedYear.match(/([0-9]{4})/);
+    if (year) {
+      const yearNum = parseInt(year[1]);
+      if (yearNum < 1950) {
+        uniqueElements.push(`${foundedYear}から続く伝統と技術`);
+      } else if (yearNum < 1990) {
+        uniqueElements.push(`${foundedYear}以来培われた経験と信頼`);
+      } else {
+        uniqueElements.push(`${foundedYear}創業の情熱と挑戦の精神`);
+      }
+    }
+  }
+
+  // 2. 具体的な取り組み・強み（最も重要な独自性）
+  if (specificInitiatives.length > 0) {
+    for (const initiative of specificInitiatives.slice(0, 2)) {
+      if (initiative.length > 15 && initiative.length < 80) {
+        const cleaned = initiative
+          .replace(/^[・●◆]+/, '')
+          .replace(/です$/, '')
+          .replace(/ます$/, '')
+          .trim();
+        if (cleaned.length > 10) {
+          uniqueElements.push(cleaned);
+        }
+      }
+    }
+  }
+
+  // 3. 独自の強み
+  if (uniqueStrengths.length > 0) {
+    for (const strength of uniqueStrengths.slice(0, 2)) {
+      if (strength.length > 15 && strength.length < 80) {
+        const cleaned = strength
+          .replace(/^[・●◆]+/, '')
+          .replace(/です$/, '')
+          .replace(/ます$/, '')
+          .trim();
+        if (cleaned.length > 10 && !uniqueElements.includes(cleaned)) {
+          uniqueElements.push(cleaned);
+        }
+      }
+    }
+  }
+
+  // 4. 理念・哲学から独自性を抽出
+  if (philosophy) {
+    const sentences = philosophy.split(/[。．]/);
+    for (const sentence of sentences) {
+      const trimmed = sentence.trim();
+      if (trimmed.length > 20 && trimmed.length < 70) {
+        if (trimmed.match(/(こだわり|追求|目指|実現|大切|重視|提供|貢献)/)) {
+          uniqueElements.push(trimmed);
+          break;
+        }
+      }
+    }
+  }
+
+  // 5. 社長メッセージから独自性を抽出
+  if (uniqueElements.length < 2 && presidentMessage) {
+    const sentences = presidentMessage.split(/[。．]/);
+    for (const sentence of sentences) {
+      const trimmed = sentence.trim();
+      if (trimmed.length > 20 && trimmed.length < 70) {
+        if (trimmed.match(/(こだわり|追求|目指|実現|大切|重視|提供|貢献)/)) {
+          uniqueElements.push(trimmed);
+          break;
+        }
+      }
+    }
+  }
+
+  // 6. キーワードから特徴的なものを抽出
+  if (uniqueElements.length < 2 && keywords.length > 0) {
+    const meaningfulKeywords = keywords.filter(kw =>
+      kw.length > 2 &&
+      kw.length < 15 &&
+      !kw.match(/(ニュース|お知らせ|キャンペーン|円|NEWS|CP)/)
+    );
+    if (meaningfulKeywords.length > 0) {
+      uniqueElements.push(meaningfulKeywords.slice(0, 2).join('と'));
+    }
+  }
+
+  // 複数の要素を組み合わせてユニークな物語を構築
+  if (uniqueElements.length >= 2) {
+    // パターン1: 要素A、要素B、そしてC
+    const elem1 = uniqueElements[0];
+    const elem2 = uniqueElements[1];
+
+    if (location && foundedYear) {
+      return `${elem1}。${elem2}。それこそが${location}の${businessType}として歩み続ける道である`;
+    } else if (location) {
+      return `${elem1}。そして${elem2}。これらが${location}で選ばれる理由となっている`;
+    } else if (foundedYear) {
+      return `${elem1}。${elem2}。これが創業以来変わらぬ姿勢である`;
+    } else {
+      return `${elem1}。${elem2}。それが真の${businessType}の在り方なのだ`;
+    }
+  } else if (uniqueElements.length === 1) {
+    // パターン2: 単一要素をより深く
+    const elem = uniqueElements[0];
+
+    if (coreConcept) {
+      return `${coreConcept}。${elem}。この一貫した姿勢こそが、顧客から信頼される所以である`;
+    } else {
+      return `${elem}。それを体現し続けることで、真の価値を生み出している`;
+    }
+  } else {
+    // パターン3: コアコンセプトをベースに
+    if (coreConcept) {
+      if (location) {
+        return `${coreConcept}という信念。それを${location}という土地で実践し続けることで、地域に根ざした存在となっている`;
+      } else {
+        return `${coreConcept}という信念を貫き、お客様一人ひとりに向き合い続けることで、揺るぎない信頼を築いている`;
+      }
+    } else {
+      // フォールバック: 業種に応じた最低限のユニークな表現
+      return generateMinimalUniqueNarrative(businessType, location);
+    }
+  }
+}
+
+// Minimal unique narrative as fallback
+function generateMinimalUniqueNarrative(businessType: string, location: string): string {
+  const locationStr = location || 'この地';
+
+  const narratives: { [key: string]: string } = {
+    'マッサージ・整体': `一人ひとりの体に真摯に向き合い、その人本来の健やかさを取り戻す。それが${locationStr}で続けてきた施術の道である`,
+    '美容業': `お客様の個性と魅力を引き出し、心からの笑顔を実現する。それこそが美容の本質である`,
+    '飲食店': `食材と向き合い、お客様と語らい、心通う空間を創り続ける。それが${locationStr}の食文化を支える`,
+    '宿泊施設': `${locationStr}の風土と文化を伝え、訪れる方々に特別な時間を提供し続けることで、真のおもてなしを実現している`,
+    '製造業': `ものづくりへのこだわりと技術の継承。それを次世代へつなぎ、社会に価値を届け続けている`,
+    'IT企業': `技術革新と人の心をつなぎ、社会課題の解決に取り組み続けることで、デジタル時代の価値を創造している`,
+    '医療機関': `患者一人ひとりの声に耳を傾け、心と体の両面からケアを提供することで、地域医療を支え続けている`,
+    '教育機関': `生徒の個性を大切にし、それぞれの可能性を信じて伸ばし続けることで、未来を担う人材を育んでいる`
+  };
+
+  return narratives[businessType] || `お客様と真摯に向き合い、価値を提供し続けることで、${locationStr}で信頼される存在となっている`;
 }
