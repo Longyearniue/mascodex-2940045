@@ -1222,6 +1222,34 @@ const SITE_MAPPINGS = {
     fax: { selector: 'input[name="query[1003]"]', confidence: 100 },
     email: { selector: 'input[name="query[1004]"]', confidence: 100 },
     message: { selector: 'textarea[name="query[22]"]', confidence: 100 }
+  },
+  // www.koyukai.co.jp - Japanese Direct (Senior housing inquiry)
+  'www.koyukai.co.jp/inquiry/': {
+    company_url: 'https://www.koyukai.co.jp/',
+    name: { selector: 'input[name="お名前"]', confidence: 100 },
+    name_kana: { selector: 'input[name="ふりがな"]', confidence: 100 },
+    phone: { selector: 'input[name="お電話番号"]', confidence: 100 },
+    email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="メールアドレス（確認用）"]', confidence: 100 },
+    zipcode: { selector: 'input[name="郵便番号"]', confidence: 100 },
+    address: { selector: 'input[name="住所（市区町村番地）"]', confidence: 100 },
+    building: { selector: 'input[name="住所（建物・部屋番号）"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問い合せ内容"]', confidence: 100 }
+  },
+  // www.sho-bond.co.jp - Japanese Direct with mixed names
+  'www.sho-bond.co.jp/contact/form.html': {
+    company_url: 'https://www.sho-bond.co.jp/',
+    company: { selector: 'input[name="会社名"]', confidence: 100 },
+    department: { selector: 'input[name="部署名"]', confidence: 100 },
+    name: { selector: 'input[name="氏名"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    zipcode: { selector: 'input[name="郵便番号"]', confidence: 100 },
+    prefecture: { selector: 'input[name="都道府県"]', confidence: 100 },
+    city: { selector: 'input[name="市区町村"]', confidence: 100 },
+    street: { selector: 'input[name="丁目番地"]', confidence: 100 },
+    phone: { selector: 'input[name="電話番号"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問合せ内容"]', confidence: 100 },
+    inquiry_type: { selector: 'input[name="問い合わせ項目"][value="その他お困りごと"]', type: 'checkbox', confidence: 100 }
   }
 };
 
