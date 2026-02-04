@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Contact Form Auto-Filler Pro",
-  "version": "2.11.0",
-  "description": "Advanced form auto-filler with AI-powered sales letter generation and pattern recognition",
+  "version": "2.12.0",
+  "description": "Advanced form auto-filler with pattern recognition and bulk crawler",
   "permissions": [
     "activeTab",
     "storage",

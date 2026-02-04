@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.12.0] - 2026-02-04
+
+### Added
+- **Bulk Site Crawler**: Automatically crawl multiple URLs to detect contact forms
+  - Parallel crawling (10 concurrent sites)
+  - Automatic pattern detection and mapping generation
+  - Download detected mappings as JSON
+  - Error reporting for failed sites
+- Worker-side pattern detection and mapping generation
+- HTML parser utilities for contact link detection
+
+### Changed
+- Extended UI with Bulk Site Crawler section
+- Added /bulk-crawler endpoint to Cloudflare Worker
+
+### Improved
+- Reduced manual SITE_MAPPINGS configuration effort
+- Faster onboarding for new sites
+
 ## [2.11.0] - 2026-02-04
 
 ### Added
