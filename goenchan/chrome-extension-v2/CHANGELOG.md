@@ -3,12 +3,14 @@
 ## [2.15.0] - 2026-02-04
 
 ### Improved
-- **Sales Letter Customization**: Historical narrative now incorporates company-specific features
-  - Extracts core concepts from company philosophy, president message, and keywords
-  - Replaces generic templates (e.g., "製品の質と顧客への誠実さ") with actual company values
-  - Applies to all business types: massage, beauty, restaurant, hotel, manufacturing, IT, medical, education
-  - Example: Manufacturing company with "高品質な製品づくり" philosophy → "高品質な製品づくりが、この地で信頼される企業の基盤となる"
-  - Falls back to generic templates only when specific features cannot be extracted
+- **Truly Unique Historical Narratives**: Each company gets a completely unique story
+  - Combines multiple unique elements per company: founding year context, specific initiatives, unique strengths, philosophy, president message
+  - Varies narrative structure based on available data (not single template)
+  - Removes generic phrases like "長く支持される事業の基盤となる" that appeared for all companies
+  - Example 1: "創業1950年から続く伝統と技術。地域に根ざした誠実な対応。それこそが東京の製造業として歩み続ける道である"
+  - Example 2: "品質へのこだわり。そしてお客様との信頼関係の構築。これらが選ばれる理由となっている"
+  - Example 3: "技術革新と人の心を大切にするという信念を貫き、お客様一人ひとりに向き合い続けることで、揺るぎない信頼を築いている"
+  - Historical figures now read and sing truly unique content tailored to each company's character
 
 ## [2.14.0] - 2026-02-04
 
