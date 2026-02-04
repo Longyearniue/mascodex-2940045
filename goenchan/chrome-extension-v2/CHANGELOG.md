@@ -10,10 +10,15 @@
   - Reduced MAX_REQUESTS_PER_SITE from 20 to 16
   - Reduced BATCH_SIZE from 50 to 3
   - Optimized crawling: 12 direct paths + 1 homepage + 3 contact links = 16 requests max
+- **Bulk Crawler hanging fixed**
+  - Worker: Reduced site timeout from 60s to 20s (faster failure detection)
+  - Frontend: Added 90s batch timeout with AbortController (prevents infinite waiting)
+  - Math: 3 sites × 20s timeout = 60s max per batch + 30s buffer
 
 ### Changed
 - Bulk crawler now processes 3 sites per batch (slower but 100% reliable)
 - Level 2 links reduced from 5 to 3 for better subrequest budget management
+- Site timeout reduced from 60s to 20s for faster processing
 
 ## [2.15.0] - 2026-02-04
 
