@@ -129,7 +129,48 @@ async function crawlSingleSite(
       return null;
     };
 
-    // LEVEL 1: Try homepage first
+    // LEVEL 0: Try common contact page paths FIRST (most efficient)
+    // These are the most common locations for contact forms
+    const baseUrlObj = new URL(url);
+    const baseUrl = `${baseUrlObj.protocol}//${baseUrlObj.hostname}`;
+
+    const commonPaths = [
+      '/contact',
+      '/contact/',
+      '/contact.html',
+      '/contact.php',
+      '/inquiry',
+      '/inquiry/',
+      '/inquiry.html',
+      '/form',
+      '/form/',
+      '/toiawase',
+      '/otoiawase',
+      '/お問い合わせ',
+      '/お問合せ',
+      '/お問合わせ/',
+      '/contact/index.html',
+      '/inquiry/index.html',
+      '/form/index.html',
+      '/contactus',
+      '/contact-us',
+      '/contact_us.html',
+      '/support',
+      '/support/',
+      '/request',
+      '/mailform',
+      '/mailform/',
+    ];
+
+    for (const path of commonPaths) {
+      const directUrl = baseUrl + path;
+      const directResult = await checkUrl(directUrl, 0);
+      if (directResult?.success) {
+        return directResult;
+      }
+    }
+
+    // LEVEL 1: Try homepage
     const homepageResult = await checkUrl(url, 1);
     if (homepageResult?.success) {
       return homepageResult;
