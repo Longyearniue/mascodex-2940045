@@ -493,6 +493,17 @@ function simpleHash(str) {
  * Returns: { type: 'company'|'name'|'email'|etc, confidence: 0-100, source: 'label'|'aria'|'placeholder' }
  */
 function analyzeFieldSemantics(field) {
+  // Validate field parameter
+  if (!field || !field.getAttribute) return null;
+
+  // Confidence score constants
+  const CONFIDENCE_LABEL = 40;
+  const CONFIDENCE_ARIA = 35;
+  const CONFIDENCE_PLACEHOLDER = 25;
+  const CONFIDENCE_ARIA_LABELLEDBY = 30;
+  const CONFIDENCE_NEARBY = 15;
+  const MIN_CONFIDENCE = 10;
+
   const semanticPatterns = {
     company: {
       ja: ['会社', '企業', '法人', '団体', '貴社', '御社', '勤務先', '組織'],
@@ -538,37 +549,22 @@ function analyzeFieldSemantics(field) {
 
   const sources = [];
 
-  // 1. Get label text (highest priority)
+  // 1. Get label text (highest priority - includes aria-label and aria-labelledby)
   const label = getFieldLabel(field);
   if (label) {
-    sources.push({ text: label, type: 'label', confidence: 40 });
+    sources.push({ text: label, type: 'label', confidence: CONFIDENCE_LABEL });
   }
 
-  // 2. aria-label (high priority)
-  const ariaLabel = field.getAttribute('aria-label');
-  if (ariaLabel) {
-    sources.push({ text: ariaLabel, type: 'aria-label', confidence: 35 });
-  }
-
-  // 3. placeholder (medium priority)
+  // 2. placeholder (medium priority)
   const placeholder = field.getAttribute('placeholder');
   if (placeholder) {
-    sources.push({ text: placeholder, type: 'placeholder', confidence: 25 });
+    sources.push({ text: placeholder, type: 'placeholder', confidence: CONFIDENCE_PLACEHOLDER });
   }
 
-  // 4. aria-labelledby (medium priority)
-  const ariaLabelledBy = field.getAttribute('aria-labelledby');
-  if (ariaLabelledBy) {
-    const labelElement = document.getElementById(ariaLabelledBy);
-    if (labelElement) {
-      sources.push({ text: cleanText(labelElement.textContent), type: 'aria-labelledby', confidence: 30 });
-    }
-  }
-
-  // 5. Nearby text (low priority - within 50 chars before field)
+  // 3. Nearby text (low priority - limited to 50 chars)
   const nearbyText = getPreviousSiblingText(field);
   if (nearbyText) {
-    sources.push({ text: nearbyText, type: 'nearby-text', confidence: 15 });
+    sources.push({ text: nearbyText.substring(0, 50), type: 'nearby-text', confidence: CONFIDENCE_NEARBY });
   }
 
   if (sources.length === 0) {
@@ -609,9 +605,12 @@ function analyzeFieldSemantics(field) {
         }
       }
     }
+
+    // Early break if we found highest confidence match
+    if (bestScore >= CONFIDENCE_LABEL) break;
   }
 
-  if (!bestMatch || bestScore < 10) {
+  if (!bestMatch || bestScore < MIN_CONFIDENCE) {
     return null;
   }
 
@@ -913,7 +912,7 @@ async function autoFillForm(profile) {
   for (const field of unfilledFields) {
     const semantic = analyzeFieldSemantics(field);
 
-    if (semantic && semantic.confidence >= 10) {
+    if (semantic) {
       const value = getProfileValue(profile, semantic.type);
 
       if (value) {
