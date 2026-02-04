@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.17.0] - 2026-02-04
+
+### Added
+- **🚀 Fully Automatic Mapping Integration** - Zero manual work required!
+  - Bulk Crawler results automatically saved to chrome.storage
+  - Mappings automatically loaded and applied on all pages
+  - No file editing, no extension reload needed
+  - User workflow: Paste URLs → Click "Start Crawl" → Done!
+- **💾 Storage Management UI**
+  - Real-time display of auto-saved mapping count
+  - Clear button for storage management
+  - Status indicator showing mappings are active
+
+### Changed
+- Bulk Crawler now auto-saves results immediately after completion
+- content.js automatically loads auto-generated mappings on startup
+- Mappings persist across sessions and accumulate over multiple crawls
+- Success message updated: "Auto-saved to storage - ready to use immediately!"
+
+### Workflow Improvement
+**Before (v2.16.1):**
+1. Run Bulk Crawler
+2. Download JSON file
+3. Manually edit content.js
+4. Reload extension
+5. Test
+
+**Now (v2.17.0):**
+1. Run Bulk Crawler
+2. ✅ Done! (Automatically applied)
+
+**For 763 URLs:**
+- Split into 8 batches of ~100 URLs
+- Run each batch (auto-saves)
+- All mappings automatically merge
+- Zero manual integration needed
+
 ## [2.16.1] - 2026-02-04
 
 ### Added
