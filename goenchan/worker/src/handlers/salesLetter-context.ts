@@ -308,66 +308,126 @@ function generateUniqueNarrative(
     }
   }
 
-  // 複数の要素を組み合わせて、コマーシャルのような深い物語を構築
+  // 企業固有の内容から哲学的な表現を生成（テンプレート一切なし）
+  const philosophicalStatement = generatePhilosophicalStatement(
+    philosophy,
+    presidentMessage,
+    uniqueElements,
+    coreConcept,
+    businessType
+  );
+
+  // 複数の要素を組み合わせて、企業固有の深い物語を構築
   if (uniqueElements.length >= 2) {
-    // パターン1: 哲学的な深い表現（2つ以上の要素がある場合）
     const elem1 = uniqueElements[0];
     const elem2 = uniqueElements[1];
 
-    // 業種に応じた深い導入文
-    const philosophicalIntro = getPhilosophicalIntro(businessType);
-
-    if (location && foundedYear) {
-      return `「${philosophicalIntro}${elem1}。そして${elem2}。${location}という土地で、その想いを形にし続けてきた。それこそが、この事業の本質である」`;
-    } else if (location) {
-      return `「${philosophicalIntro}${elem1}。${elem2}。${location}という場所で、これらを大切にしながら、一歩一歩進んでいる。それが、ここで選ばれ続ける理由なのだ」`;
-    } else if (foundedYear) {
-      return `「${philosophicalIntro}${elem1}。そして${elem2}。創業以来変わらぬこの姿勢が、人々の信頼を得てきた。これからも、この道を歩み続ける」`;
-    } else {
-      return `「${philosophicalIntro}${elem1}。そして${elem2}。その想いを日々の営みの中で体現し続けること。それこそが、真の${businessType}の姿である」`;
-    }
-  } else if (uniqueElements.length === 1) {
-    // パターン2: 単一要素を深く掘り下げる
-    const elem = uniqueElements[0];
-    const philosophicalIntro = getPhilosophicalIntro(businessType);
-
-    if (coreConcept) {
-      return `「${philosophicalIntro}${coreConcept}。そして${elem}。この一貫した想いが、お客様との深い信頼関係を生み出している。それが、変わらぬ価値なのだ」`;
-    } else {
-      return `「${philosophicalIntro}${elem}。その想いを、一つ一つの行動で示し続けること。それが、真の価値を生み出す源となっている」`;
-    }
-  } else {
-    // パターン3: コアコンセプトをベースに深く
-    const philosophicalIntro = getPhilosophicalIntro(businessType);
-
-    if (coreConcept) {
-      if (location) {
-        return `「${philosophicalIntro}${coreConcept}という信念。それを${location}という土地で、日々実践し続けている。人と人とのつながりを大切にし、地域に根ざした存在であり続ける。それこそが、この事業の在り方である」`;
+    // 哲学的表現がある場合は使用、ない場合は要素のみで構成
+    if (philosophicalStatement) {
+      if (location && foundedYear) {
+        return `「${philosophicalStatement}${elem1}。そして${elem2}。${location}という土地で、その想いを形にし続けてきた。それこそが、この事業の本質である」`;
+      } else if (location) {
+        return `「${philosophicalStatement}${elem1}。${elem2}。${location}という場所で、これらを大切にしながら、一歩一歩進んでいる。それが、ここで選ばれ続ける理由なのだ」`;
+      } else if (foundedYear) {
+        return `「${philosophicalStatement}${elem1}。そして${elem2}。創業以来変わらぬこの姿勢が、人々の信頼を得てきた。これからも、この道を歩み続ける」`;
       } else {
-        return `「${philosophicalIntro}${coreConcept}という信念を貫き、お客様一人ひとりに真摯に向き合い続ける。その積み重ねが、揺るぎない信頼を築き上げてきた。これからも、この想いを大切にしていく」`;
+        return `「${philosophicalStatement}${elem1}。そして${elem2}。その想いを日々の営みの中で体現し続けている」`;
       }
     } else {
-      // フォールバック: 業種に応じた深いユニークな表現
+      // 哲学的表現がない場合: 要素だけで構成
+      if (location && foundedYear) {
+        return `「${elem1}。そして${elem2}。${location}という土地で、${foundedYear}からこれらを大切にし続けてきた」`;
+      } else if (location) {
+        return `「${elem1}。${elem2}。${location}という場所で、これらを実践し続けている」`;
+      } else {
+        return `「${elem1}。そして${elem2}。これらを日々の営みで体現し続けている」`;
+      }
+    }
+  } else if (uniqueElements.length === 1) {
+    const elem = uniqueElements[0];
+
+    if (philosophicalStatement) {
+      if (coreConcept) {
+        return `「${philosophicalStatement}${coreConcept}。そして${elem}。この一貫した想いが、お客様との深い信頼関係を生み出している」`;
+      } else {
+        return `「${philosophicalStatement}${elem}。その想いを、一つ一つの行動で示し続けている」`;
+      }
+    } else {
+      // 哲学的表現がない場合
+      if (location) {
+        return `「${elem}。それを${location}という土地で、日々実践し続けている」`;
+      } else {
+        return `「${elem}。それを、一つ一つの仕事で体現し続けている」`;
+      }
+    }
+  } else {
+    // 要素がない場合: コアコンセプトと哲学的表現のみ
+    if (philosophicalStatement && coreConcept) {
+      if (location) {
+        return `「${philosophicalStatement}${coreConcept}。それを${location}という土地で、日々実践し続けている」`;
+      } else {
+        return `「${philosophicalStatement}${coreConcept}。それを貫き、お客様一人ひとりに真摯に向き合い続けている」`;
+      }
+    } else if (philosophicalStatement) {
+      // 哲学的表現のみ
+      if (location) {
+        return `「${philosophicalStatement}それを${location}という土地で、実践し続けている」`;
+      } else {
+        return `「${philosophicalStatement}それを日々の営みで体現し続けている」`;
+      }
+    } else {
+      // データが何もない場合のみ、最小限のフォールバック
       return generateMinimalUniqueNarrative(businessType, location);
     }
   }
 }
 
-// Get philosophical introduction for each business type
-function getPhilosophicalIntro(businessType: string): string {
-  const intros: { [key: string]: string } = {
-    'マッサージ・整体': '癒やしとは、ただ痛みを取り除くことではない。',
-    '美容業': '美しさとは、表面を整えることだけではない。',
-    '飲食店': '食とは、ただ空腹を満たすものではない。',
-    '宿泊施設': '宿とは、ただ休息を提供する場ではない。',
-    '製造業': 'ものづくりとは、単に製品を生み出すことではない。',
-    'IT企業': '技術とは、それ自体が目的ではない。',
-    '医療機関': '医療とは、ただ病を治すことではない。',
-    '教育機関': '教育とは、知識を授けるだけではない。',
-    '小売業': '商いとは、品物を売ることだけではない。',
-  };
+// Generate unique philosophical statement from company's actual content
+// 企業の実際の内容から、完全にユニークな哲学的表現を生成（テンプレート一切なし）
+function generatePhilosophicalStatement(
+  philosophy: string,
+  presidentMessage: string,
+  uniqueElements: string[],
+  coreConcept: string,
+  businessType: string
+): string {
+  // 1. 理念の最初の文をそのまま使う（最も重要な価値観）
+  if (philosophy) {
+    const philosophySentences = philosophy.split(/[。．]/);
+    for (const sentence of philosophySentences) {
+      const trimmed = sentence.trim();
+      if (trimmed.length > 10 && trimmed.length < 80) {
+        // 価値観を示す文をそのまま使用
+        return `${trimmed}。`;
+      }
+    }
+  }
 
-  return intros[businessType] || '事業とは、利益を追求するだけではない。';
+  // 2. 社長メッセージの核心部分を使う
+  if (presidentMessage) {
+    const messageSentences = presidentMessage.split(/[。．]/);
+    for (const sentence of messageSentences) {
+      const trimmed = sentence.trim();
+      if (trimmed.length > 10 && trimmed.length < 80) {
+        return `${trimmed}。`;
+      }
+    }
+  }
+
+  // 3. コアコンセプトをそのまま使う
+  if (coreConcept && coreConcept.length > 8) {
+    return `${coreConcept}。`;
+  }
+
+  // 4. 独自要素を組み合わせる（テンプレートなし）
+  if (uniqueElements.length >= 2) {
+    return `${uniqueElements[0]}と${uniqueElements[1]}。`;
+  } else if (uniqueElements.length === 1) {
+    return `${uniqueElements[0]}。`;
+  }
+
+  // 5. データがない場合: 空文字列を返す（テンプレートは使わない）
+  return '';
 }
 
 // Minimal unique narrative as fallback (commercial-style with depth)
