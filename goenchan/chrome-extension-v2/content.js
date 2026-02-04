@@ -1178,6 +1178,37 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="tkem001-check"]', confidence: 100 },
     inquiry_type: { selector: 'select[name="choi456"]', value: 'その他お墓全般について', confidence: 100 },
     message: { selector: 'textarea[name="text001"]', confidence: 100 }
+  },
+  // e-kenchiku.com - WordPress CF7 with non-standard names
+  'e-kenchiku.com/contact/': {
+    company_url: 'https://e-kenchiku.com/',
+    name: { selector: 'input[name="your-name"]', confidence: 100 },
+    email: { selector: 'input[name="your-email"]', confidence: 100 },
+    phone: { selector: 'input[name="tell"]', confidence: 100 },
+    zipcode: { selector: 'input[name="add1"]', confidence: 100 },
+    address: { selector: 'input[name="add2"]', confidence: 100 },
+    message: { selector: 'textarea[name="bikou"]', confidence: 100 },
+    inquiry_type: { selector: 'input[name="kind"][value="資料請求"]', type: 'radio', confidence: 100 },
+    privacy: { selector: 'input[name="acceptance-935"]', type: 'checkbox', confidence: 100 }
+  },
+  // sazae.co.jp - Japanese Direct Name Attributes
+  'www.sazae.co.jp/contact/others/': {
+    company_url: 'https://www.sazae.co.jp/',
+    name: { selector: 'input[name="氏名"]', confidence: 100 },
+    email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="メールアドレス（確認用）"]', confidence: 100 },
+    phone: { selector: 'input[name="電話番号"]', confidence: 100 },
+    zipcode: { selector: 'input[name="郵便番号"]', confidence: 100 },
+    address: { selector: 'input[name="住所"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  // basslinestw.com - Shopify contact form
+  'basslinestw.com/pages/contact': {
+    company_url: 'https://basslinestw.com/',
+    name: { selector: 'input[name="contact[名前]"]', confidence: 100 },
+    email: { selector: 'input[name="contact[email]"]', confidence: 100 },
+    phone: { selector: 'input[name="contact[電話番号]"]', confidence: 100 },
+    message: { selector: 'textarea[name="contact[メッセージ]"]', confidence: 100 }
   }
 };
 
