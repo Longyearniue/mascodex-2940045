@@ -172,25 +172,23 @@ async function checkAndAutoFill() {
 
     console.log('🔍 [DEBUG] Is known site?', isKnownSite, matchedKey ? `(matched: ${matchedKey})` : '');
 
-    // Execute auto-fill if all checks pass
-    if (isKnownSite) {
-      console.log('🚀 Auto-fill enabled for this site. Starting auto-fill...');
-      setTimeout(async () => {
-        console.log('⏰ Auto-fill timer triggered, calling autoFillForm...');
-        const result = await autoFillForm(profile);
-        console.log('📊 Auto-fill result:', result);
-        if (result.success && result.results.length > 0) {
-          console.log(`✅ Auto-filled ${result.results.length} field(s) automatically`);
-        } else {
-          console.log('❌ Auto-fill returned no results or failed');
-          if (result.debug) {
-            console.log('🔍 [DEBUG] Debug info:', result.debug);
-          }
+    // Execute auto-fill on ALL sites (not just known sites)
+    // The 6-layer system (SITE_MAPPINGS → Pattern → Auto-Generated → Auto-Detection → Semantic → Fallback)
+    // will handle all forms intelligently
+    console.log('🚀 Auto-fill enabled for ALL sites. Starting auto-fill in 2 seconds...');
+    setTimeout(async () => {
+      console.log('⏰ Auto-fill timer triggered, calling autoFillForm...');
+      const result = await autoFillForm(profile);
+      console.log('📊 Auto-fill result:', result);
+      if (result.success && result.results.length > 0) {
+        console.log(`✅ Auto-filled ${result.results.length} field(s) automatically`);
+      } else {
+        console.log('ℹ️ No fields filled (this may not be a contact form)');
+        if (result.debug) {
+          console.log('🔍 [DEBUG] Debug info:', result.debug);
         }
-      }, 2000); // 2 second delay for DOM readiness and API calls
-    } else {
-      console.log('ℹ️ Site not in pre-configured list. Auto-detection will be used when you click "Auto Fill" button.');
-    }
+      }
+    }, 2000); // 2 second delay for DOM readiness and API calls
   } catch (error) {
     console.error('❌ Auto-fill error:', error);
     console.error('Stack trace:', error.stack);
