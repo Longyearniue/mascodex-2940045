@@ -1543,6 +1543,242 @@ const GENERATED_MAPPINGS = {
         "confidence": 100
       }
     }
+  },
+  "http://www.gesyuku.net/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.6666666666666666,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 67
+      },
+      "company": {
+        "selector": "[name=\"会社名\"]",
+        "confidence": 67
+      }
+    }
+  },
+  "http://www.japan-software.net/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.8888888888888888,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"会社名\"]",
+        "confidence": 89
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 89
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 89
+      }
+    }
+  },
+  "http://www.post.japanpost.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.15384615384615385,
+    "mapping": {
+      "message": {
+        "selector": "[name=\"code\"]",
+        "confidence": 15
+      }
+    }
+  },
+  "http://www.omi7555.com/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.4166666666666667,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"name\"]",
+        "confidence": 42
+      },
+      "email": {
+        "selector": "[name=\"mail\"]",
+        "confidence": 42
+      },
+      "phone": {
+        "selector": "[name=\"mobile\"]",
+        "confidence": 42
+      },
+      "message": {
+        "selector": "[name=\"comment\"]",
+        "confidence": 42
+      }
+    }
+  },
+  "http://www.sakurai-shika.jp/": {
+    "pattern": "wordpress_cf7",
+    "confidence": 0.36363636363636365,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"your-company\"]",
+        "confidence": 36
+      },
+      "name": {
+        "selector": "[name=\"your-name\"]",
+        "confidence": 36
+      },
+      "email": {
+        "selector": "[name=\"your-email\"]",
+        "confidence": 36
+      },
+      "phone": {
+        "selector": "[name=\"your-tel\"]",
+        "confidence": 36
+      },
+      "message": {
+        "selector": "[name=\"your-message\"]",
+        "confidence": 36
+      }
+    }
+  },
+  "http://sandouro.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.7142857142857143,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"氏名\"]",
+        "confidence": 71
+      },
+      "email": {
+        "selector": "[name=\"メールアドレス\"]",
+        "confidence": 71
+      },
+      "phone": {
+        "selector": "[name=\"お電話番号\"]",
+        "confidence": 71
+      }
+    }
+  },
+  "https://www.prime.ne.jp/": {
+    "pattern": "wordpress_cf7",
+    "confidence": 0.25,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"your-company\"]",
+        "confidence": 25
+      },
+      "name": {
+        "selector": "[name=\"your-name\"]",
+        "confidence": 25
+      },
+      "email": {
+        "selector": "[name=\"your-email\"]",
+        "confidence": 25
+      },
+      "phone": {
+        "selector": "[name=\"your-tel\"]",
+        "confidence": 25
+      },
+      "message": {
+        "selector": "[name=\"your-message\"]",
+        "confidence": 25
+      }
+    }
+  },
+  "http://www.a-kyouseikai.jp/": {
+    "pattern": "wordpress_cf7",
+    "confidence": 0.3333333333333333,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"your-company\"]",
+        "confidence": 33
+      },
+      "name": {
+        "selector": "[name=\"your-name\"]",
+        "confidence": 33
+      },
+      "email": {
+        "selector": "[name=\"your-email\"]",
+        "confidence": 33
+      },
+      "phone": {
+        "selector": "[name=\"your-tel\"]",
+        "confidence": 33
+      },
+      "message": {
+        "selector": "[name=\"your-message\"]",
+        "confidence": 33
+      }
+    }
+  },
+  "http://www.okuyama-gumi.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.4444444444444444,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 44
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 44
+      }
+    }
+  },
+  "http://www.feeeal.com/": {
+    "pattern": "wordpress_cf7",
+    "confidence": 0.2857142857142857,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"your-company\"]",
+        "confidence": 29
+      },
+      "name": {
+        "selector": "[name=\"your-name\"]",
+        "confidence": 29
+      },
+      "email": {
+        "selector": "[name=\"your-email_confirm\"]",
+        "confidence": 29
+      },
+      "phone": {
+        "selector": "[name=\"your-tel\"]",
+        "confidence": 29
+      },
+      "message": {
+        "selector": "[name=\"your-message\"]",
+        "confidence": 29
+      }
+    }
+  },
+  "http://www.nichi-bei.co.jp/": {
+    "pattern": "split_fields",
+    "confidence": 1,
+    "mapping": {
+      "phone": {
+        "selector": "[name=\"tel1\"]",
+        "confidence": 100
+      },
+      "email": {
+        "selector": "[name=\"email1\"]",
+        "confidence": 100
+      }
+    }
+  },
+  "https://asahikawa-tosei.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.28,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"名前\"]",
+        "confidence": 28
+      },
+      "email": {
+        "selector": "[name=\"メールアドレス\"]",
+        "confidence": 28
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 28
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 28
+      }
+    }
   }
 };
 
