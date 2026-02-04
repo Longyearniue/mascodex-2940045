@@ -634,6 +634,71 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
   }
 });
 
+/**
+ * Convert Worker mappings to SITE_MAPPINGS format for content.js
+ *
+ * Worker format: { personName: "お名前", email: "メールアドレス", ... }
+ * SITE_MAPPINGS format: { name: { selector: '[name="お名前"]', confidence: 85 }, ... }
+ */
+function convertToSiteMappings(workerMappings) {
+  const siteMappings = {};
+
+  // Field type name conversions
+  const fieldTypeMap = {
+    personName: 'name',
+    personNameKana: 'nameKana',
+    companyName: 'company',
+    email: 'email',
+    phone: 'phone',
+    inquiry: 'message',
+    subject: 'subject',
+    zipcode: 'zipcode',
+    address: 'address',
+    department: 'department'
+  };
+
+  workerMappings.forEach(mapping => {
+    const { url, pattern, confidence, mapping: fieldMapping } = mapping;
+
+    // Skip if no field mapping
+    if (!fieldMapping || Object.keys(fieldMapping).length === 0) {
+      return;
+    }
+
+    // Convert to SITE_MAPPINGS format
+    const siteMapping = {
+      pattern,
+      confidence,
+      mapping: {}
+    };
+
+    // Convert each field
+    Object.entries(fieldMapping).forEach(([workerFieldType, fieldName]) => {
+      // Get content.js field type name
+      const contentFieldType = fieldTypeMap[workerFieldType] || workerFieldType;
+
+      // Check if it's an array (split fields like tel1, tel2, tel3)
+      if (Array.isArray(fieldName)) {
+        // For arrays, create array of selector objects
+        siteMapping.mapping[contentFieldType] = fieldName.map(name => ({
+          selector: `[name="${name}"]`,
+          confidence: Math.round(confidence * 100)
+        }));
+      } else {
+        // Single field
+        siteMapping.mapping[contentFieldType] = {
+          selector: `[name="${fieldName}"]`,
+          confidence: Math.round(confidence * 100)
+        };
+      }
+    });
+
+    siteMappings[url] = siteMapping;
+  });
+
+  return siteMappings;
+}
+
 // Download mappings JSON
 document.getElementById('downloadMappings').addEventListener('click', () => {
   if (!window.crawlMappings) {
@@ -641,16 +706,29 @@ document.getElementById('downloadMappings').addEventListener('click', () => {
     return;
   }
 
-  const json = JSON.stringify(window.crawlMappings, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
+  // Convert to SITE_MAPPINGS format
+  const siteMappings = convertToSiteMappings(window.crawlMappings);
+
+  // Generate JavaScript code for content.js
+  const jsCode = `// Auto-generated SITE_MAPPINGS from Bulk Crawler
+// Generated at: ${new Date().toISOString()}
+// Add this to your content.js SITE_MAPPINGS object
+
+const GENERATED_MAPPINGS = ${JSON.stringify(siteMappings, null, 2)};
+
+// To use: merge with existing SITE_MAPPINGS
+// Object.assign(SITE_MAPPINGS, GENERATED_MAPPINGS);
+`;
+
+  const blob = new Blob([jsCode], { type: 'text/javascript' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `form-mappings-${Date.now()}.json`;
+  a.download = `site-mappings-${Date.now()}.js`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  showStatus('Mappings JSON downloaded!', 'success');
+  showStatus(`SITE_MAPPINGS generated! (${Object.keys(siteMappings).length} sites)`, 'success');
 });
