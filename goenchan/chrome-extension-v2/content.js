@@ -1285,6 +1285,106 @@ const SITE_MAPPINGS = {
   }
 };
 
+// =============================================================================
+// AUTO-GENERATED MAPPINGS FROM BULK CRAWLER
+// =============================================================================
+// Generated at: 2026-02-04T02:57:00.256Z
+// Source: Bulk Crawler v2.13.0
+
+const GENERATED_MAPPINGS = {
+  "http://www.ric-nord.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 1,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 100
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 100
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 100
+      }
+    }
+  },
+  "http://www.taihei-21.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.4,
+    "mapping": {
+      "phone": {
+        "selector": "[name=\"message\"]",
+        "confidence": 40
+      }
+    }
+  },
+  "http://www.horibe87.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.06060606060606061,
+    "mapping": {
+      "email": {
+        "selector": "[name=\"mail_again\"]",
+        "confidence": 6
+      }
+    }
+  },
+  "http://www.yamachan.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.8571428571428571,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 86
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 86
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 86
+      }
+    }
+  },
+  "http://www.keiseikai.ne.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 1,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 100
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 100
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 100
+      }
+    }
+  },
+  "http://www.kumon.ne.jp/": {
+    "pattern": "split_fields",
+    "confidence": 1,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"name1\"]",
+        "confidence": 100
+      },
+      "phone": {
+        "selector": "[name=\"tel2\"]",
+        "confidence": 100
+      }
+    }
+  }
+};
+
+// Merge generated mappings with existing SITE_MAPPINGS
+Object.assign(SITE_MAPPINGS, GENERATED_MAPPINGS);
+
 // Global cache for detected pattern
 let cachedPatternMapping = null;
 let cachedPatternInfo = null;
