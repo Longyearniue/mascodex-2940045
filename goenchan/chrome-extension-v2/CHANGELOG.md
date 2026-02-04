@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.18.0] - 2026-02-04
+
+### Added
+- **☁️ Community Shared Mappings System** - Collaborative mapping database!
+  - Automatic cloud sync: Mappings shared across all users
+  - GET /shared-mappings API: Retrieve community mappings
+  - POST /shared-mappings API: Contribute your mappings
+  - Quality filter: Only confidence >= 50% mappings shared
+  - Cloudflare Workers KV for global storage
+
+### Features
+- **Auto-download on page load:** content.js fetches shared mappings from cloud
+- **Auto-upload after Bulk Crawl:** High-quality mappings automatically shared
+- **Manual upload button:** "☁️ Share to Community" uploads existing local mappings
+- **Merge strategy:** Cloud mappings merge with local and manual mappings
+- **Offline-friendly:** Graceful fallback when cloud unavailable
+
+### Benefits
+- **Network effect:** One user crawls → All users benefit
+- **Exponential growth:** Community-driven mapping database
+- **Zero maintenance:** Automatic synchronization
+- **Quality assurance:** Only high-confidence mappings shared
+
+### Technical Details
+- **Storage:** Cloudflare Workers KV (global edge network)
+- **Endpoint:** https://goenchan-worker.taiichifox.workers.dev/shared-mappings
+- **Priority:** Manual > Local > Shared (higher priority overrides)
+- **Load order:** Fixed → Local → Shared (all merged at startup)
+
+### Workflow
+1. User A: Bulk Crawl 100 URLs → 15 high-quality mappings → Auto-upload to cloud
+2. User B: Opens extension → Auto-downloads 15 mappings → Immediately usable
+3. User B: Bulk Crawl 50 more URLs → 8 high-quality mappings → Auto-upload to cloud
+4. All users now have 23 shared mappings automatically!
+
 ## [2.17.0] - 2026-02-04
 
 ### Added

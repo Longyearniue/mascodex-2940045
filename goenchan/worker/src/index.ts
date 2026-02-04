@@ -2,9 +2,10 @@ import { handleFounderVisibility } from './handlers/founderVisibility';
 import { handleOutreachGenerate } from './handlers/outreachGenerate';
 import { handleSalesLetter } from './handlers/salesLetter';
 import { handleBulkCrawler } from './handlers/bulkCrawler';
+import { getSharedMappings, addSharedMappings } from './handlers/sharedMappings';
 
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: any): Promise<Response> {
     const url = new URL(request.url);
 
     // Enable CORS
@@ -80,6 +81,15 @@ export default {
         status: response.status,
         headers: newHeaders,
       });
+    }
+
+    // Shared mappings endpoints
+    if (url.pathname === '/shared-mappings' && request.method === 'GET') {
+      return await getSharedMappings(env);
+    }
+
+    if (url.pathname === '/shared-mappings' && request.method === 'POST') {
+      return await addSharedMappings(request, env);
     }
 
     return new Response('Not Found', { status: 404, headers: corsHeaders });
