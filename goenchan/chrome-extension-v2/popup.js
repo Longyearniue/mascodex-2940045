@@ -3,6 +3,7 @@ let currentFormData = null;
 let currentUrl = null;
 let fieldMappings = {};
 let debugData = null;
+window.crawlMappings = null;
 
 // Helper function to send message to all frames (including iframes)
 async function sendMessageToAllFrames(tabId, message) {
@@ -50,6 +51,13 @@ function setupCollapsibles() {
     const toggle = document.getElementById('profileToggle');
     content.classList.toggle('show');
     toggle.textContent = content.classList.contains('show') ? '▼ Profile Settings' : '▶ Profile Settings';
+  });
+
+  document.getElementById('bulkCrawlerToggle').addEventListener('click', () => {
+    const content = document.getElementById('bulkCrawlerContent');
+    const toggle = document.getElementById('bulkCrawlerToggle');
+    content.classList.toggle('show');
+    toggle.textContent = content.classList.contains('show') ? '▼ Bulk Site Crawler' : '▶ Bulk Site Crawler';
   });
 }
 
@@ -452,3 +460,105 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// Bulk Crawler functionality
+document.getElementById('startBulkCrawl').addEventListener('click', async () => {
+  const urlsText = document.getElementById('bulkUrls').value.trim();
+  if (!urlsText) {
+    showStatus('Please enter at least one URL', 'error');
+    return;
+  }
+
+  const urls = urlsText.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+  if (urls.length === 0) {
+    showStatus('Please enter valid URLs', 'error');
+    return;
+  }
+
+  // Show progress
+  document.getElementById('crawlProgress').style.display = 'block';
+  document.getElementById('crawlResults').style.display = 'none';
+  document.getElementById('progressText').textContent = `Processing ${urls.length} URL(s)...`;
+
+  try {
+    // Call Worker API
+    const response = await fetch('https://crawler-worker.taiichiwada.workers.dev/bulk-crawler', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ urls })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // Store mappings globally for download
+    window.crawlMappings = result.mappings;
+
+    // Hide progress, show results
+    document.getElementById('crawlProgress').style.display = 'none';
+    document.getElementById('crawlResults').style.display = 'block';
+
+    // Display statistics
+    const stats = `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <div><strong>Total:</strong> ${result.total}</div>
+        <div><strong>Success:</strong> <span style="color: #34a853;">${result.success}</span></div>
+        <div><strong>Failed:</strong> <span style="color: #ea4335;">${result.failed}</span></div>
+        <div><strong>Mappings:</strong> ${Object.keys(result.mappings).length}</div>
+      </div>
+    `;
+    document.getElementById('resultsStats').innerHTML = stats;
+
+    // Display errors if any
+    if (result.errors && result.errors.length > 0) {
+      const errorList = document.getElementById('errorList');
+      errorList.style.display = 'block';
+      errorList.innerHTML = '<div style="font-weight: 600; margin-bottom: 6px; color: #ea4335;">Errors:</div>';
+
+      result.errors.forEach(error => {
+        const errorItem = document.createElement('div');
+        errorItem.style.cssText = 'padding: 6px; border-bottom: 1px solid #f0f0f0; font-size: 10px;';
+        errorItem.innerHTML = `
+          <div style="font-weight: 600; color: #1a73e8;">${escapeHtml(error.url)}</div>
+          <div style="color: #ea4335; margin-top: 2px;">${escapeHtml(error.error)}</div>
+        `;
+        errorList.appendChild(errorItem);
+      });
+    } else {
+      document.getElementById('errorList').style.display = 'none';
+    }
+
+    showStatus(`Crawl complete! ${result.success}/${result.total} successful`, 'success');
+
+  } catch (error) {
+    console.error('Bulk crawl error:', error);
+    document.getElementById('crawlProgress').style.display = 'none';
+    showStatus(`Error: ${error.message}`, 'error');
+  }
+});
+
+// Download mappings JSON
+document.getElementById('downloadMappings').addEventListener('click', () => {
+  if (!window.crawlMappings) {
+    showStatus('No mappings available to download', 'error');
+    return;
+  }
+
+  const json = JSON.stringify(window.crawlMappings, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `form-mappings-${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showStatus('Mappings JSON downloaded!', 'success');
+});

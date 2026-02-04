@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Form Auto-Filler Pro</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 500px;
+      max-height: 600px;
+      overflow-y: auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 13px;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1a73e8;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #666;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 7px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 50px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 9px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+
+    .btn-inspector {
+      background: #34a853;
+      color: white;
+    }
+
+    .btn-inspector:hover {
+      background: #2d8e47;
+    }
+
+    .btn-secondary {
+      background: #e8eaed;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d2d4d7;
+    }
+
+    .btn-danger {
+      background: #ea4335;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c5221f;
+    }
+
+    .btn-debug {
+      background: #fbbc04;
+      color: #333;
+    }
+
+    .btn-debug:hover {
+      background: #f9ab00;
+    }
+
+    .status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status-success {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    .status-error {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .status-info {
+      background: #e8f0fe;
+      color: #1967d2;
+    }
+
+    /* Inspector UI */
+    #inspectorSection {
+      display: none;
+    }
+
+    #inspectorSection.show {
+      display: block;
+    }
+
+    .form-info {
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+
+    .form-info-label {
+      font-weight: 600;
+      color: #555;
+    }
+
+    .field-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+    }
+
+    .field-item {
+      padding: 10px;
+      border-bottom: 1px solid #f0f0f0;
+      background: white;
+    }
+
+    .field-item:last-child {
+      border-bottom: none;
+    }
+
+    .field-item:hover {
+      background: #f8f9fa;
+    }
+
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .field-label {
+      font-weight: 600;
+      font-size: 12px;
+      color: #1a73e8;
+      flex: 1;
+    }
+
+    .field-type {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: #e8eaed;
+      border-radius: 3px;
+      margin-left: 6px;
+    }
+
+    .field-required {
+      color: #ea4335;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    .field-details {
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .field-mapping {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .field-mapping select {
+      flex: 1;
+      padding: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .field-mapping button {
+      padding: 5px 10px;
+      font-size: 10px;
+      flex: 0 0 auto;
+    }
+
+    .mapping-saved {
+      color: #34a853;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .pattern-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 8px 0;
+      font-size: 11px;
+    }
+
+    .pattern-option input[type="checkbox"] {
+      width: auto;
+    }
+
+    /* Results and Debug */
+    .results {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .result-item {
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 11px;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-field {
+      font-weight: 600;
+      color: #1a73e8;
+    }
+
+    .result-confidence {
+      float: right;
+      font-size: 10px;
+    }
+
+    .confidence-high { color: #34a853; }
+    .confidence-medium { color: #fbbc04; }
+    .confidence-low { color: #ea4335; }
+
+    .debug-output {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      max-height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .collapsible-section {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collapsible-section:hover {
+      background: #f8f9fa;
+    }
+
+    .collapsible-content {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .collapsible-content.show {
+      display: block;
+    }
+
+    .save-btn {
+      width: 100%;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 Form Auto-Filler Pro</h1>
+
+    <!-- Profile Section -->
+    <div class="section">
+      <div class="section-title collapsible-section" id="profileToggle">
+        ▶ Profile Settings
+      </div>
+      <div class="collapsible-content" id="profileContent">
+        <div class="form-group">
+          <label for="company">Company / 会社名</label>
+          <input type="text" id="company" placeholder="株式会社サンプル">
+        </div>
+
+        <div class="form-group">
+          <label for="name">Name / 氏名</label>
+          <input type="text" id="name" placeholder="山田太郎">
+        </div>
+
+        <div class="form-group">
+          <label for="name_kana">Name Kana / フリガナ</label>
+          <input type="text" id="name_kana" placeholder="ヤマダタロウ">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="yamada@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone / 電話番号</label>
+          <input type="text" id="phone" placeholder="03-1234-5678">
+        </div>
+
+        <div class="form-group">
+          <label for="zipcode">Zipcode / 郵便番号</label>
+          <input type="text" id="zipcode" placeholder="294-0045">
+        </div>
+
+        <div class="form-group">
+          <label for="address">Address / 住所</label>
+          <input type="text" id="address" placeholder="東京都千代田区丸の内1-1-1 丸の内ビル5階">
+        </div>
+
+        <div class="form-group">
+          <label for="department">Department / 部署</label>
+          <input type="text" id="department" placeholder="営業部">
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject / 件名</label>
+          <input type="text" id="subject" placeholder="お問い合わせ">
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message Template</label>
+          <textarea id="message" placeholder="お問い合わせ内容"></textarea>
+        </div>
+
+        <div class="pattern-option" style="margin-top: 12px; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 2px solid #34a853;">
+          <input type="checkbox" id="autoFillEnabled" checked>
+          <label for="autoFillEnabled" style="font-weight: 600; color: #137333;">🚀 ページ読み込み時に自動入力（完全自動）</label>
+        </div>
+
+        <button class="btn-primary save-btn" id="saveProfile">💾 Save Profile</button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="section">
+      <div class="section-title">Actions</div>
+
+      <div class="button-group">
+        <button class="btn-primary" id="autoFill">✨ Auto Fill</button>
+        <button class="btn-inspector" id="inspectorMode">🔍 このフォームを解析</button>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-danger" id="clearMappings">🗑️ Clear Mappings</button>
+        <button class="btn-debug" id="copyDebug">📋 Copy Debug JSON</button>
+      </div>
+    </div>
+
+    <!-- Bulk Crawler Section -->
+    <div class="section">
+      <div class="section-title collapsible-section" id="bulkCrawlerToggle">
+        ▶ Bulk Site Crawler
+      </div>
+      <div class="collapsible-content" id="bulkCrawlerContent">
+        <div class="form-group">
+          <label for="bulkUrls">URLs (one per line)</label>
+          <textarea id="bulkUrls" placeholder="https://example.com/contact&#10;https://another-site.com/inquiry" style="min-height: 100px;"></textarea>
+        </div>
+
+        <button class="btn-primary save-btn" id="startBulkCrawl">🚀 Start Crawl</button>
+
+        <div id="crawlProgress" style="display: none; margin-top: 12px; padding: 10px; background: #e8f0fe; border-radius: 6px;">
+          <div style="font-weight: 600; color: #1967d2; margin-bottom: 4px;">Crawling...</div>
+          <div id="progressText" style="font-size: 11px; color: #666;"></div>
+        </div>
+
+        <div id="crawlResults" style="display: none; margin-top: 12px;">
+          <div style="font-weight: 600; margin-bottom: 8px;">Results</div>
+          <div id="resultsStats" style="padding: 10px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; font-size: 11px;"></div>
+          <button class="btn-secondary save-btn" id="downloadMappings" style="margin-bottom: 8px;">📥 Download Mappings JSON</button>
+          <div id="errorList" style="display: none; max-height: 200px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 4px; padding: 8px; background: white;">
+            <!-- Errors will be listed here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Inspector Section -->
+    <div class="section" id="inspectorSection">
+      <div class="section-title">Form Inspector 🔍</div>
+
+      <div class="form-info" id="formInfo">
+        <div><span class="form-info-label">URL:</span> <span id="formUrl">-</span></div>
+        <div><span class="form-info-label">Title:</span> <span id="formTitle">-</span></div>
+        <div><span class="form-info-label">Fields:</span> <span id="formFieldCount">0</span></div>
+      </div>
+
+      <div class="pattern-option">
+        <input type="checkbox" id="useGeneralizedPattern">
+        <label for="useGeneralizedPattern">Use generalized pattern (replace numbers with *)</label>
+      </div>
+
+      <div class="field-list" id="fieldList">
+        <!-- Fields will be populated here -->
+      </div>
+
+      <button class="btn-primary save-btn" id="saveMapping">💾 Save Mapping for This Form</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+      <div class="section-title">Auto-Fill Results</div>
+      <div id="resultsList"></div>
+    </div>
+
+    <!-- Debug Output -->
+    <div class="results" id="debugSection">
+      <div class="section-title">Debug Output</div>
+      <div class="debug-output" id="debugOutput"></div>
+    </div>
+
+    <!-- Status Messages -->
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
