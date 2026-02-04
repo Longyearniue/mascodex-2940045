@@ -523,14 +523,28 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
         batchUrls[url] = urlItem;
       });
 
-      // Call Worker API for this batch
-      const response = await fetch('https://goenchan-worker.taiichifox.workers.dev/bulk-crawler', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ urls: batch })
-      });
+      // Call Worker API for this batch with timeout (90 seconds for 3 sites × 20 sec each + buffer)
+      const batchController = new AbortController();
+      const batchTimeoutId = setTimeout(() => batchController.abort(), 90000);
+
+      let response;
+      try {
+        response = await fetch('https://goenchan-worker.taiichifox.workers.dev/bulk-crawler', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ urls: batch }),
+          signal: batchController.signal
+        });
+      } catch (error) {
+        clearTimeout(batchTimeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error(`Batch ${batchNum} timed out after 90 seconds`);
+        }
+        throw error;
+      }
+      clearTimeout(batchTimeoutId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

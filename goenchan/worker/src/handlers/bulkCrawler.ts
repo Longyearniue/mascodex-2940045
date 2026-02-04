@@ -77,12 +77,12 @@ async function tryExtractForms(
  * Suitable for batch processing where thoroughness matters more than speed.
  *
  * @param url - URL to crawl
- * @param timeoutMs - Timeout in milliseconds (default 60000 for deep crawling with 40 optimized paths)
+ * @param timeoutMs - Timeout in milliseconds (default 20000 for hybrid approach - faster processing)
  * @returns CrawlResult with success status and mapping if successful
  */
 async function crawlSingleSite(
   url: string,
-  timeoutMs: number = 60000
+  timeoutMs: number = 20000
 ): Promise<CrawlResult> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
