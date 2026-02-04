@@ -732,7 +732,7 @@ async function autoFillForm(profile) {
     debugInfo.fieldsProcessed++;
 
     const detection = detectFieldType(field);
-    if (detection && detection.confidence >= 30) {
+    if (detection && detection.confidence >= 20) {  // Lowered from 30 to 20 for more aggressive auto-fill
       const value = getProfileValue(profile, detection.type);
       if (value) {
         fillField(field, value, field.type);
