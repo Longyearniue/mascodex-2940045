@@ -391,42 +391,99 @@ function generatePhilosophicalStatement(
   coreConcept: string,
   businessType: string
 ): string {
-  // 1. 理念の最初の文をそのまま使う（最も重要な価値観）
+  // Helper: Clean and validate extracted text
+  const cleanAndValidate = (text: string): string | null => {
+    if (!text) return null;
+
+    // Remove quotes (「」『』"" etc.) to prevent double quoting
+    let cleaned = text
+      .replace(/^[「『"']+/, '')
+      .replace(/[」』"']+$/, '')
+      .trim();
+
+    // Filter out news/announcements/events (not philosophical)
+    if (cleaned.match(/(^\d{4}[\.\/年月日]|お知らせ|ニュース|キャンペーン|イベント|開催|予約|受付|開始|終了|実施中|募集|参加|申込|詳細|見学会|説明会|CP|News)/)) {
+      return null;
+    }
+
+    // Filter out too short or too long
+    if (cleaned.length < 10 || cleaned.length > 80) {
+      return null;
+    }
+
+    // Must not be just a date or number
+    if (cleaned.match(/^[\d\s\-\/年月日]+$/)) {
+      return null;
+    }
+
+    return cleaned;
+  };
+
+  // 1. 理念から価値観を示す文を抽出
   if (philosophy) {
     const philosophySentences = philosophy.split(/[。．]/);
     for (const sentence of philosophySentences) {
-      const trimmed = sentence.trim();
-      if (trimmed.length > 10 && trimmed.length < 80) {
-        // 価値観を示す文をそのまま使用
-        return `${trimmed}。`;
+      const cleaned = cleanAndValidate(sentence);
+      if (cleaned) {
+        // 価値観を示すキーワードを含む文を優先
+        if (cleaned.match(/(大切|重視|目指|追求|実現|貢献|提供|想い|信念|価値|使命|理念|ビジョン)/)) {
+          return `${cleaned}。`;
+        }
+      }
+    }
+    // キーワードなしでも最初の有効な文を使う
+    for (const sentence of philosophySentences) {
+      const cleaned = cleanAndValidate(sentence);
+      if (cleaned) {
+        return `${cleaned}。`;
       }
     }
   }
 
-  // 2. 社長メッセージの核心部分を使う
+  // 2. 社長メッセージから核心部分を抽出
   if (presidentMessage) {
     const messageSentences = presidentMessage.split(/[。．]/);
     for (const sentence of messageSentences) {
-      const trimmed = sentence.trim();
-      if (trimmed.length > 10 && trimmed.length < 80) {
-        return `${trimmed}。`;
+      const cleaned = cleanAndValidate(sentence);
+      if (cleaned) {
+        // 価値観を示すキーワードを含む文を優先
+        if (cleaned.match(/(大切|重視|目指|追求|実現|貢献|提供|想い|信念|価値|使命)/)) {
+          return `${cleaned}。`;
+        }
+      }
+    }
+    // キーワードなしでも最初の有効な文を使う
+    for (const sentence of messageSentences) {
+      const cleaned = cleanAndValidate(sentence);
+      if (cleaned) {
+        return `${cleaned}。`;
       }
     }
   }
 
-  // 3. コアコンセプトをそのまま使う
-  if (coreConcept && coreConcept.length > 8) {
-    return `${coreConcept}。`;
+  // 3. コアコンセプトを使う（既にクリーン）
+  if (coreConcept && coreConcept.length > 8 && coreConcept.length < 80) {
+    const cleaned = coreConcept.replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
+    if (cleaned) {
+      return `${cleaned}。`;
+    }
   }
 
-  // 4. 独自要素を組み合わせる（テンプレートなし）
+  // 4. 独自要素を組み合わせる
   if (uniqueElements.length >= 2) {
-    return `${uniqueElements[0]}と${uniqueElements[1]}。`;
+    const elem1 = uniqueElements[0].replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
+    const elem2 = uniqueElements[1].replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
+    if (elem1 && elem2) {
+      return `${elem1}と${elem2}。`;
+    }
   } else if (uniqueElements.length === 1) {
-    return `${uniqueElements[0]}。`;
+    const elem = uniqueElements[0].replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
+    if (elem) {
+      return `${elem}。`;
+    }
   }
 
-  // 5. データがない場合: 空文字列を返す（テンプレートは使わない）
+  // 5. データがない場合: 空文字列を返す
   return '';
 }
 
