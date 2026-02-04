@@ -13,29 +13,77 @@ import { FormField } from './patternDetector';
  * @returns Absolute URL of contact page, or null if not found
  */
 export function findContactLink(html: string, baseUrl: string): string | null {
+  const links = findContactLinks(html, baseUrl);
+  return links.length > 0 ? links[0] : null;
+}
+
+/**
+ * Find multiple contact link candidates in HTML content
+ * Returns up to maxLinks candidates, prioritized by pattern match quality
+ * @param html - HTML content to search
+ * @param baseUrl - Base URL for resolving relative links
+ * @param maxLinks - Maximum number of links to return (default 5)
+ * @returns Array of absolute URLs, sorted by relevance
+ */
+export function findContactLinks(html: string, baseUrl: string, maxLinks: number = 5): string[] {
+  const foundUrls = new Set<string>();
+
   // Patterns to match contact links (Japanese and English)
+  // Ordered by priority (more specific first)
   const contactPatterns = [
-    /href=["']([^"']*(?:contact|お問い合わせ|問い合わせ)[^"']*)["']/gi,
-    /href=["']([^"']*inquiry[^"']*)["']/gi,
+    /href=["']([^"']*(?:contact|お問い合わせ|問い合わせ|お問合せ|コンタクト)[^"']*)["']/gi,
+    /href=["']([^"']*(?:inquiry|form|toiawase)[^"']*)["']/gi,
+    /href=["']([^"']*(?:mail|request|support)[^"']*)["']/gi,
   ];
 
+  // First pass: collect all matching links
   for (const pattern of contactPatterns) {
-    const match = pattern.exec(html);
-    if (match && match[1]) {
-      const href = match[1];
+    let match;
+    pattern.lastIndex = 0; // Reset regex
 
-      // Convert relative URL to absolute
-      try {
-        const url = new URL(href, baseUrl);
-        return url.href;
-      } catch (e) {
-        // Invalid URL, continue searching
-        continue;
+    while ((match = pattern.exec(html)) !== null) {
+      if (match[1]) {
+        const href = match[1];
+
+        // Skip external links, anchors, javascript, mailto
+        if (href.startsWith('#') ||
+            href.startsWith('javascript:') ||
+            href.startsWith('mailto:') ||
+            href.includes('facebook.com') ||
+            href.includes('twitter.com') ||
+            href.includes('instagram.com') ||
+            href.includes('youtube.com') ||
+            href.includes('linkedin.com')) {
+          continue;
+        }
+
+        // Convert relative URL to absolute
+        try {
+          const url = new URL(href, baseUrl);
+
+          // Only include URLs from same domain
+          const baseHostname = new URL(baseUrl).hostname;
+          if (url.hostname === baseHostname) {
+            foundUrls.add(url.href);
+          }
+        } catch (e) {
+          // Invalid URL, skip
+          continue;
+        }
       }
+
+      // Stop if we have enough links
+      if (foundUrls.size >= maxLinks) {
+        break;
+      }
+    }
+
+    if (foundUrls.size >= maxLinks) {
+      break;
     }
   }
 
-  return null;
+  return Array.from(foundUrls).slice(0, maxLinks);
 }
 
 /**

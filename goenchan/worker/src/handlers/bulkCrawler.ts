@@ -5,7 +5,7 @@
 
 import { detectPattern } from '../utils/patternDetector';
 import { generateMapping, GeneratedMapping } from '../utils/mappingGenerator';
-import { findContactLink, extractFormFields } from '../utils/htmlParser';
+import { findContactLink, findContactLinks, extractFormFields } from '../utils/htmlParser';
 
 interface BulkCrawlerRequest {
   urls: string[];
@@ -29,14 +29,52 @@ interface BulkCrawlerResponse {
 }
 
 /**
- * Crawl a single site with timeout
+ * Try to extract forms from a single page
+ * @param pageUrl - URL of the page to check
+ * @param controller - AbortController for timeout
+ * @returns { html, fields } if forms found, null otherwise
+ */
+async function tryExtractForms(
+  pageUrl: string,
+  controller: AbortController
+): Promise<{ html: string; fields: any[] } | null> {
+  try {
+    const response = await fetch(pageUrl, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; GoenchanBot/1.0)',
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const html = await response.text();
+    const fields = extractFormFields(html);
+
+    if (fields.length > 0) {
+      return { html, fields };
+    }
+
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Crawl a single site with deep crawling (up to 3 levels)
+ * Level 1: Homepage
+ * Level 2: Contact page candidates from homepage
+ * Level 3: Sub-pages from contact page candidates
  * @param url - URL to crawl
- * @param timeoutMs - Timeout in milliseconds (default 5000)
+ * @param timeoutMs - Timeout in milliseconds (default 15000 for deep crawling)
  * @returns CrawlResult with success status and mapping if successful
  */
 async function crawlSingleSite(
   url: string,
-  timeoutMs: number = 5000
+  timeoutMs: number = 15000
 ): Promise<CrawlResult> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -53,88 +91,110 @@ async function crawlSingleSite(
       };
     }
 
-    // Fetch the main page
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; GoenchanBot/1.0)',
-      },
-    });
-
-    if (!response.ok) {
-      return {
-        url,
-        success: false,
-        error: `HTTP ${response.status}: ${response.statusText}`,
-      };
+    // LEVEL 1: Try homepage first
+    const homepageResult = await tryExtractForms(url, controller);
+    if (homepageResult) {
+      const pattern = detectPattern(homepageResult.fields);
+      if (pattern) {
+        const mapping = generateMapping(url, pattern);
+        if (mapping) {
+          return {
+            url,
+            success: true,
+            mapping,
+            contactPage: url,
+          };
+        }
+      }
     }
 
-    const html = await response.text();
-
-    // Try to find contact page
-    const contactPage = findContactLink(html, url);
-    let formHtml = html;
-
-    // If contact page found, fetch it
-    if (contactPage && contactPage !== url) {
+    // If no forms on homepage, fetch it to find contact links
+    let homepageHtml = homepageResult?.html;
+    if (!homepageHtml) {
       try {
-        const contactResponse = await fetch(contactPage, {
+        const response = await fetch(url, {
           signal: controller.signal,
           headers: {
             'User-Agent': 'Mozilla/5.0 (compatible; GoenchanBot/1.0)',
           },
         });
 
-        if (contactResponse.ok) {
-          formHtml = await contactResponse.text();
+        if (!response.ok) {
+          return {
+            url,
+            success: false,
+            error: `HTTP ${response.status}: ${response.statusText}`,
+          };
         }
-      } catch (e) {
-        // If contact page fails, just use main page
-        console.warn(`Failed to fetch contact page ${contactPage}:`, e);
+
+        homepageHtml = await response.text();
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          return {
+            url,
+            success: false,
+            error: `Timeout after ${timeoutMs}ms`,
+          };
+        }
+        return {
+          url,
+          success: false,
+          error: error.message || 'Failed to fetch homepage',
+        };
       }
     }
 
-    // Extract form fields
-    const fields = extractFormFields(formHtml);
+    // LEVEL 2: Try contact page candidates
+    const contactLinks = findContactLinks(homepageHtml, url, 5);
 
-    if (fields.length === 0) {
-      return {
-        url,
-        success: false,
-        error: 'No form fields found',
-        contactPage: contactPage || undefined,
-      };
+    for (const contactUrl of contactLinks) {
+      if (contactUrl === url) continue; // Skip if same as homepage
+
+      const contactResult = await tryExtractForms(contactUrl, controller);
+      if (contactResult) {
+        const pattern = detectPattern(contactResult.fields);
+        if (pattern) {
+          const mapping = generateMapping(url, pattern);
+          if (mapping) {
+            return {
+              url,
+              success: true,
+              mapping,
+              contactPage: contactUrl,
+            };
+          }
+        }
+
+        // LEVEL 3: Try sub-pages from this contact page
+        const subLinks = findContactLinks(contactResult.html, contactUrl, 3);
+        for (const subUrl of subLinks) {
+          if (subUrl === contactUrl || subUrl === url) continue;
+
+          const subResult = await tryExtractForms(subUrl, controller);
+          if (subResult) {
+            const pattern = detectPattern(subResult.fields);
+            if (pattern) {
+              const mapping = generateMapping(url, pattern);
+              if (mapping) {
+                return {
+                  url,
+                  success: true,
+                  mapping,
+                  contactPage: subUrl,
+                };
+              }
+            }
+          }
+        }
+      }
     }
 
-    // Detect pattern
-    const pattern = detectPattern(fields);
-
-    if (!pattern) {
-      return {
-        url,
-        success: false,
-        error: 'No matching pattern detected',
-        contactPage: contactPage || undefined,
-      };
-    }
-
-    // Generate mapping
-    const mapping = generateMapping(url, pattern);
-
-    if (!mapping) {
-      return {
-        url,
-        success: false,
-        error: 'Failed to generate mapping',
-        contactPage: contactPage || undefined,
-      };
-    }
-
+    // No forms found at any level
     return {
       url,
-      success: true,
-      mapping,
-      contactPage: contactPage || undefined,
+      success: false,
+      error: `No form fields found (checked ${1 + contactLinks.length} pages)`,
+      contactPage: contactLinks.length > 0 ? contactLinks[0] : undefined,
     };
   } catch (error: any) {
     if (error.name === 'AbortError') {
