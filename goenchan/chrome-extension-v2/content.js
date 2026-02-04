@@ -1209,6 +1209,19 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="contact[email]"]', confidence: 100 },
     phone: { selector: 'input[name="contact[電話番号]"]', confidence: 100 },
     message: { selector: 'textarea[name="contact[メッセージ]"]', confidence: 100 }
+  },
+  // www.jrfreight.co.jp - Custom form with numeric query IDs
+  'www.jrfreight.co.jp/inquiry/form_other': {
+    company_url: 'https://www.jrfreight.co.jp/',
+    company: { selector: 'input[name="query[1005]"]', confidence: 100 },
+    name: { selector: 'input[name="query[10]"]', confidence: 100 },
+    name_kana: { selector: 'input[name="query[1013]"]', confidence: 100 },
+    zipcode: { selector: 'input[name="query[1012][0]"]', confidence: 100 },
+    address: { selector: 'input[name="query[1012][1]"]', confidence: 100 },
+    phone: { selector: 'input[name="query[11]"]', confidence: 100 },
+    fax: { selector: 'input[name="query[1003]"]', confidence: 100 },
+    email: { selector: 'input[name="query[1004]"]', confidence: 100 },
+    message: { selector: 'textarea[name="query[22]"]', confidence: 100 }
   }
 };
 
