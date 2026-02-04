@@ -64,20 +64,28 @@ async function tryExtractForms(
 }
 
 /**
- * Crawl a single site with deep crawling (up to 3 levels)
+ * Crawl a single site with very deep crawling (up to 5 levels)
  * Level 1: Homepage
- * Level 2: Contact page candidates from homepage
- * Level 3: Sub-pages from contact page candidates
+ * Level 2: Up to 10 contact page candidates from homepage
+ * Level 3: Sub-pages from each contact page
+ * Level 4: Sub-sub-pages from sub-pages
+ * Level 5: Sub-sub-sub-pages (last resort)
+ *
+ * This aggressive approach maximizes success rate at the cost of speed.
+ * Suitable for batch processing where thoroughness matters more than speed.
+ *
  * @param url - URL to crawl
- * @param timeoutMs - Timeout in milliseconds (default 15000 for deep crawling)
+ * @param timeoutMs - Timeout in milliseconds (default 45000 for very deep crawling)
  * @returns CrawlResult with success status and mapping if successful
  */
 async function crawlSingleSite(
   url: string,
-  timeoutMs: number = 15000
+  timeoutMs: number = 45000
 ): Promise<CrawlResult> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const visitedUrls = new Set<string>(); // Track visited URLs to avoid loops
+  let pagesChecked = 0;
 
   try {
     // Validate URL
@@ -91,24 +99,43 @@ async function crawlSingleSite(
       };
     }
 
-    // LEVEL 1: Try homepage first
-    const homepageResult = await tryExtractForms(url, controller);
-    if (homepageResult) {
-      const pattern = detectPattern(homepageResult.fields);
-      if (pattern) {
-        const mapping = generateMapping(url, pattern);
-        if (mapping) {
-          return {
-            url,
-            success: true,
-            mapping,
-            contactPage: url,
-          };
-        }
+    // Helper to check a single URL
+    const checkUrl = async (checkUrl: string, depth: number): Promise<CrawlResult | null> => {
+      if (visitedUrls.has(checkUrl)) return null;
+      visitedUrls.add(checkUrl);
+      pagesChecked++;
+
+      // Small delay between requests to be polite
+      if (pagesChecked > 1) {
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
+
+      const result = await tryExtractForms(checkUrl, controller);
+      if (result) {
+        const pattern = detectPattern(result.fields);
+        if (pattern) {
+          const mapping = generateMapping(url, pattern);
+          if (mapping) {
+            return {
+              url,
+              success: true,
+              mapping,
+              contactPage: checkUrl,
+            };
+          }
+        }
+        return result;
+      }
+      return null;
+    };
+
+    // LEVEL 1: Try homepage first
+    const homepageResult = await checkUrl(url, 1);
+    if (homepageResult?.success) {
+      return homepageResult;
     }
 
-    // If no forms on homepage, fetch it to find contact links
+    // Get homepage HTML for link extraction
     let homepageHtml = homepageResult?.html;
     if (!homepageHtml) {
       try {
@@ -144,44 +171,53 @@ async function crawlSingleSite(
       }
     }
 
-    // LEVEL 2: Try contact page candidates
-    const contactLinks = findContactLinks(homepageHtml, url, 5);
+    // LEVEL 2: Try up to 10 contact page candidates from homepage
+    const level2Links = findContactLinks(homepageHtml, url, 10);
 
-    for (const contactUrl of contactLinks) {
-      if (contactUrl === url) continue; // Skip if same as homepage
+    for (const link2 of level2Links) {
+      if (link2 === url) continue;
 
-      const contactResult = await tryExtractForms(contactUrl, controller);
-      if (contactResult) {
-        const pattern = detectPattern(contactResult.fields);
-        if (pattern) {
-          const mapping = generateMapping(url, pattern);
-          if (mapping) {
-            return {
-              url,
-              success: true,
-              mapping,
-              contactPage: contactUrl,
-            };
+      const result2 = await checkUrl(link2, 2);
+      if (result2?.success) {
+        return result2;
+      }
+
+      // LEVEL 3: Try sub-pages from this contact page
+      if (result2?.html) {
+        const level3Links = findContactLinks(result2.html, link2, 5);
+
+        for (const link3 of level3Links) {
+          if (visitedUrls.has(link3)) continue;
+
+          const result3 = await checkUrl(link3, 3);
+          if (result3?.success) {
+            return result3;
           }
-        }
 
-        // LEVEL 3: Try sub-pages from this contact page
-        const subLinks = findContactLinks(contactResult.html, contactUrl, 3);
-        for (const subUrl of subLinks) {
-          if (subUrl === contactUrl || subUrl === url) continue;
+          // LEVEL 4: Try sub-sub-pages
+          if (result3?.html) {
+            const level4Links = findContactLinks(result3.html, link3, 3);
 
-          const subResult = await tryExtractForms(subUrl, controller);
-          if (subResult) {
-            const pattern = detectPattern(subResult.fields);
-            if (pattern) {
-              const mapping = generateMapping(url, pattern);
-              if (mapping) {
-                return {
-                  url,
-                  success: true,
-                  mapping,
-                  contactPage: subUrl,
-                };
+            for (const link4 of level4Links) {
+              if (visitedUrls.has(link4)) continue;
+
+              const result4 = await checkUrl(link4, 4);
+              if (result4?.success) {
+                return result4;
+              }
+
+              // LEVEL 5: Last resort - try one more level
+              if (result4?.html) {
+                const level5Links = findContactLinks(result4.html, link4, 2);
+
+                for (const link5 of level5Links) {
+                  if (visitedUrls.has(link5)) continue;
+
+                  const result5 = await checkUrl(link5, 5);
+                  if (result5?.success) {
+                    return result5;
+                  }
+                }
               }
             }
           }
@@ -193,15 +229,15 @@ async function crawlSingleSite(
     return {
       url,
       success: false,
-      error: `No form fields found (checked ${1 + contactLinks.length} pages)`,
-      contactPage: contactLinks.length > 0 ? contactLinks[0] : undefined,
+      error: `No form fields found (checked ${pagesChecked} pages across 5 levels)`,
+      contactPage: level2Links.length > 0 ? level2Links[0] : undefined,
     };
   } catch (error: any) {
     if (error.name === 'AbortError') {
       return {
         url,
         success: false,
-        error: `Timeout after ${timeoutMs}ms`,
+        error: `Timeout after ${timeoutMs}ms (checked ${pagesChecked} pages)`,
       };
     }
 

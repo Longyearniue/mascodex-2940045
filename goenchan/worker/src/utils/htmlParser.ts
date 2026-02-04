@@ -22,10 +22,10 @@ export function findContactLink(html: string, baseUrl: string): string | null {
  * Returns up to maxLinks candidates, prioritized by pattern match quality
  * @param html - HTML content to search
  * @param baseUrl - Base URL for resolving relative links
- * @param maxLinks - Maximum number of links to return (default 5)
+ * @param maxLinks - Maximum number of links to return (default 10)
  * @returns Array of absolute URLs, sorted by relevance
  */
-export function findContactLinks(html: string, baseUrl: string, maxLinks: number = 5): string[] {
+export function findContactLinks(html: string, baseUrl: string, maxLinks: number = 10): string[] {
   const foundUrls = new Set<string>();
 
   // Patterns to match contact links (Japanese and English)
