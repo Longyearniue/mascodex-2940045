@@ -648,8 +648,8 @@ async function autoFillForm(profile) {
 
   // Priority-based mapping merge (Task 14)
   // Priority 1: SITE_MAPPINGS (already processed above)
-  // Priority 2: Pattern mapping (from cached detection)
-  // Priority 3: Learned mappings (from chrome.storage)
+  // Priority 2: Learned mappings (from chrome.storage)
+  // Priority 3: Pattern mapping (from cached detection)
 
   const patternMapping = cachedPatternMapping || {};
   const learnedMapping = bestMapping ? bestMapping.fields : {};
@@ -696,7 +696,7 @@ async function autoFillForm(profile) {
         }
       }
 
-      if (element && isVisible(element)) {
+      if (element && isVisible(element) && !filledFields.has(element)) {
         fillField(element, value, fieldInfo.type);
         filledFields.add(element);
         debugInfo.fieldsFilled++;
@@ -716,7 +716,7 @@ async function autoFillForm(profile) {
           method: method,
           label: fieldInfo.labelText || fieldInfo.label || key
         });
-      } else {
+      } else if (!element) {
         debugInfo.errors.push(`Could not find element for ${key}`);
       }
     }
