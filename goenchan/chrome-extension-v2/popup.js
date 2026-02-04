@@ -475,7 +475,8 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
     return;
   }
 
-  // Show progress
+  // Show progress and disable button
+  document.getElementById('startBulkCrawl').disabled = true;
   document.getElementById('crawlProgress').style.display = 'block';
   document.getElementById('crawlResults').style.display = 'none';
   document.getElementById('progressText').textContent = `Processing ${urls.length} URL(s)...`;
@@ -491,7 +492,8 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
     }
 
     const result = await response.json();
@@ -503,13 +505,13 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
     document.getElementById('crawlProgress').style.display = 'none';
     document.getElementById('crawlResults').style.display = 'block';
 
-    // Display statistics
+    // Display statistics (use correct field names from Worker response)
     const stats = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <div><strong>Total:</strong> ${result.total}</div>
-        <div><strong>Success:</strong> <span style="color: #34a853;">${result.success}</span></div>
-        <div><strong>Failed:</strong> <span style="color: #ea4335;">${result.failed}</span></div>
-        <div><strong>Mappings:</strong> ${Object.keys(result.mappings).length}</div>
+        <div><strong>Total:</strong> ${result.totalProcessed || 0}</div>
+        <div><strong>Success:</strong> <span style="color: #34a853;">${result.successCount || 0}</span></div>
+        <div><strong>Failed:</strong> <span style="color: #ea4335;">${result.failureCount || 0}</span></div>
+        <div><strong>Mappings:</strong> ${result.mappings ? result.mappings.length : 0}</div>
       </div>
     `;
     document.getElementById('resultsStats').innerHTML = stats;
@@ -523,22 +525,23 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
       result.errors.forEach(error => {
         const errorItem = document.createElement('div');
         errorItem.style.cssText = 'padding: 6px; border-bottom: 1px solid #f0f0f0; font-size: 10px;';
-        errorItem.innerHTML = `
-          <div style="font-weight: 600; color: #1a73e8;">${escapeHtml(error.url)}</div>
-          <div style="color: #ea4335; margin-top: 2px;">${escapeHtml(error.error)}</div>
-        `;
+        // Error is a string in format "url: error message"
+        errorItem.textContent = error;
         errorList.appendChild(errorItem);
       });
     } else {
       document.getElementById('errorList').style.display = 'none';
     }
 
-    showStatus(`Crawl complete! ${result.success}/${result.total} successful`, 'success');
+    showStatus(`Crawl complete! ${result.successCount}/${result.totalProcessed} successful`, 'success');
 
   } catch (error) {
     console.error('Bulk crawl error:', error);
     document.getElementById('crawlProgress').style.display = 'none';
     showStatus(`Error: ${error.message}`, 'error');
+  } finally {
+    // Re-enable button regardless of success or failure
+    document.getElementById('startBulkCrawl').disabled = false;
   }
 });
 
