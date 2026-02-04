@@ -485,6 +485,144 @@ function simpleHash(str) {
 }
 
 // =============================================================================
+// SEMANTIC FIELD ANALYSIS (Layer 5)
+// =============================================================================
+
+/**
+ * Analyze field using semantic clues (labels, aria-labels, placeholders, surrounding text)
+ * Returns: { type: 'company'|'name'|'email'|etc, confidence: 0-100, source: 'label'|'aria'|'placeholder' }
+ */
+function analyzeFieldSemantics(field) {
+  const semanticPatterns = {
+    company: {
+      ja: ['会社', '企業', '法人', '団体', '貴社', '御社', '勤務先', '組織'],
+      en: ['company', 'corporation', 'organization', 'employer', 'firm']
+    },
+    name: {
+      ja: ['名前', '氏名', 'お名前', '担当者', 'ご担当者'],
+      en: ['name', 'full name', 'your name', 'contact name']
+    },
+    name_kana: {
+      ja: ['カナ', 'フリガナ', 'ふりがな', 'よみがな', 'ヨミガナ'],
+      en: ['kana', 'furigana', 'reading']
+    },
+    email: {
+      ja: ['メール', 'Eメール', 'メールアドレス', 'eメール'],
+      en: ['email', 'e-mail', 'mail address']
+    },
+    phone: {
+      ja: ['電話', '電話番号', 'TEL', '連絡先', '携帯', 'お電話'],
+      en: ['phone', 'tel', 'telephone', 'mobile', 'contact number']
+    },
+    zipcode: {
+      ja: ['郵便', '郵便番号', '〒'],
+      en: ['zip', 'postal', 'postcode', 'zip code']
+    },
+    address: {
+      ja: ['住所', 'ご住所', '所在地'],
+      en: ['address', 'street', 'location']
+    },
+    department: {
+      ja: ['部署', '所属', '部門'],
+      en: ['department', 'division', 'section']
+    },
+    subject: {
+      ja: ['件名', 'タイトル', '用件', '問い合わせ件名'],
+      en: ['subject', 'title', 'topic']
+    },
+    message: {
+      ja: ['内容', 'メッセージ', '本文', 'お問い合わせ内容', '詳細', 'ご質問', 'ご相談'],
+      en: ['message', 'content', 'details', 'inquiry', 'comment', 'question']
+    }
+  };
+
+  const sources = [];
+
+  // 1. Get label text (highest priority)
+  const label = getFieldLabel(field);
+  if (label) {
+    sources.push({ text: label, type: 'label', confidence: 40 });
+  }
+
+  // 2. aria-label (high priority)
+  const ariaLabel = field.getAttribute('aria-label');
+  if (ariaLabel) {
+    sources.push({ text: ariaLabel, type: 'aria-label', confidence: 35 });
+  }
+
+  // 3. placeholder (medium priority)
+  const placeholder = field.getAttribute('placeholder');
+  if (placeholder) {
+    sources.push({ text: placeholder, type: 'placeholder', confidence: 25 });
+  }
+
+  // 4. aria-labelledby (medium priority)
+  const ariaLabelledBy = field.getAttribute('aria-labelledby');
+  if (ariaLabelledBy) {
+    const labelElement = document.getElementById(ariaLabelledBy);
+    if (labelElement) {
+      sources.push({ text: cleanText(labelElement.textContent), type: 'aria-labelledby', confidence: 30 });
+    }
+  }
+
+  // 5. Nearby text (low priority - within 50 chars before field)
+  const nearbyText = getPreviousSiblingText(field);
+  if (nearbyText) {
+    sources.push({ text: nearbyText, type: 'nearby-text', confidence: 15 });
+  }
+
+  if (sources.length === 0) {
+    return null;
+  }
+
+  // Match each source against patterns
+  let bestMatch = null;
+  let bestScore = 0;
+  let bestSource = null;
+
+  for (const source of sources) {
+    const text = source.text.toLowerCase();
+
+    for (const [fieldType, patterns] of Object.entries(semanticPatterns)) {
+      // Check Japanese keywords
+      for (const keyword of patterns.ja) {
+        if (text.includes(keyword.toLowerCase())) {
+          const score = source.confidence;
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = fieldType;
+            bestSource = source.type;
+          }
+        }
+      }
+
+      // Check English keywords (word boundaries)
+      for (const keyword of patterns.en) {
+        const regex = new RegExp(`\\b${keyword.toLowerCase()}\\b`);
+        if (regex.test(text)) {
+          const score = source.confidence;
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = fieldType;
+            bestSource = source.type;
+          }
+        }
+      }
+    }
+  }
+
+  if (!bestMatch || bestScore < 10) {
+    return null;
+  }
+
+  return {
+    type: bestMatch,
+    confidence: bestScore,
+    source: bestSource
+  };
+}
+
+// =============================================================================
 // AUTO-FILL
 // =============================================================================
 
@@ -762,6 +900,50 @@ async function autoFillForm(profile) {
       console.log(`⚠️ Low confidence (${detection.confidence}%) for ${detection.type} - skipped`);
     }
   }
+
+  // =============================================================================
+  // LAYER 5: SEMANTIC ANALYSIS (NEW)
+  // =============================================================================
+
+  console.log('🔬 [SEMANTIC] Starting semantic analysis for unfilled fields...');
+
+  const unfilledFields = getAllFormFields().filter(field => !filledFields.has(field));
+  let semanticFilledCount = 0;
+
+  for (const field of unfilledFields) {
+    const semantic = analyzeFieldSemantics(field);
+
+    if (semantic && semantic.confidence >= 10) {
+      const value = getProfileValue(profile, semantic.type);
+
+      if (value) {
+        fillField(field, value, field.type);
+        filledFields.add(field);
+        debugInfo.fieldsFilled++;
+        semanticFilledCount++;
+
+        const resultInfo = {
+          fieldType: semantic.type,
+          selector: getSelector(field),
+          confidence: semantic.confidence,
+          method: 'semantic-' + semantic.source,
+          label: getFieldLabel(field) || semantic.source
+        };
+
+        results.push(resultInfo);
+        debugInfo.detailedResults.push({
+          ...resultInfo,
+          value: value.substring(0, 20) + (value.length > 20 ? '...' : ''),
+          fieldName: field.name,
+          fieldId: field.id
+        });
+
+        console.log(`✅ [SEMANTIC] Filled ${semantic.type} (${semantic.confidence}% via ${semantic.source})`);
+      }
+    }
+  }
+
+  console.log(`📊 [SEMANTIC] Filled ${semanticFilledCount} fields via semantic analysis`);
 
   console.log(`📊 Total filled: ${debugInfo.fieldsFilled}/${debugInfo.fieldsProcessed} fields`);
 
