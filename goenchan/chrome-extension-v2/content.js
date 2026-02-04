@@ -1288,11 +1288,25 @@ const SITE_MAPPINGS = {
 // =============================================================================
 // AUTO-GENERATED MAPPINGS FROM BULK CRAWLER
 // =============================================================================
-// Generated at: 2026-02-04T02:57:00.256Z
-// Source: Bulk Crawler v2.13.0
+// Generated at: 2026-02-04T03:05:01.798Z
+// Source: Bulk Crawler v2.14.0 (Very Deep Crawling - 5 levels)
 
 const GENERATED_MAPPINGS = {
-  "http://www.ric-nord.co.jp/": {
+  "http://www.s-supply.net/": {
+    "pattern": "split_fields",
+    "confidence": 0.8333333333333334,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"name01\"]",
+        "confidence": 83
+      },
+      "phone": {
+        "selector": "[name=\"tel01\"]",
+        "confidence": 83
+      }
+    }
+  },
+  "http://www.d-kyoya.com/": {
     "pattern": "japanese_direct",
     "confidence": 1,
     "mapping": {
@@ -1300,60 +1314,114 @@ const GENERATED_MAPPINGS = {
         "selector": "[name=\"お名前\"]",
         "confidence": 100
       },
-      "phone": {
-        "selector": "[name=\"電話番号\"]",
-        "confidence": 100
-      },
-      "message": {
-        "selector": "[name=\"お問い合わせ内容\"]",
-        "confidence": 100
-      }
-    }
-  },
-  "http://www.taihei-21.co.jp/": {
-    "pattern": "japanese_direct",
-    "confidence": 0.4,
-    "mapping": {
-      "phone": {
-        "selector": "[name=\"message\"]",
-        "confidence": 40
-      }
-    }
-  },
-  "http://www.horibe87.co.jp/": {
-    "pattern": "japanese_direct",
-    "confidence": 0.06060606060606061,
-    "mapping": {
       "email": {
-        "selector": "[name=\"mail_again\"]",
-        "confidence": 6
-      }
-    }
-  },
-  "http://www.yamachan.co.jp/": {
-    "pattern": "japanese_direct",
-    "confidence": 0.8571428571428571,
-    "mapping": {
-      "name": {
-        "selector": "[name=\"お名前\"]",
-        "confidence": 86
+        "selector": "[name=\"メールアドレス\"]",
+        "confidence": 100
       },
       "phone": {
         "selector": "[name=\"電話番号\"]",
-        "confidence": 86
+        "confidence": 100
       },
       "message": {
         "selector": "[name=\"お問い合わせ内容\"]",
-        "confidence": 86
+        "confidence": 100
       }
     }
   },
-  "http://www.keiseikai.ne.jp/": {
+  "http://www.kensosya.com/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.5238095238095238,
+    "mapping": {
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 52
+      },
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 52
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 52
+      }
+    }
+  },
+  "http://www.saegusayakuhin.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.8518518518518519,
+    "mapping": {
+      "message": {
+        "selector": "[name=\"ご質問内容\"]",
+        "confidence": 85
+      },
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 85
+      },
+      "company": {
+        "selector": "[name=\"会社名（法人の場合）\"]",
+        "confidence": 85
+      },
+      "email": {
+        "selector": "[name=\"メールアドレス\"]",
+        "confidence": 85
+      },
+      "phone": {
+        "selector": "[name=\"電話番号[separator]\"]",
+        "confidence": 85
+      }
+    }
+  },
+  "http://h-hokkai.com/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.19047619047619047,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 19
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 19
+      }
+    }
+  },
+  "http://www.ym-k.co.jp/": {
+    "pattern": "wordpress_cf7",
+    "confidence": 0.125,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"your-company\"]",
+        "confidence": 13
+      },
+      "name": {
+        "selector": "[name=\"your-name\"]",
+        "confidence": 13
+      },
+      "email": {
+        "selector": "[name=\"your-email\"]",
+        "confidence": 13
+      },
+      "phone": {
+        "selector": "[name=\"your-tel\"]",
+        "confidence": 13
+      },
+      "message": {
+        "selector": "[name=\"your-message\"]",
+        "confidence": 13
+      }
+    }
+  },
+  "http://www.nihonkiryoku.co.jp/": {
     "pattern": "japanese_direct",
     "confidence": 1,
     "mapping": {
+      "company": {
+        "selector": "[name=\"企業名（学校名）\"]",
+        "confidence": 100
+      },
       "name": {
-        "selector": "[name=\"お名前\"]",
+        "selector": "[name=\"氏名\"]",
         "confidence": 100
       },
       "phone": {
@@ -1366,16 +1434,112 @@ const GENERATED_MAPPINGS = {
       }
     }
   },
-  "http://www.kumon.ne.jp/": {
+  "http://www.books-sanseido.co.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.35294117647058826,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
+        "confidence": 35
+      },
+      "email": {
+        "selector": "[name=\"メールアドレス（確認）\"]",
+        "confidence": 35
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ\"]",
+        "confidence": 35
+      }
+    }
+  },
+  "http://c-h.jp/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.23076923076923078,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"氏名\"]",
+        "confidence": 23
+      },
+      "phone": {
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 23
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
+        "confidence": 23
+      }
+    }
+  },
+  "https://yosida-chiro.com/": {
+    "pattern": "wordpress_cf7",
+    "confidence": 0.3076923076923077,
+    "mapping": {
+      "company": {
+        "selector": "[name=\"your-company\"]",
+        "confidence": 31
+      },
+      "name": {
+        "selector": "[name=\"your-name\"]",
+        "confidence": 31
+      },
+      "email": {
+        "selector": "[name=\"your-email\"]",
+        "confidence": 31
+      },
+      "phone": {
+        "selector": "[name=\"your-tel\"]",
+        "confidence": 31
+      },
+      "message": {
+        "selector": "[name=\"your-message\"]",
+        "confidence": 31
+      }
+    }
+  },
+  "http://www.seikitokyu.co.jp/": {
     "pattern": "split_fields",
     "confidence": 1,
     "mapping": {
       "name": {
-        "selector": "[name=\"name1\"]",
+        "selector": "[name=\"name-01\"]",
+        "confidence": 100
+      }
+    }
+  },
+  "http://www.katagiri-g.com/": {
+    "pattern": "japanese_direct",
+    "confidence": 0.14285714285714285,
+    "mapping": {
+      "message": {
+        "selector": "[name=\"inquiry_detail\"]",
+        "confidence": 14
+      }
+    }
+  },
+  "http://mashita-ortho.info/": {
+    "pattern": "split_fields",
+    "confidence": 0.4,
+    "mapping": {
+      "email": {
+        "selector": "[name=\"email-9\"]",
+        "confidence": 40
+      }
+    }
+  },
+  "http://www.asahikawakikai.com/": {
+    "pattern": "japanese_direct",
+    "confidence": 1,
+    "mapping": {
+      "name": {
+        "selector": "[name=\"お名前\"]",
         "confidence": 100
       },
       "phone": {
-        "selector": "[name=\"tel2\"]",
+        "selector": "[name=\"電話番号\"]",
+        "confidence": 100
+      },
+      "message": {
+        "selector": "[name=\"お問い合わせ内容\"]",
         "confidence": 100
       }
     }
