@@ -88,7 +88,7 @@ async function crawlSingleSite(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   const visitedUrls = new Set<string>(); // Track visited URLs to avoid loops
   let pagesChecked = 0;
-  const MAX_REQUESTS_PER_SITE = 15; // Hard limit to prevent subrequest errors
+  const MAX_REQUESTS_PER_SITE = 20; // Sequential processing allows more per site
 
   try {
     // Validate URL
@@ -146,13 +146,12 @@ async function crawlSingleSite(
     const baseUrlObj = new URL(url);
     const baseUrl = `${baseUrlObj.protocol}//${baseUrlObj.hostname}`;
 
-    // REDUCED to 8 paths to stay within subrequest limits
-    // With 3 concurrent sites and max 15 checks per site = 45 requests (under 50 limit)
+    // Top 12 most common contact paths (sequential processing allows more paths)
     const commonPaths = [
-      '/contact', '/contact.html',
-      '/inquiry', '/inquiry.html',
-      '/toiawase', '/toiawase.html',
-      '/お問い合わせ',
+      '/contact', '/contact/', '/contact.html',
+      '/inquiry', '/inquiry/', '/inquiry.html',
+      '/toiawase', '/toiawase/', '/toiawase.html',
+      '/お問い合わせ', '/お問い合わせ/',
       '/form',
     ];
 
@@ -206,8 +205,9 @@ async function crawlSingleSite(
       }
     }
 
-    // LEVEL 2: Try up to 3 contact page candidates from homepage (REDUCED to save requests)
-    const level2Links = findContactLinks(homepageHtml, url, 3);
+    // LEVEL 2: Try up to 5 contact page candidates from homepage
+    // Sequential processing allows more checks per site
+    const level2Links = findContactLinks(homepageHtml, url, 5);
 
     for (const link2 of level2Links) {
       if (link2 === url) continue;
@@ -288,29 +288,20 @@ export async function handleBulkCrawler(request: Request): Promise<Response> {
       );
     }
 
-    // Process URLs in parallel with limit of 3 concurrent requests
-    // REDUCED from 10 to avoid "Too many subrequests" error (50 limit)
-    // 3 sites × 15 max requests = 45 total (under 50 limit)
-    const maxConcurrent = 3;
+    // Process URLs SEQUENTIALLY (one at a time) to avoid subrequest limits
+    // Parallel processing was causing "Too many subrequests" errors
     const results: CrawlResult[] = [];
 
-    for (let i = 0; i < body.urls.length; i += maxConcurrent) {
-      const batch = body.urls.slice(i, i + maxConcurrent);
-      const batchPromises = batch.map(url => crawlSingleSite(url));
-      const batchResults = await Promise.allSettled(batchPromises);
-
-      // Extract results from settled promises
-      for (const result of batchResults) {
-        if (result.status === 'fulfilled') {
-          results.push(result.value);
-        } else {
-          // Handle promise rejection (shouldn't happen as crawlSingleSite catches errors)
-          results.push({
-            url: 'unknown',
-            success: false,
-            error: result.reason?.message || 'Promise rejected',
-          });
-        }
+    for (const url of body.urls) {
+      try {
+        const result = await crawlSingleSite(url);
+        results.push(result);
+      } catch (error: any) {
+        results.push({
+          url,
+          success: false,
+          error: error.message || 'Unknown error',
+        });
       }
     }
 
