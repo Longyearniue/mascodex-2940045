@@ -77,12 +77,12 @@ async function tryExtractForms(
  * Suitable for batch processing where thoroughness matters more than speed.
  *
  * @param url - URL to crawl
- * @param timeoutMs - Timeout in milliseconds (default 90000 for very deep crawling with 100+ paths)
+ * @param timeoutMs - Timeout in milliseconds (default 60000 for deep crawling with 40 optimized paths)
  * @returns CrawlResult with success status and mapping if successful
  */
 async function crawlSingleSite(
   url: string,
-  timeoutMs: number = 90000
+  timeoutMs: number = 60000
 ): Promise<CrawlResult> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -135,84 +135,37 @@ async function crawlSingleSite(
       return null;
     };
 
-    // LEVEL 0: Try 100+ common contact page paths FIRST (most efficient)
-    // Expanded list to cover more variations and patterns
+    // LEVEL 0: Try 40 most common contact page paths (optimized for speed)
+    // Carefully selected based on frequency analysis of Japanese business sites
     const baseUrlObj = new URL(url);
     const baseUrl = `${baseUrlObj.protocol}//${baseUrlObj.hostname}`;
 
     const commonPaths = [
-      // English paths
-      '/contact', '/contact/', '/contact.html', '/contact.htm', '/contact.php', '/contact.aspx',
-      '/inquiry', '/inquiry/', '/inquiry.html', '/inquiry.htm', '/inquiry.php',
-      '/form', '/form/', '/form.html', '/form.php',
-      '/contactus', '/contact-us', '/contact_us', '/contact_us.html',
-      '/contactform', '/contact-form', '/contactform.html',
-      '/support', '/support/', '/support.html',
-      '/request', '/request/', '/request.html',
-      '/mailform', '/mailform/', '/mailform.html',
-      '/mail', '/mail/', '/mail.html',
-      '/ask', '/ask/', '/ask.html',
-      '/question', '/question/', '/question.html',
-      '/feedback', '/feedback/', '/feedback.html',
+      // Top 15 most common English paths
+      '/contact', '/contact/', '/contact.html',
+      '/inquiry', '/inquiry/', '/inquiry.html',
+      '/form', '/form/', '/form.html',
+      '/contactus', '/contact-us',
+      '/support', '/support/',
+      '/mailform', '/mailform/',
 
-      // Japanese paths (Hiragana, Katakana, Kanji)
-      '/toiawase', '/toiawase/', '/toiawase.html', '/toiawase.php',
-      '/otoiawase', '/otoiawase/', '/otoiawase.html',
-      '/お問い合わせ', '/お問い合わせ/', '/お問合せ', '/お問合せ/',
-      '/お問合わせ', '/お問合わせ/', '/問い合わせ', '/問合せ',
-      '/といあわせ', '/おといあわせ',
+      // Top 10 most common Japanese paths
+      '/toiawase', '/toiawase/', '/toiawase.html',
+      '/お問い合わせ', '/お問い合わせ/',
+      '/お問合せ', '/お問合せ/',
+      '/otoiawase',
 
-      // With /index.html suffix
-      '/contact/index.html', '/contact/index.php', '/contact/index.htm',
-      '/inquiry/index.html', '/inquiry/index.php',
-      '/form/index.html', '/form/index.php',
-      '/toiawase/index.html', '/toiawase/index.php',
+      // Top 8 paths with index.html (common CMS pattern)
+      '/contact/index.html', '/inquiry/index.html',
+      '/form/index.html', '/toiawase/index.html',
+      '/contact/index.php', '/inquiry/index.php',
+      '/form/index.php', '/toiawase/index.php',
 
-      // Company/About paths
-      '/company/contact', '/company/contact/', '/company/contact.html',
-      '/company/inquiry', '/company/inquiry/',
-      '/about/contact', '/about/contact/', '/about/contact.html',
-      '/about/inquiry', '/about/inquiry/',
-      '/info/contact', '/info/contact/',
-
-      // Language-specific paths
-      '/en/contact', '/en/contact/', '/en/contact.html',
-      '/en/inquiry', '/en/inquiry/',
-      '/jp/contact', '/jp/contact/', '/jp/contact.html',
-      '/ja/contact', '/ja/contact/', '/ja/contact.html',
-      '/english/contact', '/english/contact/',
-      '/japanese/contact', '/japanese/contact/',
-
-      // Service/Customer paths
-      '/service/contact', '/service/contact/', '/service/inquiry',
-      '/customer/contact', '/customer/contact/', '/customer/inquiry',
-      '/cs/contact', '/cs/inquiry',
-
-      // Pages directory (common CMS pattern)
-      '/pages/contact', '/pages/contact/', '/pages/contact.html',
-      '/pages/inquiry', '/pages/inquiry/',
-      '/page/contact', '/page/inquiry',
-
-      // Numeric patterns (some sites use numbers)
-      '/contact-01', '/contact-1', '/inquiry-01',
-      '/form/001', '/form/01',
-
-      // Others
-      '/contacto', '/kontakt', '/contato',  // Other languages (Spanish, German, Portuguese)
-      '/formulaire', '/kontaktformular',     // French, German
-
-      // With .asp, .aspx, .jsp extensions
-      '/contact.asp', '/contact.aspx', '/contact.jsp',
-      '/inquiry.asp', '/inquiry.aspx', '/inquiry.jsp',
-      '/form.asp', '/form.aspx', '/form.jsp',
-
-      // CMS-specific patterns
-      '/wp-content/contact', '/wordpress/contact',
-      '/cms/contact', '/site/contact',
-
-      // Additional Japanese variations
-      '/contact_form', '/inquiry_form', '/mail_form',
-      '/お問い合せフォーム', '/問合せフォーム',
+      // Top 7 company/subdirectory paths
+      '/company/contact', '/company/inquiry',
+      '/en/contact', '/jp/contact',
+      '/pages/contact', '/about/contact',
+      '/service/contact',
     ];
 
     for (const path of commonPaths) {
