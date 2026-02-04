@@ -1134,6 +1134,12 @@ function getAllFormFields() {
 
 // Pre-configured site mappings for specific forms
 const SITE_MAPPINGS = {
+  // Enable auto-fill for yesp.co.jp (uses auto-detection layers)
+  'www.yesp.co.jp/contact.html': {},
+
+  // Enable auto-fill for takarada.ed.jp (uses auto-detection layers)
+  'www.takarada.ed.jp/meisei/form/': {},
+
   // Test form (local)
   'test-form.html': {
     company_url: 'https://www.vivid52.com/',
