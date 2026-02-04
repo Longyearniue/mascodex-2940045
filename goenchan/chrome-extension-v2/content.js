@@ -1250,6 +1250,19 @@ const SITE_MAPPINGS = {
     phone: { selector: 'input[name="電話番号"]', confidence: 100 },
     message: { selector: 'textarea[name="お問合せ内容"]', confidence: 100 },
     inquiry_type: { selector: 'input[name="問い合わせ項目"][value="その他お困りごと"]', type: 'checkbox', confidence: 100 }
+  },
+  // www.taisetsu.or.jp - Custom CMS with Block7_1 structure
+  'www.taisetsu.or.jp/publics/index/3/': {
+    company_url: 'http://www.taisetsu.or.jp/',
+    name: { selector: 'input[name="data[Block7_1][item][1]"]', confidence: 100 },
+    name_kana: { selector: 'input[name="data[Block7_1][item][2]"]', confidence: 100 },
+    zipcode: { selector: 'input[name="data[Block7_1][item][13][code]"]', confidence: 100 },
+    address: { selector: 'input[name="data[Block7_1][item][13][text]"]', confidence: 100 },
+    phone: { selector: 'input[name="data[Block7_1][item][8]"]', confidence: 100 },
+    fax: { selector: 'input[name="data[Block7_1][item][9]"]', confidence: 100 },
+    email: { selector: 'input[name="data[Block7_1][item][10][1]"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="data[Block7_1][item][10][2]"]', confidence: 100 },
+    message: { selector: 'textarea[name="data[Block7_1][item][3]"]', confidence: 100 }
   }
 };
 
