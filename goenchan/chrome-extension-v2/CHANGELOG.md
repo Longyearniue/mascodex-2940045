@@ -3,20 +3,26 @@
 ## [2.16.0] - 2026-02-04
 
 ### Fixed
-- **Bulk Crawler "Too many subrequests" errors completely eliminated**
+- **Bulk Crawler "Too many subrequests" errors 99% eliminated**
   - Root cause: Cloudflare's 50 subrequest limit applies PER WORKER INVOCATION (not concurrent)
   - Previous: 50 URLs/batch × 20 requests/site = 1000 total requests → exceeded limit on 3rd site
   - New hybrid approach: 3 URLs/batch × 16 requests/site = 48 total requests < 50 limit ✓
   - Reduced MAX_REQUESTS_PER_SITE from 20 to 16
   - Reduced BATCH_SIZE from 50 to 3
   - Optimized crawling: 12 direct paths + 1 homepage + 3 contact links = 16 requests max
+  - Result: Error rate 100% → 0.96% (258 errors → 2 errors in 208 URLs)
 - **Bulk Crawler hanging fixed**
   - Worker: Reduced site timeout from 60s to 20s (faster failure detection)
   - Frontend: Added 90s batch timeout with AbortController (prevents infinite waiting)
   - Math: 3 sites × 20s timeout = 60s max per batch + 30s buffer
 
+### Improved
+- **Success rate dramatically improved: 0% → 16.3%**
+  - Test: 208 URLs processed, 34 successful mappings found (16.3% success rate)
+  - Remaining 2 "Too many subrequests" errors (0.96%) are edge cases with redirect chains
+
 ### Changed
-- Bulk crawler now processes 3 sites per batch (slower but 100% reliable)
+- Bulk crawler now processes 3 sites per batch (slower but 99% reliable)
 - Level 2 links reduced from 5 to 3 for better subrequest budget management
 - Site timeout reduced from 60s to 20s for faster processing
 
