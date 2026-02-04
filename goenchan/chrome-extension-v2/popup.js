@@ -482,7 +482,7 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
 
   try {
     // Call Worker API
-    const response = await fetch('https://crawler-worker.taiichiwada.workers.dev/bulk-crawler', {
+    const response = await fetch('https://goenchan-worker.taiichifox.workers.dev/bulk-crawler', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
