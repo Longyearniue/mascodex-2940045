@@ -88,6 +88,7 @@ async function crawlSingleSite(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   const visitedUrls = new Set<string>(); // Track visited URLs to avoid loops
   let pagesChecked = 0;
+  const MAX_REQUESTS_PER_SITE = 15; // Hard limit to prevent subrequest errors
 
   try {
     // Validate URL
@@ -103,6 +104,11 @@ async function crawlSingleSite(
 
     // Helper to check a single URL
     const checkUrl = async (checkUrl: string, depth: number): Promise<CrawlResult | null> => {
+      // Stop if we've hit the request limit
+      if (pagesChecked >= MAX_REQUESTS_PER_SITE) {
+        return null;
+      }
+
       if (visitedUrls.has(checkUrl)) return null;
       visitedUrls.add(checkUrl);
       pagesChecked++;
@@ -140,32 +146,14 @@ async function crawlSingleSite(
     const baseUrlObj = new URL(url);
     const baseUrl = `${baseUrlObj.protocol}//${baseUrlObj.hostname}`;
 
+    // REDUCED to 8 paths to stay within subrequest limits
+    // With 3 concurrent sites and max 15 checks per site = 45 requests (under 50 limit)
     const commonPaths = [
-      // Top 15 most common English paths
-      '/contact', '/contact/', '/contact.html',
-      '/inquiry', '/inquiry/', '/inquiry.html',
-      '/form', '/form/', '/form.html',
-      '/contactus', '/contact-us',
-      '/support', '/support/',
-      '/mailform', '/mailform/',
-
-      // Top 10 most common Japanese paths
-      '/toiawase', '/toiawase/', '/toiawase.html',
-      '/お問い合わせ', '/お問い合わせ/',
-      '/お問合せ', '/お問合せ/',
-      '/otoiawase',
-
-      // Top 8 paths with index.html (common CMS pattern)
-      '/contact/index.html', '/inquiry/index.html',
-      '/form/index.html', '/toiawase/index.html',
-      '/contact/index.php', '/inquiry/index.php',
-      '/form/index.php', '/toiawase/index.php',
-
-      // Top 7 company/subdirectory paths
-      '/company/contact', '/company/inquiry',
-      '/en/contact', '/jp/contact',
-      '/pages/contact', '/about/contact',
-      '/service/contact',
+      '/contact', '/contact.html',
+      '/inquiry', '/inquiry.html',
+      '/toiawase', '/toiawase.html',
+      '/お問い合わせ',
+      '/form',
     ];
 
     for (const path of commonPaths) {
@@ -218,8 +206,8 @@ async function crawlSingleSite(
       }
     }
 
-    // LEVEL 2: Try up to 10 contact page candidates from homepage
-    const level2Links = findContactLinks(homepageHtml, url, 10);
+    // LEVEL 2: Try up to 3 contact page candidates from homepage (REDUCED to save requests)
+    const level2Links = findContactLinks(homepageHtml, url, 3);
 
     for (const link2 of level2Links) {
       if (link2 === url) continue;
@@ -229,54 +217,15 @@ async function crawlSingleSite(
         return result2;
       }
 
-      // LEVEL 3: Try sub-pages from this contact page
-      if (result2?.html) {
-        const level3Links = findContactLinks(result2.html, link2, 5);
-
-        for (const link3 of level3Links) {
-          if (visitedUrls.has(link3)) continue;
-
-          const result3 = await checkUrl(link3, 3);
-          if (result3?.success) {
-            return result3;
-          }
-
-          // LEVEL 4: Try sub-sub-pages
-          if (result3?.html) {
-            const level4Links = findContactLinks(result3.html, link3, 3);
-
-            for (const link4 of level4Links) {
-              if (visitedUrls.has(link4)) continue;
-
-              const result4 = await checkUrl(link4, 4);
-              if (result4?.success) {
-                return result4;
-              }
-
-              // LEVEL 5: Last resort - try one more level
-              if (result4?.html) {
-                const level5Links = findContactLinks(result4.html, link4, 2);
-
-                for (const link5 of level5Links) {
-                  if (visitedUrls.has(link5)) continue;
-
-                  const result5 = await checkUrl(link5, 5);
-                  if (result5?.success) {
-                    return result5;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      // LEVELS 3-5 DISABLED to stay within subrequest limits
+      // Deep crawling is too expensive for bulk mode
     }
 
     // No forms found at any level
     return {
       url,
       success: false,
-      error: `No form fields found (checked ${pagesChecked} pages across 5 levels)`,
+      error: `No form fields found (checked ${pagesChecked} pages, max ${MAX_REQUESTS_PER_SITE})`,
       contactPage: level2Links.length > 0 ? level2Links[0] : undefined,
     };
   } catch (error: any) {
@@ -339,8 +288,10 @@ export async function handleBulkCrawler(request: Request): Promise<Response> {
       );
     }
 
-    // Process URLs in parallel with limit of 10 concurrent requests
-    const maxConcurrent = 10;
+    // Process URLs in parallel with limit of 3 concurrent requests
+    // REDUCED from 10 to avoid "Too many subrequests" error (50 limit)
+    // 3 sites × 15 max requests = 45 total (under 50 limit)
+    const maxConcurrent = 3;
     const results: CrawlResult[] = [];
 
     for (let i = 0; i < body.urls.length; i += maxConcurrent) {
