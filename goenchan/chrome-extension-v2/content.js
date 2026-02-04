@@ -659,6 +659,11 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
     { key: 'subject', value: profile.subject }
   ].filter(item => item.value); // Only items with values
 
+  if (fillOrder.length === 0) {
+    console.log('ℹ️ [FALLBACK] No profile values available to fill with');
+    return 0;
+  }
+
   let fallbackFilledCount = 0;
   let fillIndex = 0;
 
@@ -672,12 +677,17 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
 
     // Special handling for email/tel types
     const fieldType = field.type || field.tagName.toLowerCase();
-    let valueToFill = item.value;
+    let valueToFill, fieldKey;
 
     if (fieldType === 'email' && profile.email) {
       valueToFill = profile.email;
+      fieldKey = 'email';
     } else if (fieldType === 'tel' && profile.phone) {
       valueToFill = profile.phone;
+      fieldKey = 'phone';
+    } else {
+      valueToFill = item.value;
+      fieldKey = item.key;
     }
 
     try {
@@ -687,7 +697,7 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
       fallbackFilledCount++;
 
       const resultInfo = {
-        fieldType: item.key,
+        fieldType: fieldKey,
         selector: getSelector(field),
         confidence: 5, // Very low confidence - this is a guess
         method: 'generic-fallback',
@@ -697,13 +707,13 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
       results.push(resultInfo);
       debugInfo.detailedResults.push({
         ...resultInfo,
-        value: valueToFill.substring(0, 20) + (valueToFill.length > 20 ? '...' : ''),
+        value: String(valueToFill).substring(0, 20) + (valueToFill.length > 20 ? '...' : ''),
         fieldName: field.name,
         fieldId: field.id,
         fieldType: fieldType
       });
 
-      console.log(`✅ [FALLBACK] Filled field #${fallbackFilledCount} with ${item.key}: ${valueToFill.substring(0, 20)}`);
+      console.log(`✅ [FALLBACK] Filled field #${fallbackFilledCount} with ${fieldKey}: ${String(valueToFill).substring(0, 20)}`);
     } catch (e) {
       console.error(`❌ [FALLBACK] Error filling field:`, e);
     }
@@ -1043,6 +1053,10 @@ async function autoFillForm(profile) {
   // =============================================================================
 
   const fallbackCount = genericFallbackFill(profile, filledFields, debugInfo, results);
+
+  if (fallbackCount > 0) {
+    console.log(`✨ [FALLBACK] ${fallbackCount} additional fields filled as last resort`);
+  }
 
   console.log(`📊 Total filled: ${debugInfo.fieldsFilled}/${debugInfo.fieldsProcessed} fields`);
   console.log(`📊 [SUMMARY] Layers used:`);
