@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.16.1] - 2026-02-04
+
+### Added
+- **19 new site mappings from Bulk Crawler** (ホテル業界中心)
+  - High-quality mappings (≥50% confidence): 5 sites
+    - richmondhotel.jp (100%), uenocity-hotel.com (100%), suntargas.co.jp (92%)
+    - hotel-atlas.jp (60%), will-shinjuku.com (50%)
+  - Total mappings now: 65+ sites (46 manual + 19 auto-generated)
+
 ## [2.16.0] - 2026-02-04
 
 ### Fixed
