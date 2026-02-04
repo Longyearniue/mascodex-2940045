@@ -3,22 +3,28 @@
 ## [2.14.0] - 2026-02-04
 
 ### Added
-- **Deep Crawling**: Bulk Crawler now explores up to 3 levels deep to find contact forms
+- **Very Deep Crawling**: Bulk Crawler now explores up to 5 levels deep to find contact forms
   - Level 1: Homepage
-  - Level 2: Up to 5 contact page candidates
-  - Level 3: Up to 3 sub-pages from each contact page
+  - Level 2: Up to 10 contact page candidates from homepage
+  - Level 3: Sub-pages from each contact page
+  - Level 4: Sub-sub-pages from sub-pages
+  - Level 5: Sub-sub-sub-pages (last resort)
   - Returns first successful form found
+- Visited URL tracking to avoid infinite loops
+- 200ms polite delay between requests
 - Multiple contact link pattern matching (contact, お問い合わせ, inquiry, form, mail, support)
 - Social media and external link filtering
 
 ### Changed
-- Increased crawl timeout from 5s to 15s per site (to accommodate multiple pages)
-- Better error messages showing number of pages checked
-- findContactLinks() now returns up to 5 candidates instead of just 1
+- Increased crawl timeout from 5s to 45s per site (for very deep exploration)
+- Increased max contact links from 5 to 10 per level
+- Better error messages showing exact number of pages checked
+- More patient crawling suitable for large batch processing
 
 ### Improved
-- **Dramatically improved success rate** by finding forms that aren't on homepage
-- Reduced false negatives for sites with contact forms on sub-pages
+- **Dramatically improved success rate** by exploring very deep into site structures
+- Finds forms that are 4-5 clicks away from homepage
+- Reduced false negatives for sites with deeply nested contact forms
 
 ## [2.13.0] - 2026-02-04
 
