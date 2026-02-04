@@ -1159,6 +1159,25 @@ const SITE_MAPPINGS = {
     building: { selector: 'input[name="ofice7"]', confidence: 100 },
     phone: { selector: 'input[name="F8"]', confidence: 100 },
     message: { selector: 'textarea[name="F10"]', confidence: 100 }
+  },
+  // Formzu form for www.308.co.jp
+  'ws.formzu.net/fgen/S94102806/': {
+    company_url: 'https://www.308.co.jp/',
+    name: { selector: 'input[name="tkna001"]', confidence: 100 },
+    name_kana: { selector: 'input[name="text457"]', confidence: 100 },
+    zipcode1: { selector: 'input[name="tkad223-zipcode1"]', confidence: 100 },
+    zipcode2: { selector: 'input[name="tkad223-zipcode2"]', confidence: 100 },
+    prefecture: { selector: 'select[name="tkad223-pref"]', confidence: 100 },
+    city: { selector: 'input[name="tkad223-city"]', confidence: 100 },
+    address: { selector: 'input[name="tkad223-chomei"]', confidence: 100 },
+    building: { selector: 'input[name="tkad223-tatemono"]', confidence: 100 },
+    phone1: { selector: 'input[name="tkph134-1"]', confidence: 100 },
+    phone2: { selector: 'input[name="tkph134-2"]', confidence: 100 },
+    phone3: { selector: 'input[name="tkph134-3"]', confidence: 100 },
+    email: { selector: 'input[name="tkem001"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="tkem001-check"]', confidence: 100 },
+    inquiry_type: { selector: 'select[name="choi456"]', value: 'その他お墓全般について', confidence: 100 },
+    message: { selector: 'textarea[name="text001"]', confidence: 100 }
   }
 };
 
