@@ -1,0 +1,7 @@
+/* Content script styles */
+/* Minimal styles to avoid conflicts with page styles */
+
+#cf-training-modal * {
+  all: revert;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}

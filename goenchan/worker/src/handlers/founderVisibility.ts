@@ -1,5 +1,5 @@
 import { fetchWithTimeout } from '../utils/fetcher';
-import { extractLinks, containsFounderKeywords, hasTopMessagePage, isLargeChain } from '../utils/parser';
+import { extractLinks, isLargeChain, extractContactPages, calculateContentScore } from '../utils/parser';
 import { checkRobotsTxt } from '../utils/robots';
 
 export interface FounderVisibilityRequest {
@@ -12,6 +12,14 @@ export interface FounderVisibilityResponse {
   evidence: string[];
   checked_urls: string[];
   hit_keywords: string[];
+  top_message_pages: string[];
+  chain_signals: string[];
+  contact_pages: string[];
+  score: number;
+  score_signals: string[];
+  is_chain: boolean;
+  contact_ok: boolean;
+  goenchan_pass: boolean;
 }
 
 const MAX_PAGES = 5;
@@ -66,6 +74,14 @@ export async function handleFounderVisibility(
           evidence: [],
           checked_urls: [],
           hit_keywords: [],
+          top_message_pages: [],
+          chain_signals: [],
+          contact_pages: [],
+          score: 0,
+          score_signals: [],
+          is_chain: false,
+          contact_ok: false,
+          goenchan_pass: false,
         } as FounderVisibilityResponse),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
@@ -74,9 +90,12 @@ export async function handleFounderVisibility(
     const checkedUrls: string[] = [];
     const evidence: string[] = [];
     const hitKeywords: string[] = [];
-    let hasTopMessage = false;
+    const topMessagePages: string[] = [];
+    const chainSignals: Set<string> = new Set();
+    const contactPages: Set<string> = new Set();
+    const scoreSignals: Set<string> = new Set();
+    let totalScore = 0;
     let hasChainSignal = false;
-    let keywordsAdded = false;
 
     // Step 1: Fetch the main page
     const mainResult = await fetchWithTimeout(body.url);
@@ -90,27 +109,34 @@ export async function handleFounderVisibility(
           evidence: [],
           checked_urls: checkedUrls,
           hit_keywords: [],
+          top_message_pages: [],
+          chain_signals: [],
+          contact_pages: [],
+          score: 0,
+          score_signals: [],
+          is_chain: false,
+          contact_ok: false,
+          goenchan_pass: false,
         } as FounderVisibilityResponse),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check main page
-    if (containsFounderKeywords(mainResult.html)) {
-      if (hasTopMessagePage(body.url)) {
-        hasTopMessage = true;
-        evidence.push(body.url);
-        if (!keywordsAdded) {
-          hitKeywords.push('代表挨拶', '社長挨拶', '代表メッセージ', '代表取締役', 'CEO', 'Founder');
-          keywordsAdded = true;
-        }
-      }
-    }
+    // Calculate score from main page
+    const mainScoreResult = calculateContentScore(mainResult.html);
+    totalScore += mainScoreResult.score;
+    mainScoreResult.signals.forEach(signal => scoreSignals.add(signal));
 
     // Check for large chain signals
-    if (isLargeChain(body.url, mainResult.html)) {
+    const chainResult = isLargeChain(body.url, mainResult.html);
+    if (chainResult.isChain) {
       hasChainSignal = true;
     }
+    chainResult.signals.forEach(signal => chainSignals.add(signal));
+
+    // Extract contact pages from main page
+    const mainContactPages = extractContactPages(mainResult.html, body.url);
+    mainContactPages.forEach(page => contactPages.add(page));
 
     // Step 2: Extract candidate links from main page
     const { candidateLinks } = extractLinks(mainResult.html, body.url);
@@ -136,27 +162,32 @@ export async function handleFounderVisibility(
       checkedUrls.push(url);
 
       if (result.success && result.html) {
+        // Calculate score from this page
+        const pageScoreResult = calculateContentScore(result.html);
+        totalScore += pageScoreResult.score;
+        pageScoreResult.signals.forEach(signal => scoreSignals.add(signal));
+
         // Check for chain signals
-        if (isLargeChain(url, result.html)) {
+        const chainResult = isLargeChain(url, result.html);
+        if (chainResult.isChain) {
           hasChainSignal = true;
         }
+        chainResult.signals.forEach(signal => chainSignals.add(signal));
 
-        // Check for founder keywords and top message page
-        if (containsFounderKeywords(result.html)) {
-          if (hasTopMessagePage(url)) {
-            hasTopMessage = true;
-            evidence.push(url);
-            if (!keywordsAdded) {
-              hitKeywords.push('代表挨拶', '社長挨拶', '代表メッセージ', '代表取締役', 'CEO', 'Founder');
-              keywordsAdded = true;
-            }
-          }
-        }
+        // Extract contact pages
+        const pageContactPages = extractContactPages(result.html, url);
+        pageContactPages.forEach(page => contactPages.add(page));
       }
     }
 
-    // Final decision: PASS only if has top message AND NOT large chain
-    const foundVisibility = hasTopMessage && !hasChainSignal;
+    // New final decision logic: goenchan_pass = (!is_chain) && (score >= 2)
+    const contactPagesArray = Array.from(contactPages).slice(0, 10); // Limit to 10
+    const isChain = hasChainSignal;
+    const contactOk = contactPagesArray.length > 0;
+    const goenchanPass = !isChain && totalScore >= 2;
+
+    // Keep legacy founder_visibility for backward compatibility
+    const foundVisibility = goenchanPass;
 
     const response: FounderVisibilityResponse = {
       url: body.url,
@@ -164,6 +195,14 @@ export async function handleFounderVisibility(
       evidence,
       checked_urls: checkedUrls,
       hit_keywords: foundVisibility ? hitKeywords : [],
+      top_message_pages: topMessagePages,
+      chain_signals: Array.from(chainSignals),
+      contact_pages: contactPagesArray,
+      score: totalScore,
+      score_signals: Array.from(scoreSignals),
+      is_chain: isChain,
+      contact_ok: contactOk,
+      goenchan_pass: goenchanPass,
     };
 
     return new Response(JSON.stringify(response), {

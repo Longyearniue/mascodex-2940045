@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>拡張機能テストフォーム</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; background: #f5f5f5; }
+    .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #1a73e8; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    textarea { resize: vertical; min-height: 80px; }
+    button { background: #1a73e8; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    button:hover { background: #1557b0; }
+    .debug-info { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 15px; margin-top: 20px; font-family: monospace; font-size: 12px; }
+    .success { background: #e8f5e9; color: #137333; padding: 10px; border-radius: 4px; margin-top: 10px; }
+    .error { background: #fce8e6; color: #c5221f; padding: 10px; border-radius: 4px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 拡張機能テストフォーム</h1>
+    <p>このフォームで拡張機能の動作をテストできます。<strong>F12を押してコンソールを開いてください。</strong></p>
+    <form id="testForm">
+      <div class="form-group"><label for="company">会社名</label><input type="text" id="company" name="company" placeholder="株式会社サンプル"></div>
+      <div class="form-group"><label for="name">お名前</label><input type="text" id="name" name="name" placeholder="山田太郎"></div>
+      <div class="form-group"><label for="email">メールアドレス</label><input type="email" id="email" name="email" placeholder="yamada@example.com"></div>
+      <div class="form-group"><label for="phone">電話番号</label><input type="text" id="phone" name="phone" placeholder="03-1234-5678"></div>
+      <div class="form-group"><label for="message">お問い合わせ内容</label><textarea id="message" name="message"></textarea></div>
+      <button type="button" onclick="checkFilled()">入力状況を確認</button>
+    </form>
+    <div class="debug-info">
+      <h3>📊 手順</h3>
+      <ol>
+        <li><strong>F12</strong>を押してコンソールを開く</li>
+        <li>拡張機能のアイコンをクリック</li>
+        <li><strong>「✨ Auto Fill」</strong>ボタンをクリック</li>
+        <li>コンソールで以下を確認:</li>
+      </ol>
+      <ul>
+        <li><code>🔍 [DEBUG] profile: {...}</code> ← プロフィールが表示されるか</li>
+        <li><code>✅ Filled ○○</code> ← フィールドが埋まったか</li>
+      </ul>
+      <div id="status"></div>
+    </div>
+  </div>
+  <script>
+    function checkFilled() {
+      const fields = ['company', 'name', 'email', 'phone', 'message'];
+      const filled = fields.filter(f => document.getElementById(f).value.trim());
+      const empty = fields.filter(f => !document.getElementById(f).value.trim());
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = '';
+      if (filled.length > 0) statusDiv.innerHTML += '<div class="success">✅ 入力済み: ' + filled.join(', ') + '</div>';
+      if (empty.length > 0) statusDiv.innerHTML += '<div class="error">❌ 未入力: ' + empty.join(', ') + '</div>';
+      if (filled.length === 0) statusDiv.innerHTML = '<div class="error">❌ フィールドが1つも入力されていません。コンソールログを確認してください。</div>';
+    }
+    console.log('📄 Test form loaded:', window.location.href);
+  </script>
+</body>
+</html>

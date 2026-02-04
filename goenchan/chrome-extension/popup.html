@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Form Auto-Filler</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a73e8;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #666;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+
+    .btn-secondary {
+      background: #e8eaed;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #d2d4d7;
+    }
+
+    .btn-secondary.active {
+      background: #fbbc04;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #ea4335;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c5221f;
+    }
+
+    .results {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .result-item {
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-field {
+      font-weight: 600;
+      color: #1a73e8;
+    }
+
+    .result-confidence {
+      float: right;
+      color: #666;
+      font-size: 11px;
+    }
+
+    .confidence-high {
+      color: #34a853;
+    }
+
+    .confidence-medium {
+      color: #fbbc04;
+    }
+
+    .confidence-low {
+      color: #ea4335;
+    }
+
+    .status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status-success {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    .status-error {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .status-info {
+      background: #e8f0fe;
+      color: #1967d2;
+    }
+
+    .training-hint {
+      background: #fff3cd;
+      border: 1px solid #fbbc04;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #856404;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .training-hint.show {
+      display: block;
+    }
+
+    .save-btn {
+      width: 100%;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 Contact Form Filler</h1>
+
+    <!-- Profile Section -->
+    <div class="section">
+      <div class="section-title">Profile Settings</div>
+
+      <div class="form-group">
+        <label for="company">Company / 会社名</label>
+        <input type="text" id="company" placeholder="株式会社サンプル">
+      </div>
+
+      <div class="form-group">
+        <label for="name">Name / 氏名</label>
+        <input type="text" id="name" placeholder="山田太郎">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="yamada@example.com">
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone / 電話番号</label>
+        <input type="text" id="phone" placeholder="03-1234-5678">
+      </div>
+
+      <div class="form-group">
+        <label for="message">Message Template / メッセージテンプレート</label>
+        <textarea id="message" placeholder="お問い合わせ内容をこちらに入力してください。"></textarea>
+      </div>
+
+      <button class="btn-primary save-btn" id="saveProfile">💾 Save Profile</button>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="section">
+      <div class="section-title">Actions</div>
+
+      <div class="button-group">
+        <button class="btn-primary" id="autoFill">✨ Auto Fill</button>
+        <button class="btn-secondary" id="trainingMode">🎯 Training</button>
+      </div>
+
+      <div class="button-group">
+        <button class="btn-danger" id="clearMappings">🗑️ Clear Mappings</button>
+      </div>
+
+      <div class="training-hint" id="trainingHint">
+        <strong>Training Mode Active!</strong><br>
+        Click any form field on the page and select what it represents.
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+      <div class="section-title">Detection Results</div>
+      <div id="resultsList"></div>
+    </div>
+
+    <!-- Status Messages -->
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

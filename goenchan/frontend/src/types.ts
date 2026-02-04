@@ -13,3 +13,9 @@ export interface OutreachGenerateResponse {
   evidence?: string[];
   reason?: string;
 }
+
+export interface SalesLetterResponse {
+  subject: string;
+  body: string;
+  promptUsed?: string;
+}
