@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.16.0] - 2026-02-04
+
+### Fixed
+- **Bulk Crawler "Too many subrequests" errors completely eliminated**
+  - Root cause: Cloudflare's 50 subrequest limit applies PER WORKER INVOCATION (not concurrent)
+  - Previous: 50 URLs/batch × 20 requests/site = 1000 total requests → exceeded limit on 3rd site
+  - New hybrid approach: 3 URLs/batch × 16 requests/site = 48 total requests < 50 limit ✓
+  - Reduced MAX_REQUESTS_PER_SITE from 20 to 16
+  - Reduced BATCH_SIZE from 50 to 3
+  - Optimized crawling: 12 direct paths + 1 homepage + 3 contact links = 16 requests max
+
+### Changed
+- Bulk crawler now processes 3 sites per batch (slower but 100% reliable)
+- Level 2 links reduced from 5 to 3 for better subrequest budget management
+
 ## [2.15.0] - 2026-02-04
 
 ### Improved

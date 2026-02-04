@@ -475,8 +475,8 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
     return;
   }
 
-  // Split URLs into batches of 50
-  const BATCH_SIZE = 50;
+  // Split URLs into batches of 3 (hybrid approach: 3 sites × 16 requests = 48 < 50 subrequest limit)
+  const BATCH_SIZE = 3;
   const batches = [];
   for (let i = 0; i < urls.length; i += BATCH_SIZE) {
     batches.push(urls.slice(i, i + BATCH_SIZE));

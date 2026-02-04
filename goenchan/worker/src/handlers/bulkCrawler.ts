@@ -88,7 +88,7 @@ async function crawlSingleSite(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   const visitedUrls = new Set<string>(); // Track visited URLs to avoid loops
   let pagesChecked = 0;
-  const MAX_REQUESTS_PER_SITE = 20; // Sequential processing allows more per site
+  const MAX_REQUESTS_PER_SITE = 16; // Hybrid approach: 12 direct paths + 1 homepage + 3 links = 16 max
 
   try {
     // Validate URL
@@ -205,9 +205,9 @@ async function crawlSingleSite(
       }
     }
 
-    // LEVEL 2: Try up to 5 contact page candidates from homepage
-    // Sequential processing allows more checks per site
-    const level2Links = findContactLinks(homepageHtml, url, 5);
+    // LEVEL 2: Try up to 3 contact page candidates from homepage
+    // Hybrid approach: limited crawling for speed while staying under subrequest limit
+    const level2Links = findContactLinks(homepageHtml, url, 3);
 
     for (const link2 of level2Links) {
       if (link2 === url) continue;
