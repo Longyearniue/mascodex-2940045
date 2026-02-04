@@ -3,57 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>パターン認識テストフォーム - Goenchan v2.11.0</title>
+    <title>Pattern Recognition Test Form - All 5 Patterns</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background: #f5f5f5;
         }
-        .test-section {
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .pattern-section {
             background: white;
-            margin: 20px 0;
-            padding: 20px;
+            padding: 30px;
+            margin: 30px 0;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .test-section h2 {
-            color: #2563eb;
-            border-bottom: 2px solid #2563eb;
-            padding-bottom: 10px;
+        .pattern-section h2 {
+            color: #4CAF50;
+            margin-top: 0;
         }
         .pattern-info {
-            background: #eff6ff;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            background: #e3f2fd;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            margin-bottom: 20px;
             font-size: 14px;
         }
         .form-group {
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
+            color: #555;
         }
         input[type="text"],
         input[type="email"],
         input[type="tel"],
-        textarea {
+        textarea,
+        select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            box-sizing: border-box;
         }
         textarea {
             min-height: 100px;
+            resize: vertical;
         }
         .required {
-            color: #dc2626;
+            color: #f44336;
             margin-left: 4px;
         }
         .split-fields {
@@ -64,203 +72,275 @@
             flex: 1;
         }
         button {
-            background: #2563eb;
+            background: #4CAF50;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 30px;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
-            background: #1d4ed8;
+            background: #45a049;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 20px 0;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
-    <h1>🧪 Goenchan v2.11.0 パターン認識テストフォーム</h1>
-    <p>このページは5つの異なるフォームパターンをテストします。各セクションで異なる命名規則とHTML構造を使用しています。</p>
+    <h1>Pattern Recognition Test Form - All 5 Patterns</h1>
 
-    <!-- Pattern 1: WordPress CF7 Style -->
-    <div class="test-section" id="pattern-1">
+    <div class="note">
+        <strong>📋 Testing Instructions:</strong>
+        <ol>
+            <li>Open browser console (F12)</li>
+            <li>Load this page with the extension enabled</li>
+            <li>Check console for pattern detection results</li>
+            <li>Verify that all 5 patterns are detected correctly</li>
+        </ol>
+    </div>
+
+    <!-- Pattern 1: WordPress Contact Form 7 -->
+    <div class="pattern-section">
         <h2>Pattern 1: WordPress Contact Form 7</h2>
         <div class="pattern-info">
-            <strong>検出パターン:</strong> wordpress-cf7<br>
-            <strong>特徴:</strong> your-name, your-email, your-subject, your-message<br>
-            <strong>スコア期待値:</strong> 40+
+            <strong>Expected Detection:</strong> Pattern 1 (your-* naming convention)<br>
+            <strong>Fields:</strong> 6 fields with your-name, your-email, your-tel, your-company, your-position, your-subject, your-message
         </div>
-        <form class="wpcf7-form">
+
+        <form>
             <div class="form-group">
                 <label>お名前 <span class="required">*</span></label>
-                <input type="text" name="your-name" class="wpcf7-text">
+                <input type="text" name="your-name">
             </div>
+
             <div class="form-group">
                 <label>メールアドレス <span class="required">*</span></label>
-                <input type="email" name="your-email" class="wpcf7-email">
+                <input type="email" name="your-email">
             </div>
+
             <div class="form-group">
                 <label>電話番号</label>
-                <input type="tel" name="your-phone" class="wpcf7-tel">
+                <input type="tel" name="your-tel">
             </div>
+
+            <div class="form-group">
+                <label>会社名</label>
+                <input type="text" name="your-company">
+            </div>
+
+            <div class="form-group">
+                <label>役職</label>
+                <input type="text" name="your-position">
+            </div>
+
             <div class="form-group">
                 <label>件名</label>
-                <input type="text" name="your-subject" class="wpcf7-text">
+                <input type="text" name="your-subject">
             </div>
+
             <div class="form-group">
-                <label>メッセージ本文 <span class="required">*</span></label>
-                <textarea name="your-message" class="wpcf7-textarea"></textarea>
+                <label>お問い合わせ内容 <span class="required">*</span></label>
+                <textarea name="your-message"></textarea>
             </div>
-            <button type="submit">送信する</button>
+
+            <button type="submit">送信</button>
         </form>
     </div>
 
-    <!-- Pattern 2: Japanese Direct -->
-    <div class="test-section" id="pattern-2">
-        <h2>Pattern 2: 日本語直接命名</h2>
+    <!-- Pattern 2: Japanese Direct Names -->
+    <div class="pattern-section">
+        <h2>Pattern 2: Japanese Direct Names</h2>
         <div class="pattern-info">
-            <strong>検出パターン:</strong> japanese-direct<br>
-            <strong>特徴:</strong> 氏名, お名前, メールアドレス, 電話番号, お問い合わせ内容<br>
-            <strong>スコア期待値:</strong> 30+
+            <strong>Expected Detection:</strong> Pattern 2 (Japanese field names)<br>
+            <strong>Fields:</strong> 5 fields with 氏名, メールアドレス, 電話番号, 会社名, お問い合わせ内容
         </div>
+
         <form>
             <div class="form-group">
-                <label>お名前</label>
+                <label>お名前 <span class="required">*</span></label>
                 <input type="text" name="氏名">
             </div>
+
             <div class="form-group">
-                <label>メールアドレス</label>
+                <label>メールアドレス <span class="required">*</span></label>
                 <input type="email" name="メールアドレス">
             </div>
+
             <div class="form-group">
                 <label>電話番号</label>
                 <input type="tel" name="電話番号">
             </div>
+
             <div class="form-group">
-                <label>件名</label>
-                <input type="text" name="件名">
+                <label>会社名</label>
+                <input type="text" name="会社名">
             </div>
+
             <div class="form-group">
-                <label>お問い合わせ内容</label>
+                <label>お問い合わせ内容 <span class="required">*</span></label>
                 <textarea name="お問い合わせ内容"></textarea>
             </div>
+
             <button type="submit">送信</button>
         </form>
     </div>
 
-    <!-- Pattern 3: Required Marks -->
-    <div class="test-section" id="pattern-3">
-        <h2>Pattern 3: 必須マーク付きフォーム</h2>
+    <!-- Pattern 3: Required Marks (必須) -->
+    <div class="pattern-section">
+        <h2>Pattern 3: Required Marks (必須)</h2>
         <div class="pattern-info">
-            <strong>検出パターン:</strong> required-marks<br>
-            <strong>特徴:</strong> label内に「必須」「*」「※」マーク<br>
-            <strong>スコア期待値:</strong> 25+
+            <strong>Expected Detection:</strong> Pattern 3 (必須 markers in labels)<br>
+            <strong>Fields:</strong> 5 fields with (必須) markers
         </div>
+
         <form>
             <div class="form-group">
-                <label>お名前【必須】</label>
-                <input type="text" name="name01" required>
+                <label>お名前 (必須)</label>
+                <input type="text" name="name">
             </div>
+
             <div class="form-group">
-                <label>メールアドレス※必須</label>
-                <input type="email" name="email01" required>
+                <label>メールアドレス (必須)</label>
+                <input type="email" name="email">
             </div>
+
             <div class="form-group">
-                <label>電話番号(任意)</label>
-                <input type="tel" name="tel01">
+                <label>電話番号 (必須)</label>
+                <input type="tel" name="tel">
             </div>
+
             <div class="form-group">
-                <label>件名*</label>
-                <input type="text" name="subject01">
+                <label>会社名 (必須)</label>
+                <input type="text" name="company">
             </div>
+
             <div class="form-group">
-                <label>お問い合わせ内容【必須】</label>
-                <textarea name="message01" required></textarea>
+                <label>お問い合わせ内容 (必須)</label>
+                <textarea name="message"></textarea>
             </div>
-            <button type="submit">送信する</button>
+
+            <button type="submit">送信</button>
         </form>
     </div>
 
     <!-- Pattern 4: MailForm CGI -->
-    <div class="test-section" id="pattern-4">
-        <h2>Pattern 4: MailForm CGI Style</h2>
+    <div class="pattern-section">
+        <h2>Pattern 4: MailForm CGI</h2>
         <div class="pattern-info">
-            <strong>検出パターン:</strong> mailform-cgi<br>
-            <strong>特徴:</strong> name1, email1, tel1, subject1, contents1<br>
-            <strong>スコア期待値:</strong> 30+
+            <strong>Expected Detection:</strong> Pattern 4 (F-digit and Email-digit naming)<br>
+            <strong>Fields:</strong> 5 fields with F-1 through F-5 and Email-1
         </div>
-        <form action="/cgi-bin/mailform.cgi" method="post">
+
+        <form>
             <div class="form-group">
-                <label>お名前</label>
-                <input type="text" name="name1">
+                <label>お名前 <span class="required">*</span></label>
+                <input type="text" name="F-1">
             </div>
+
             <div class="form-group">
-                <label>メールアドレス</label>
-                <input type="email" name="email1">
+                <label>メールアドレス <span class="required">*</span></label>
+                <input type="email" name="Email-1">
             </div>
+
             <div class="form-group">
                 <label>電話番号</label>
-                <input type="tel" name="tel1">
+                <input type="tel" name="F-2">
             </div>
+
             <div class="form-group">
-                <label>件名</label>
-                <input type="text" name="subject1">
+                <label>会社名</label>
+                <input type="text" name="F-3">
             </div>
+
             <div class="form-group">
-                <label>お問い合わせ内容</label>
-                <textarea name="contents1"></textarea>
+                <label>お問い合わせ内容 <span class="required">*</span></label>
+                <textarea name="F-4"></textarea>
             </div>
+
             <button type="submit">送信</button>
         </form>
     </div>
 
-    <!-- Pattern 5: Split Name Fields -->
-    <div class="test-section" id="pattern-5">
-        <h2>Pattern 5: 姓名分割フィールド</h2>
+    <!-- Pattern 5: Split Fields -->
+    <div class="pattern-section">
+        <h2>Pattern 5: Split Fields</h2>
         <div class="pattern-info">
-            <strong>検出パターン:</strong> split-fields<br>
-            <strong>特徴:</strong> 姓・名を別々のフィールドに分割<br>
-            <strong>スコア期待値:</strong> 20+
+            <strong>Expected Detection:</strong> Pattern 5 (Split field detection)<br>
+            <strong>Fields:</strong> Multiple split field groups (name1/name2, tel1/tel2/tel3, email1/email2)
         </div>
+
         <form>
             <div class="form-group">
-                <label>お名前</label>
+                <label>お名前 <span class="required">*</span></label>
                 <div class="split-fields">
-                    <input type="text" name="sei" placeholder="姓">
-                    <input type="text" name="mei" placeholder="名">
+                    <input type="text" name="name1" placeholder="姓">
+                    <input type="text" name="name2" placeholder="名">
                 </div>
             </div>
+
             <div class="form-group">
                 <label>フリガナ</label>
                 <div class="split-fields">
-                    <input type="text" name="sei_kana" placeholder="セイ">
-                    <input type="text" name="mei_kana" placeholder="メイ">
+                    <input type="text" name="kana1" placeholder="セイ">
+                    <input type="text" name="kana2" placeholder="メイ">
                 </div>
             </div>
+
             <div class="form-group">
-                <label>メールアドレス</label>
-                <input type="email" name="mail">
+                <label>電話番号 <span class="required">*</span></label>
+                <div class="split-fields">
+                    <input type="tel" name="tel1" placeholder="090">
+                    <input type="tel" name="tel2" placeholder="1234">
+                    <input type="tel" name="tel3" placeholder="5678">
+                </div>
             </div>
+
             <div class="form-group">
-                <label>電話番号</label>
-                <input type="tel" name="phone">
+                <label>メールアドレス <span class="required">*</span></label>
+                <div class="split-fields">
+                    <input type="text" name="email1" placeholder="example">
+                    <span style="padding: 10px;">@</span>
+                    <input type="text" name="email2" placeholder="domain.com">
+                </div>
             </div>
+
             <div class="form-group">
-                <label>お問い合わせ内容</label>
-                <textarea name="inquiry"></textarea>
+                <label>郵便番号</label>
+                <div class="split-fields">
+                    <input type="text" name="zip1" placeholder="123" style="width: 80px;">
+                    <span style="padding: 10px;">-</span>
+                    <input type="text" name="zip2" placeholder="4567" style="width: 100px;">
+                </div>
             </div>
+
+            <div class="form-group">
+                <label>会社名</label>
+                <input type="text" name="company">
+            </div>
+
+            <div class="form-group">
+                <label>お問い合わせ内容 <span class="required">*</span></label>
+                <textarea name="message"></textarea>
+            </div>
+
             <button type="submit">送信</button>
         </form>
     </div>
 
-    <div style="margin-top: 40px; padding: 20px; background: #fef3c7; border-radius: 8px;">
-        <h3>📝 テスト手順</h3>
-        <ol>
-            <li>Chrome拡張機能 Goenchan v2.11.0 を読み込む</li>
-            <li>このページをリロードする</li>
-            <li>開発者ツール(F12)を開き、コンソールを確認</li>
-            <li>各パターンの検出結果とスコアを確認</li>
-            <li>「フォームに自動入力」を実行し、各セクションが正しく入力されるか確認</li>
-        </ol>
-    </div>
+    <script>
+        // Log which patterns are detected on this page
+        window.addEventListener('load', () => {
+            console.log('=== Pattern Recognition Test Form Loaded ===');
+            console.log('Expected: All 5 patterns should be detected in separate sections');
+            console.log('Check extension console logs for pattern detection results');
+        });
+    </script>
 </body>
 </html>
