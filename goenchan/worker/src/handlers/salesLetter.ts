@@ -12,7 +12,7 @@ interface PageResult {
 }
 
 // Fetch multiple pages from the website for deeper analysis
-async function fetchMultiplePages(baseUrl: string, maxPages: number = 4): Promise<PageResult[]> {
+async function fetchMultiplePages(baseUrl: string, maxPages: number = 10): Promise<PageResult[]> {
   const pages: PageResult[] = [];
   const visitedUrls = new Set<string>();
 
@@ -56,12 +56,21 @@ function extractRelevantLinks(html: string, baseUrl: string): string[] {
 
   // Keywords for relevant pages (in Japanese and English)
   const relevantKeywords = [
-    '会社概要', 'about', 'company', '企業情報', '概要',
-    '代表挨拶', '社長挨拶', '代表メッセージ', 'message', 'greeting', 'ceo',
-    '理念', 'ビジョン', 'ミッション', 'vision', 'mission', 'philosophy',
-    '私たちについて', '当社について', 'our story',
+    // 会社情報
+    '会社概要', 'about', 'company', '企業情報', '概要', '会社案内',
+    // 代表メッセージ
+    '代表挨拶', '社長挨拶', '代表メッセージ', 'message', 'greeting', 'ceo', 'トップメッセージ',
+    '社長メッセージ', '院長挨拶', '代表より', 'オーナーより',
+    // 理念・ビジョン
+    '理念', 'ビジョン', 'ミッション', 'vision', 'mission', 'philosophy', '経営理念',
+    '私たちの想い', '私たちの思い', 'コンセプト',
+    // 会社紹介
+    '私たちについて', '当社について', '弊社について', 'our story', 'about us',
+    // サービス・強み
     'サービス', 'service', 'メニュー', 'menu',
-    '特徴', '強み', 'strength', 'feature'
+    '特徴', '強み', 'strength', 'feature', 'こだわり', '選ばれる理由',
+    // 沿革・歴史
+    '沿革', '歴史', 'history', '創業', '設立'
   ];
 
   function traverse(node: any) {
@@ -462,7 +471,7 @@ AP通信、Fox News、CBS、ABC などの海外メディアでも
 ――――――――――
 （参考・試作文）
 
-「${context.historicalNarrative}」
+${context.historicalNarrative}
 
 ――――――――――
 
@@ -529,7 +538,6 @@ function formatHistoricalFigures(figures: any[]): string {
     return `
 【候補${index + 1}】${figure.name}（${figure.period}）
 ・選定理由：${figure.reason}
-・視点の例：「${figure.narrative}」
 `;
   }).join('\n');
 }
@@ -582,7 +590,7 @@ function analyzeCompanyInfo(info: string): CompanyContext {
     attraction: '事業を営むということは、単に利益を追求することではない。この地という場所で、人々の暮らしに寄り添い、社会に価値を提供し続けること。その積み重ねこそが、真の事業の在り方だと考えておられる',
     uniqueApproach: '短期的な成果ではなく、地域社会との長期的な関係を大切にし、持続可能な価値創造を目指されている',
     businessType: '企業',
-    historicalNarrative: '事業とは、単に利益を追求するものではない。この地で、人々の暮らしに寄り添い、社会に価値を提供し続けること。それこそが真の事業の在り方である',
+    historicalNarrative: '「事業とは、単に利益を追求するものではない。この地で、人々の暮らしに寄り添い、社会に価値を提供し続けること。それこそが真の事業の在り方である」',
     historicalFigures: []
   };
 
@@ -594,32 +602,32 @@ function analyzeCompanyInfo(info: string): CompanyContext {
     context.businessType = 'マッサージ・整体';
     context.attraction = '人の体に触れるということは、単なる技術の問題ではない。相手の抱える痛みや疲れに真摯に向き合い、一人ひとりの体が本来持っている健やかさを取り戻そうとする、静かな決意がある。この地で、そうした施術に真剣に取り組んでおられる';
     context.uniqueApproach = '目に見えない「体の声」に耳を傾け、一人ひとりの状態に合わせた施術を大切にされている';
-    context.historicalNarrative = '癒やしとは、ただ痛みを取り除くことではない。心と体の両方に働きかけ、その人本来の健やかさを取り戻すこと。丁寧に、真摯に、一人ひとりの体に向き合う。それこそが真の癒やしなのだ';
+    context.historicalNarrative = '「癒やしとは、ただ痛みを取り除くことではない。心と体の両方に働きかけ、その人本来の健やかさを取り戻すこと。丁寧に、真摯に、一人ひとりの体に向き合う。それこそが真の癒やしなのだ」';
   } else if (lowerInfo.includes('美容') || lowerInfo.includes('エステ') || lowerInfo.includes('美容室') || lowerInfo.includes('ヘアサロン')) {
     context.businessType = '美容業';
     context.attraction = '美しさというのは、決して表面的なものではない。一人ひとりが本来持っている魅力を引き出し、その人らしさを大切にしながら、心と体の調和を目指していく。そんな美容の本質を、この地で静かに追求しておられる';
     context.uniqueApproach = '画一的な美しさではなく、その人だけが持つ個性や魅力を大切に、内面からの美しさを引き出そうとされている';
-    context.historicalNarrative = '美しさとは、ただ外見を整えることではない。その人本来の魅力を引き出し、心と体が調和したとき、真の美しさが生まれる。一人ひとりに寄り添い、その人らしさを大切にする。それが真の美容である';
+    context.historicalNarrative = '「美しさとは、ただ外見を整えることではない。その人本来の魅力を引き出し、心と体が調和したとき、真の美しさが生まれる。一人ひとりに寄り添い、その人らしさを大切にする。それが真の美容である」';
   } else if (lowerInfo.includes('飲食') || lowerInfo.includes('レストラン') || lowerInfo.includes('食堂')) {
     context.businessType = '飲食店';
     context.attraction = '食べることは、ただ空腹を満たすという単純な行為ではない。そこには作り手の想いがあり、この土地の文化があり、人と人とのつながりがある。そうした「食」の持つ深い意味を、日々の営みの中で大切にしておられる';
     context.uniqueApproach = '効率や利益を追うのではなく、一皿一皿に込める想いと、お客様との心の通い合いを何より大切にされている';
-    context.historicalNarrative = 'この店の味は、ただ腹を満たすためのものではない。人と人が集い、語らい、絆を深める場所。それこそが真の「もてなし」なのだ';
+    context.historicalNarrative = '「この店の味は、ただ腹を満たすためのものではない。人と人が集い、語らい、絆を深める場所。それこそが真の「もてなし」なのだ」';
   } else if (lowerInfo.includes('宿泊') || lowerInfo.includes('旅館') || lowerInfo.includes('ホテル')) {
     context.businessType = '宿泊施設';
     context.attraction = '旅人を迎えるということは、単に部屋と食事を提供することではない。この場所の持つ物語を伝え、訪れる人々に新たな気づきをもたらす。そんな「もてなし」の本質を、静かに実践しておられる';
     context.uniqueApproach = 'マニュアル的なサービスではなく、その時その場で最適な心配りをし、お客様一人ひとりと真摯に向き合おうとされている';
-    context.historicalNarrative = '旅の疲れを癒やすだけでなく、その土地の物語を伝える。それが真の「宿」の役割である';
+    context.historicalNarrative = '「旅の疲れを癒やすだけでなく、その土地の物語を伝える。それが真の「宿」の役割である」';
   } else if (lowerInfo.includes('製造') || lowerInfo.includes('工場') || lowerInfo.includes('メーカー')) {
     context.businessType = '製造業';
     context.attraction = 'ものを作るということは、単に製品を生み出す作業ではない。この地で培われた技術と、作り手の誇りを形にし、それを次の世代へと受け継いでいく。そんな「ものづくり」の本質に、真剣に向き合っておられる';
     context.uniqueApproach = '効率や量産を追うのではなく、一つ一つの製品に職人の技と心を込め、品質と信頼を何より大切にされている';
-    context.historicalNarrative = 'ものづくりとは、単に製品を作ることではない。職人の技と心を、次の世代へと受け継ぐことなのだ';
+    context.historicalNarrative = '「ものづくりとは、単に製品を作ることではない。職人の技と心を、次の世代へと受け継ぐことなのだ」';
   } else if (lowerInfo.includes('小売') || lowerInfo.includes('商店') || lowerInfo.includes('店舗')) {
     context.businessType = '小売業';
     context.attraction = '商いを営むということは、単に品物を売ることではない。人と人とをつなぎ、地域を支える営みとして、日々のお客様との関係を大切にしておられる';
     context.uniqueApproach = '売上を追うのではなく、お客様との信頼関係と、地域に根ざした商いを何より大切にされている';
-    context.historicalNarrative = '商いとは、品物を売ることではない。人と人とをつなぎ、地域を支える営みなのだ';
+    context.historicalNarrative = '「商いとは、品物を売ることではない。人と人とをつなぎ、地域を支える営みなのだ」';
   }
 
   // 歴史上の人物を必ず設定する
