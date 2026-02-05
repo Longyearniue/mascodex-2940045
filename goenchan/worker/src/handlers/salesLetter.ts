@@ -351,9 +351,9 @@ export async function handleSalesLetter(
       }
     }
 
-    // Try to generate creative script using AI if available
+    // Try to generate creative script using OpenAI API if available
     let aiGeneratedScript = null;
-    if (env?.AI && analyzed) {
+    if (env?.OPENAI_API_KEY && analyzed) {
       try {
         const deepAnalysisObj = JSON.parse(finalCompanyInfo);
         const companyContext: AICompanyContext = {
@@ -365,14 +365,14 @@ export async function handleSalesLetter(
           keywords: deepAnalysisObj.keywords || []
         };
 
-        console.log('[AI] Attempting to generate creative script...');
-        aiGeneratedScript = await generateCreativeScript(env.AI, companyContext);
+        console.log('[OpenAI] Attempting to generate creative script...');
+        aiGeneratedScript = await generateCreativeScript(env, companyContext);
 
         if (aiGeneratedScript) {
-          console.log('[AI] Successfully generated creative script');
+          console.log('[OpenAI] Successfully generated creative script');
         }
       } catch (aiError) {
-        console.error('[AI] Error generating creative script:', aiError);
+        console.error('[OpenAI] Error generating creative script:', aiError);
       }
     }
 

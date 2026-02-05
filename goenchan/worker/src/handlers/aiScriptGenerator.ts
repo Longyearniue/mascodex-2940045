@@ -1,4 +1,4 @@
-// AI-powered creative script generator for sales letters
+// AI-powered creative script generator for sales letters using OpenAI API
 
 export interface CompanyContext {
   companyName: string;
@@ -22,59 +22,84 @@ const CM_DIRECTOR_PROMPT = `あなたはCMディレクターで広報を担当�
 
 以下の形式でJSON形式で回答してください：
 {
-  "historicalFigure": "歴史上の人物名（例：織田信長、坂本龍馬など）",
-  "historicalNarrative": "その人物が語るセリフ（「」で囲んだ形式）",
-  "attraction": "会社の魅力を一文で表現"
+  "historicalFigure": "歴史上の人物名（例：織田信長、坂本龍馬、福沢諭吉など）",
+  "historicalNarrative": "その人物が語るセリフ（「」で囲んだ形式、100文字程度）",
+  "attraction": "会社の魅力を一文で表現（50文字以内）"
 }
 
 重要なルール：
-- 歴史上の人物のキャラクターを活かした独特の語り口にする
-- 会社の具体的な特徴や強みを織り込む
-- 面白くてインパクトのあるセリフにする
-- 広告っぽくならない自然な表現にする
-- JSONのみを出力し、他の説明は不要`;
+- 歴史上の人物のキャラクターと口調を活かした独特の語り口にする
+- 会社の具体的な特徴や強みを必ず織り込む
+- 面白くてインパクトがあり、記憶に残るセリフにする
+- 広告っぽくならない自然で温かみのある表現にする
+- その人物が本当にその会社を訪問して感動したかのように語る
+- JSONのみを出力し、他の説明は一切不要`;
 
 export async function generateCreativeScript(
-  ai: any,
+  env: any,
   context: CompanyContext
 ): Promise<GeneratedScript | null> {
+  // Check if OpenAI API key is available
+  if (!env?.OPENAI_API_KEY) {
+    console.log('[OpenAI] No API key available, skipping AI generation');
+    return null;
+  }
+
   try {
     const companyInfo = `
 会社名: ${context.companyName}
 業種: ${context.businessType}
-所在地: ${context.location}
-理念・哲学: ${context.philosophy || '情報なし'}
-強み・特徴: ${context.uniqueStrengths?.join('、') || '情報なし'}
-キーワード: ${context.keywords?.join('、') || '情報なし'}
+所在地: ${context.location || '日本'}
+理念・哲学: ${context.philosophy || '顧客満足を第一に'}
+強み・特徴: ${context.uniqueStrengths?.filter(s => s && s.length > 5).slice(0, 3).join('、') || '地域密着のサービス'}
+キーワード: ${context.keywords?.filter(k => k && k.length > 2).slice(0, 5).join('、') || '信頼、品質'}
 `;
 
-    const messages = [
-      {
-        role: 'user',
-        content: `${CM_DIRECTOR_PROMPT}\n\n【会社情報】\n${companyInfo}`
-      }
-    ];
+    console.log('[OpenAI] Generating creative script for:', context.companyName);
+    console.log('[OpenAI] Company info:', companyInfo);
 
-    console.log('[AI] Generating creative script for:', context.companyName);
-
-    const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
-      messages,
-      max_tokens: 1024,
-      temperature: 0.8, // Higher temperature for creativity
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: CM_DIRECTOR_PROMPT
+          },
+          {
+            role: 'user',
+            content: `【会社情報】\n${companyInfo}\n\n上記の会社について、歴史上の人物が語るユニークで面白いセリフをJSON形式で生成してください。`
+          }
+        ],
+        max_tokens: 500,
+        temperature: 0.9, // Higher temperature for creativity
+      })
     });
 
-    if (!response || !response.response) {
-      console.log('[AI] No response from AI');
+    if (!response.ok) {
+      console.error('[OpenAI] API error:', response.status, await response.text());
       return null;
     }
 
-    const responseText = response.response;
-    console.log('[AI] Raw response:', responseText.substring(0, 200));
+    const data = await response.json() as any;
+
+    if (!data.choices || !data.choices[0]?.message?.content) {
+      console.log('[OpenAI] No response content');
+      return null;
+    }
+
+    const responseText = data.choices[0].message.content;
+    console.log('[OpenAI] Raw response:', responseText);
 
     // Parse JSON from response
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.log('[AI] Could not extract JSON from response');
+      console.log('[OpenAI] Could not extract JSON from response');
       return null;
     }
 
@@ -82,17 +107,17 @@ export async function generateCreativeScript(
 
     // Validate the response
     if (!parsed.historicalNarrative || !parsed.historicalFigure) {
-      console.log('[AI] Invalid response structure');
+      console.log('[OpenAI] Invalid response structure');
       return null;
     }
 
     // Validate that the response doesn't contain junk
     if (containsInvalidContent(parsed.historicalNarrative)) {
-      console.log('[AI] Response contains invalid content');
+      console.log('[OpenAI] Response contains invalid content');
       return null;
     }
 
-    console.log('[AI] Successfully generated script with:', parsed.historicalFigure);
+    console.log('[OpenAI] Successfully generated script with:', parsed.historicalFigure);
 
     return {
       historicalNarrative: parsed.historicalNarrative,
@@ -101,7 +126,7 @@ export async function generateCreativeScript(
     };
 
   } catch (error) {
-    console.error('[AI] Error generating script:', error);
+    console.error('[OpenAI] Error generating script:', error);
     return null;
   }
 }
@@ -115,6 +140,8 @@ function containsInvalidContent(text: string): boolean {
     /【[^】]{10,}】/,
     /https?:\/\//,
     /www\./,
+    /Policy/i,
+    /企業理念\s*経営理念/,
   ];
 
   return invalidPatterns.some(pattern => pattern.test(text));
