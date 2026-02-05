@@ -15,10 +15,22 @@ const INVALID_TEXT_PATTERNS = [
   /HOME[｜|]/i,
   // Page title patterns
   /[｜|].{15,}[｜|]/,
+  // Bracketed site/company names (crawl artifacts)
+  /【[^】]{3,}】/,  // 【アパマンショップ】 etc.
+  /\[[^\]]{3,}\]/,  // [Company Name] etc.
   // Specific crawl junk from known sites
   /テナントビル/,
   /飲食店ビル/,
   /総合プランナー/,
+  // Real estate / rental promotional text
+  /お部屋探し/,
+  /賃貸マンション/,
+  /賃貸物件/,
+  /デザイナーズマンション/,
+  /アパマンショップ/,
+  /不動産検索/,
+  /物件情報/,
+  /こだわり条件/,
   // URL patterns
   /https?:\/\//,
   /www\./,
@@ -27,10 +39,17 @@ const INVALID_TEXT_PATTERNS = [
   /お申込み|ご予約|資料請求|無料相談/,
   // Menu items
   /サービス一覧|事業内容|採用情報|IR情報/,
+  // Promotional phrases
+  /おすすめです$/,
+  /お届けします/,
+  /ポイントをお届け/,
+  /旬な情報/,
   // Code/CSS
   /font-family|margin:|padding:|color:/i,
   // Repeated patterns (sign of scraping error)
   /(.{20,})\1/,
+  // Very long text without sentence breaks (likely scraping artifact)
+  /[^。！？]{100,}/,
 ];
 
 // Validate generated text and return issues found
@@ -255,7 +274,7 @@ function generateSpecificAttraction(
       .trim();
 
     // Filter out navigation/link text
-    if (cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜)/)) {
+    if (cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします)/)) {
       return null;
     }
 
@@ -488,9 +507,9 @@ function generateUniqueNarrative(
     if (uniqueStrengths && uniqueStrengths.length > 0) {
       for (const s of uniqueStrengths) {
         const strength = s.replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
-        // Filter out navigation/link text
+        // Filter out navigation/link text and promotional content
         if (strength.length > 10 && strength.length < 80 &&
-            !strength.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|[｜|].{10,})/)) {
+            !strength.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|[｜|].{10,}|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします)/)) {
           narrative += `${strength}を続けてきた。`;
           strengthAdded = true;
           break;
@@ -590,7 +609,7 @@ function generatePhilosophicalStatement(
 
   // Helper: Check if text contains navigation/crawl junk
   const containsNavigationJunk = (text: string): boolean => {
-    return !!text.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|[｜|].{15,}|テナントビル|飲食店ビル|総合プランナー)/);
+    return !!text.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|[｜|].{15,}|テナントビル|飲食店ビル|総合プランナー|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします)/);
   };
 
   // 1. 理念から価値観を示す文を抽出
