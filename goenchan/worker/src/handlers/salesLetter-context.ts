@@ -159,6 +159,10 @@ function extractCompanyFeature(philosophy: string, presidentMessage: string, key
       cleaned.length > 20 &&
       cleaned.length < 100 &&
       !cleaned.match(/(キャンペーン|お知らせ|News|CP|予約|円|font-family|color:|margin:|olapa|piko|マシン|アンダーヘア|ツルツル|スベスベ|｢|｣)/) &&
+      // Exclude navigation/link text patterns
+      !cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜)/) &&
+      // Exclude page title patterns (contains ｜ or | as separator)
+      !cleaned.match(/[｜|].{10,}/) &&
       !cleaned.includes('。') &&
       (cleaned.match(/[、,]/g) || []).length <= 2;
 
@@ -178,6 +182,10 @@ function extractCompanyFeature(philosophy: string, presidentMessage: string, key
       cleaned.length > 20 &&
       cleaned.length < 100 &&
       !cleaned.match(/(キャンペーン|お知らせ|News|CP|予約|円|font-family|color:|margin:|olapa|piko|マシン|アンダーヘア|ツルツル|スベスベ|｢|｣)/) &&
+      // Exclude navigation/link text patterns
+      !cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜)/) &&
+      // Exclude page title patterns (contains ｜ or | as separator)
+      !cleaned.match(/[｜|].{10,}/) &&
       !cleaned.includes('。') &&
       (cleaned.match(/[、,]/g) || []).length <= 2;
 
@@ -348,7 +356,17 @@ function generatePhilosophicalStatement(
     }
 
     // Filter out link text and navigation
-    if (cleaned.match(/※|移動します|サイトへ|クリック|こちら|詳細は/)) {
+    if (cleaned.match(/※|移動します|サイトへ|クリック|こちら|詳細は|詳しくは|ページへ/)) {
+      return null;
+    }
+
+    // Filter out page title patterns (contains ｜ or | as separator)
+    if (cleaned.match(/[｜|].{10,}/)) {
+      return null;
+    }
+
+    // Filter out menu/navigation list items
+    if (cleaned.match(/(会社概要|事業内容|お問い合わせ|アクセス|採用情報|プライバシー).*(｜|\|)/)) {
       return null;
     }
 
