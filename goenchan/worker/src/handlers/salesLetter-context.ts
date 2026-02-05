@@ -104,12 +104,92 @@ function generateDeepInsight(
     uniqueElements
   );
 
+  // 会社を選んだ具体的な理由を生成（uniqueStrengths, specificInitiativesを活用）
+  const specificAttraction = generateSpecificAttraction(
+    companyFeature,
+    uniqueStrengths,
+    specificInitiatives,
+    businessType,
+    locationStr
+  );
+
   // すべての業種で共通のアプローチ: uniqueNarrativeを使用
   return {
-    attraction: `${locationStr}で、${companyFeature ? companyFeature : getDefaultAttraction(businessType)}`,
+    attraction: specificAttraction,
     uniqueApproach: companyFeature || getDefaultApproach(businessType),
     historicalNarrative: uniqueNarrative
   };
+}
+
+// Generate specific attraction based on company's actual content
+function generateSpecificAttraction(
+  companyFeature: string,
+  uniqueStrengths: string[],
+  specificInitiatives: string[],
+  businessType: string,
+  location: string
+): string {
+  // Helper to clean text for use in attraction
+  const cleanForAttraction = (text: string): string | null => {
+    if (!text) return null;
+
+    let cleaned = text
+      .replace(/^[・●▪︎■□◆◇▶︎►①-⑩1-9０-９][）\)．.\s]+/, '') // Remove bullet points
+      .replace(/^[「『"']+/, '')
+      .replace(/[」』"']+$/, '')
+      .replace(/[。．]$/, '')
+      .trim();
+
+    // Filter out navigation/link text
+    if (cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜)/)) {
+      return null;
+    }
+
+    // Filter out page title patterns
+    if (cleaned.match(/[｜|].{10,}/)) {
+      return null;
+    }
+
+    // Filter out promotional/news content
+    if (cleaned.match(/(キャンペーン|お知らせ|News|CP|予約|円|実施中|募集中|受付中)/)) {
+      return null;
+    }
+
+    // Filter out too short or too long
+    if (cleaned.length < 15 || cleaned.length > 80) {
+      return null;
+    }
+
+    return cleaned;
+  };
+
+  // 1. Try to use company feature if available and clean
+  if (companyFeature && companyFeature.length > 20) {
+    return `${location}で、${companyFeature}`;
+  }
+
+  // 2. Try to use uniqueStrengths
+  if (uniqueStrengths && uniqueStrengths.length > 0) {
+    for (const strength of uniqueStrengths) {
+      const cleaned = cleanForAttraction(strength);
+      if (cleaned) {
+        return `${location}で、${cleaned}という強みを持ち、お客様から高い評価を得ておられること`;
+      }
+    }
+  }
+
+  // 3. Try to use specificInitiatives
+  if (specificInitiatives && specificInitiatives.length > 0) {
+    for (const initiative of specificInitiatives) {
+      const cleaned = cleanForAttraction(initiative);
+      if (cleaned) {
+        return `${location}で、${cleaned}に取り組んでおられること`;
+      }
+    }
+  }
+
+  // 4. Fallback to business type specific template
+  return `${location}で、${getDefaultAttraction(businessType)}`;
 }
 
 // Get default attraction text for each business type
