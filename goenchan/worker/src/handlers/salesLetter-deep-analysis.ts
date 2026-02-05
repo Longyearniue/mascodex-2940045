@@ -64,15 +64,87 @@ function getDirectText(element: Element): string {
   return textParts.join(' ');
 }
 
-// Extract all text content from element and children
+// Detect if an element is likely navigation/menu/header/footer
+function isNavigationElement(element: Element): boolean {
+  const tagName = element.name.toLowerCase();
+  const className = element.attribs?.class?.toLowerCase() || '';
+  const id = element.attribs?.id?.toLowerCase() || '';
+  const role = element.attribs?.role?.toLowerCase() || '';
+
+  // Check tag names
+  if (['nav', 'header', 'footer', 'aside'].includes(tagName)) {
+    return true;
+  }
+
+  // Check class names
+  const navClasses = [
+    'nav', 'menu', 'header', 'footer', 'sidebar', 'aside',
+    'breadcrumb', 'pagination', 'banner', 'toolbar'
+  ];
+  if (navClasses.some(nav => className.includes(nav))) {
+    return true;
+  }
+
+  // Check IDs
+  const navIds = ['nav', 'menu', 'header', 'footer', 'sidebar'];
+  if (navIds.some(nav => id.includes(nav))) {
+    return true;
+  }
+
+  // Check ARIA roles
+  if (['navigation', 'banner', 'contentinfo', 'complementary'].includes(role)) {
+    return true;
+  }
+
+  return false;
+}
+
+// Detect if an element is a button or call-to-action link
+function isButtonOrCTA(element: Element): boolean {
+  const tagName = element.name.toLowerCase();
+  const className = element.attribs?.class?.toLowerCase() || '';
+  const role = element.attribs?.role?.toLowerCase() || '';
+
+  // Check tag name
+  if (tagName === 'button') {
+    return true;
+  }
+
+  // Check for button/CTA classes
+  const buttonClasses = ['btn', 'button', 'cta', 'call-to-action', 'link-button'];
+  if (buttonClasses.some(btn => className.includes(btn))) {
+    return true;
+  }
+
+  // Check ARIA role
+  if (role === 'button') {
+    return true;
+  }
+
+  return false;
+}
+
+// Extract all text content from element and children (skip navigation)
 function extractAllText(node: any): string {
   const textParts: string[] = [];
 
   function traverse(n: any) {
-    // Skip script and style tags
+    // Skip navigation elements
     if (isTag(n)) {
       const element = n as Element;
+
+      // Skip script, style, noscript
       if (element.name === 'script' || element.name === 'style' || element.name === 'noscript') {
+        return;
+      }
+
+      // Skip navigation/menu/header/footer
+      if (isNavigationElement(element)) {
+        return;
+      }
+
+      // Skip buttons and CTAs
+      if (isButtonOrCTA(element)) {
         return;
       }
     }
@@ -347,11 +419,20 @@ function extractKeyPoints(text: string): string[] {
   for (const line of lines) {
     const trimmed = line.trim();
 
+    // フィルタリング：ノイズを除外
+    // リンクテキスト、ナビゲーション、URL、特殊文字を含む行をスキップ
+    if (trimmed.match(/※|移動します|サイトへ|クリック|こちら|詳細は|www\.|http|\.com|\.jp|お手伝い|宅配便|ふれあい\+S/)) {
+      continue;
+    }
+
     // Match bullet points or numbered items
     if (trimmed.match(/^[・●▪︎■□◆◇▶︎►①-⑩1-9０-９][）\)．.\s]/)) {
       const content = trimmed.replace(/^[・●▪︎■□◆◇▶︎►①-⑩1-9０-９][）\)．.\s]+/, '').trim();
       if (content.length > 10 && content.length < 200) {
-        points.push(content);
+        // 再度チェック：意味のある文章のみ
+        if (content.match(/(する|される|ている|いる|ない|高い|良い|新しい|大切|重要|提供|実現|追求)/)) {
+          points.push(content);
+        }
       }
     }
     // Match sentences with strong keywords
@@ -447,6 +528,7 @@ function generateDeepSummary(
 
 function detectBusinessType(text: string, lowerText: string): string {
   const businessPatterns = [
+    { keywords: ['介護', '福祉', 'ケアマネ', 'デイサービス', '訪問介護', '障害福祉', '介護保険', '高齢者'], type: '介護・福祉サービス' },
     { keywords: ['飲食', 'レストラン', '食堂', 'カフェ', '居酒屋', '料理'], type: '飲食店' },
     { keywords: ['宿泊', '旅館', 'ホテル', '民宿', 'ゲストハウス'], type: '宿泊施設' },
     { keywords: ['マッサージ', 'もみほぐし', 'リンパケア', '整体', 'リラクゼーション', '指圧', 'ボディケア', 'あん摩'], type: 'マッサージ・整体' },
@@ -456,7 +538,7 @@ function detectBusinessType(text: string, lowerText: string): string {
     { keywords: ['建設', '建築', '工務店', 'リフォーム', '設計'], type: '建設業' },
     { keywords: ['医療', '病院', 'クリニック', '診療所', '薬局', '歯科'], type: '医療機関' },
     { keywords: ['教育', '学校', '塾', 'スクール', '教室'], type: '教育機関' },
-    { keywords: ['システム開発', 'ソフトウェア開発', 'it企業', 'アプリ開発', 'web開発', 'エンジニア'], type: 'IT企業' },
+    { keywords: ['システム開発', 'ソフトウェア開発', 'it企業', 'アプリ開発', 'web開発', 'エンジニア', 'ソフト', 'ソフトウェア', 'システム', 'クラウド', 'saas'], type: 'IT企業' },
     { keywords: ['農業', '農園', '農場', '栽培', '生産'], type: '農業' }
   ];
 
