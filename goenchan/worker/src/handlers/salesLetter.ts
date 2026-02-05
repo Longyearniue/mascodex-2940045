@@ -288,6 +288,13 @@ export async function handleSalesLetter(
         const combinedHtml = pages.map(p => p.html).join('\n\n');
         console.log(`Analyzing ${pages.length} pages`);
 
+        // Extract Japanese company name from HTML title (better than URL domain)
+        const extractedCompanyName = extractCompanyName(companyUrl, pages[0]?.html);
+        if (extractedCompanyName && extractedCompanyName !== finalCompanyName) {
+          console.log(`Extracted company name from HTML: "${extractedCompanyName}" (was: "${finalCompanyName}")`);
+          finalCompanyName = extractedCompanyName;
+        }
+
         // Deep analyze HTML content
         const deepAnalysis = performDeepAnalysis(combinedHtml, companyUrl);
 
