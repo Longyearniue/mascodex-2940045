@@ -3,6 +3,7 @@ import { handleOutreachGenerate } from './handlers/outreachGenerate';
 import { handleSalesLetter } from './handlers/salesLetter';
 import { handleBulkCrawler } from './handlers/bulkCrawler';
 import { getSharedMappings, addSharedMappings } from './handlers/sharedMappings';
+import { handleDebugAnalysis } from './handlers/debugAnalysis';
 
 export default {
   async fetch(request: Request, env: any): Promise<Response> {
@@ -90,6 +91,19 @@ export default {
 
     if (url.pathname === '/shared-mappings' && request.method === 'POST') {
       return await addSharedMappings(request, env);
+    }
+
+    // Debug analysis endpoint
+    if (url.pathname === '/debug-analysis' && request.method === 'POST') {
+      const response = await handleDebugAnalysis(request);
+      const newHeaders = new Headers(response.headers);
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        newHeaders.set(key, value);
+      });
+      return new Response(response.body, {
+        status: response.status,
+        headers: newHeaders,
+      });
     }
 
     return new Response('Not Found', { status: 404, headers: corsHeaders });
