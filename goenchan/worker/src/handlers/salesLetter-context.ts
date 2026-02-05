@@ -1,5 +1,79 @@
 import { suggestHistoricalFigures, HistoricalFigure } from './salesLetter-historical-figures';
 
+// Validation patterns for detecting invalid generated text
+const INVALID_TEXT_PATTERNS = [
+  // Navigation/link text
+  /詳しくはこちら/,
+  /こちらから/,
+  /クリック/,
+  /ページへ/,
+  /サイトへ/,
+  /会社概要[｜|]/,
+  /ホーム[｜|]/,
+  /トップ[｜|]/,
+  /TOP[｜|]/i,
+  /HOME[｜|]/i,
+  // Page title patterns
+  /[｜|].{15,}[｜|]/,
+  // Specific crawl junk from known sites
+  /テナントビル/,
+  /飲食店ビル/,
+  /総合プランナー/,
+  // URL patterns
+  /https?:\/\//,
+  /www\./,
+  /\.com|\.jp|\.co\.jp/,
+  // Button/CTA text in narrative
+  /お申込み|ご予約|資料請求|無料相談/,
+  // Menu items
+  /サービス一覧|事業内容|採用情報|IR情報/,
+  // Code/CSS
+  /font-family|margin:|padding:|color:/i,
+  // Repeated patterns (sign of scraping error)
+  /(.{20,})\1/,
+];
+
+// Validate generated text and return issues found
+function validateGeneratedText(text: string): { isValid: boolean; issues: string[] } {
+  const issues: string[] = [];
+
+  if (!text || text.length < 10) {
+    issues.push('Text is too short');
+    return { isValid: false, issues };
+  }
+
+  // Check for invalid patterns
+  for (const pattern of INVALID_TEXT_PATTERNS) {
+    if (pattern.test(text)) {
+      issues.push(`Contains invalid pattern: ${pattern.source.substring(0, 30)}`);
+    }
+  }
+
+  // Check for grammatical issues
+  // Sentence should not start with certain particles
+  if (text.match(/^[、。を]/)) {
+    issues.push('Starts with invalid character');
+  }
+
+  // Check for broken sentence structure (multiple consecutive particles)
+  if (text.match(/[をにがはで]{3,}/)) {
+    issues.push('Contains broken sentence structure');
+  }
+
+  // Check for extremely long sentences without proper punctuation
+  const sentences = text.split(/[。！？]/);
+  for (const sentence of sentences) {
+    if (sentence.length > 200) {
+      issues.push('Contains extremely long sentence without punctuation');
+    }
+  }
+
+  return {
+    isValid: issues.length === 0,
+    issues
+  };
+}
+
 export function generateContextFromDeepAnalysis(analysis: any): any {
   const {
     businessType,
@@ -25,6 +99,9 @@ export function generateContextFromDeepAnalysis(analysis: any): any {
     foundedYear
   );
 
+  // Validate generated text and regenerate if invalid
+  const validatedInsight = validateAndRegenerate(deepInsight, businessType, location);
+
   // Suggest historical figures
   const historicalFigures = suggestHistoricalFigures(
     businessType,
@@ -34,12 +111,49 @@ export function generateContextFromDeepAnalysis(analysis: any): any {
   );
 
   return {
-    attraction: deepInsight.attraction,
-    uniqueApproach: deepInsight.uniqueApproach,
+    attraction: validatedInsight.attraction,
+    uniqueApproach: validatedInsight.uniqueApproach,
     businessType,
-    historicalNarrative: deepInsight.historicalNarrative,
+    historicalNarrative: validatedInsight.historicalNarrative,
     historicalFigures
   };
+}
+
+// Validate generated insight and fallback to templates if invalid
+function validateAndRegenerate(
+  insight: { attraction: string; uniqueApproach: string; historicalNarrative: string },
+  businessType: string,
+  location: string
+): { attraction: string; uniqueApproach: string; historicalNarrative: string } {
+  const locationStr = location || 'この地';
+  let result = { ...insight };
+
+  // Validate and fix attraction
+  const attractionValidation = validateGeneratedText(insight.attraction);
+  if (!attractionValidation.isValid) {
+    console.log(`[VALIDATION] Attraction invalid: ${attractionValidation.issues.join(', ')}`);
+    console.log(`[VALIDATION] Original: ${insight.attraction.substring(0, 100)}...`);
+    result.attraction = `${locationStr}で、${getDefaultAttraction(businessType)}`;
+    console.log(`[VALIDATION] Replaced with template`);
+  }
+
+  // Validate and fix uniqueApproach
+  const approachValidation = validateGeneratedText(insight.uniqueApproach);
+  if (!approachValidation.isValid) {
+    console.log(`[VALIDATION] UniqueApproach invalid: ${approachValidation.issues.join(', ')}`);
+    result.uniqueApproach = getDefaultApproach(businessType);
+  }
+
+  // Validate and fix historicalNarrative
+  const narrativeValidation = validateGeneratedText(insight.historicalNarrative);
+  if (!narrativeValidation.isValid) {
+    console.log(`[VALIDATION] HistoricalNarrative invalid: ${narrativeValidation.issues.join(', ')}`);
+    console.log(`[VALIDATION] Original: ${insight.historicalNarrative.substring(0, 100)}...`);
+    result.historicalNarrative = getBusinessTypeTemplate(businessType, locationStr);
+    console.log(`[VALIDATION] Replaced with template`);
+  }
+
+  return result;
 }
 
 // Generate deep insight for each business type with Murakami-style depth
