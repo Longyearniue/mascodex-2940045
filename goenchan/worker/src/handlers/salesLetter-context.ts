@@ -332,8 +332,18 @@ function generatePhilosophicalStatement(
       return null;
     }
 
+    // Filter out fragments containing ", ," pattern (incomplete text)
+    if (cleaned.match(/、\s*、/)) {
+      return null;
+    }
+
     // Filter out news/announcements/events (not philosophical)
     if (cleaned.match(/(^\d{4}[\.\/年月日]|お知らせ|ニュース|キャンペーン|イベント|開催|予約|受付|開始|終了|実施中|募集|参加|申込|詳細|見学会|説明会|CP|News)/)) {
+      return null;
+    }
+
+    // Filter out product/feature descriptions
+    if (cleaned.match(/(機能一覧|タブレット|スマホ|アプリ|システム|ソフト|できます|可能です|画面|ボタン|メニュー)/)) {
       return null;
     }
 
@@ -352,8 +362,8 @@ function generatePhilosophicalStatement(
       return null;
     }
 
-    // Must contain meaningful verbs or adjectives
-    if (!cleaned.match(/(です|ます|ある|いる|おり|られ|する|される|こと|もの|大切|重要|追求|実現|提供|貢献)/)) {
+    // Must contain meaningful verbs or adjectives (exclude product feature verbs)
+    if (!cleaned.match(/(です|ます|ある|いる|おり|られ|する|される|こと|もの|大切|重要|追求|実現|提供|貢献|想い|思い|理念|ビジョン)/)) {
       return null;
     }
 
@@ -362,7 +372,11 @@ function generatePhilosophicalStatement(
 
   // 1. 理念から価値観を示す文を抽出
   if (philosophy) {
-    const philosophySentences = philosophy.split(/[。．]/);
+    // Split by period and also by "、、" pattern to separate fragments
+    const philosophySentences = philosophy.split(/[。．]/).flatMap(s =>
+      s.includes('、、') ? s.split(/、\s*、/) : [s]
+    );
+
     for (const sentence of philosophySentences) {
       const cleaned = cleanAndValidate(sentence);
       if (cleaned) {
