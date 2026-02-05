@@ -1132,6 +1132,102 @@ function getAllFormFields() {
 
 // Pre-configured site mappings for specific forms
 const SITE_MAPPINGS = {
+  // Bulk Crawler auto-generated mappings (high quality, confidence >= 80%)
+  'www.nipponmedicom.co.jp': {
+    name: { selector: '[name="お名前"]', confidence: 60 },
+    email: { selector: '[name="メールアドレス（確認用）"]', confidence: 60 }
+  },
+  'qwest.co.jp': {
+    name: { selector: '[name="名前"]', confidence: 100 },
+    phone: { selector: '[name="電話番号"]', confidence: 100 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  'www.north.ne.jp': {
+    email: { selector: '[name="_メールアドレス(確認用)"]', confidence: 80 },
+    message: { selector: '[name="_お問い合わせ内容"]', confidence: 80 }
+  },
+  'www.hokuto-technology.net': {
+    name: { selector: '[name="お名前"]', confidence: 100 },
+    company: { selector: '[name="会社名"]', confidence: 100 },
+    phone: { selector: '[name="電話番号"]', confidence: 100 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  'www.wi-com.jp': {
+    name: { selector: '[name="お名前"]', confidence: 80 },
+    email: { selector: '[name="メールアドレス"]', confidence: 80 },
+    phone: { selector: '[name="電話番号"]', confidence: 80 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 80 }
+  },
+  'www.srand.jp': {
+    name: { selector: '[name="name"]', confidence: 100 },
+    email: { selector: '[name="mailfrom"]', confidence: 100 },
+    message: { selector: '[name="body"]', confidence: 100 }
+  },
+  'www.unitedyouth.jp': {
+    name: { selector: '[name="お名前(必須)"]', confidence: 100 },
+    phone: { selector: '[name="電話番号"]', confidence: 100 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  'www.inet-do.co.jp': {
+    name: { selector: '[name="お名前"]', confidence: 88 },
+    email: { selector: '[name="Email"]', confidence: 88 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 88 }
+  },
+  'imagesource.jp': {
+    name: { selector: '[name="お名前（ふりがな）"]', confidence: 100 },
+    email: { selector: '[name="メールアドレス"]', confidence: 100 },
+    company: { selector: '[name="会社名（ふりがな）"]', confidence: 100 }
+  },
+  'www.sanshiro-net.co.jp': {
+    name: { selector: '[name="氏名"]', confidence: 88 },
+    phone: { selector: '[name="電話番号[][]"]', confidence: 88 },
+    message: { selector: '[name="お問い合わせの詳細"]', confidence: 88 }
+  },
+  'www.olive.co.jp': {
+    message: { selector: '[name="ご要望・お問い合わせ内容"]', confidence: 100 },
+    company: { selector: '[name="会社名"]', confidence: 100 },
+    name: { selector: '[name="お名前ふりがな"]', confidence: 100 },
+    phone: { selector: '[name="電話番号"]', confidence: 100 },
+    email: { selector: '[name="メールアドレス"]', confidence: 100 }
+  },
+  'www.vm-net.ne.jp': {
+    company: { selector: '[name="会社名"]', confidence: 100 },
+    name: { selector: '[name="お名前"]', confidence: 100 },
+    phone: { selector: '[name="電話番号"]', confidence: 100 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  'www.dgic.co.jp': {
+    company: { selector: '[name="会社名"]', confidence: 93 },
+    name: { selector: '[name="お名前"]', confidence: 93 },
+    phone: { selector: '[name="電話番号"]', confidence: 93 },
+    email: { selector: '[name="メールアドレス再入力"]', confidence: 93 },
+    message: { selector: '[name="お問い合わせ種類"]', confidence: 93 }
+  },
+  'endeavor-team.com': {
+    name: { selector: '[name="お名前"]', confidence: 86 },
+    phone: { selector: '[name="電話番号"]', confidence: 86 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 86 }
+  },
+  'www.prosite.co.jp': {
+    company: { selector: '[name="company"]', confidence: 100 },
+    name: { selector: '[name="name"]', confidence: 100 },
+    email: { selector: '[name="cemail"]', confidence: 100 },
+    message: { selector: '[name="content"]', confidence: 100 }
+  },
+  'smileboom.com': {
+    name: { selector: '[name="お名前"]', confidence: 82 },
+    company: { selector: '[name="御社名"]', confidence: 82 },
+    email: { selector: '[name="メールアドレス"]', confidence: 82 },
+    phone: { selector: '[name="お電話番号[separator]"]', confidence: 82 },
+    message: { selector: '[name="お問い合わせの内容"]', confidence: 82 }
+  },
+  'www.i-pn.jp': {
+    name: { selector: '[name="お名前"]', confidence: 100 },
+    email: { selector: '[name="メールアドレス"]', confidence: 100 },
+    phone: { selector: '[name="電話番号"]', confidence: 100 },
+    message: { selector: '[name="お問い合わせ内容"]', confidence: 100 }
+  },
+
   // Enable auto-fill for yesp.co.jp (uses auto-detection layers)
   'www.yesp.co.jp/contact.html': {},
 

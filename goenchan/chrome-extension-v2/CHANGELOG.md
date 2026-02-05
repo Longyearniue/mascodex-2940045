@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.21.0] - 2026-02-05
+
+### Added
+- **📦 17 new high-quality site mappings** - Bulk Crawler results integrated!
+  - Added sites with 80%+ confidence from Bulk Crawler
+  - Sites include: qwest.co.jp, hokuto-technology.net, wi-com.jp, srand.jp, unitedyouth.jp, and more
+  - Total SITE_MAPPINGS now: 63+ sites (46 manual + 17 auto-generated)
+  - All new mappings automatically fill on page load
+
+### Improved
+- **Better coverage for Japanese forms**
+  - More Japanese direct input patterns
+  - Better name/email/phone/message field detection
+  - Improved confidence scores (60-100%)
+
+### Impact
+- 17 more sites with instant auto-fill on page load
+- Higher success rate on お問い合わせ forms
+- Zero configuration needed for these sites
+
 ## [2.20.0] - 2026-02-04
 
 ### Changed
