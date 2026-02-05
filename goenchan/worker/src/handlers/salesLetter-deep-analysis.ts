@@ -319,6 +319,182 @@ function extractLongMeaningfulSentences(text: string): string[] {
   return scored.slice(0, 5).map(s => s.sentence);
 }
 
+// Extract company information from meta tags
+function extractFromMetaTags(html: string): { description: string; keywords: string[] } {
+  const document = parseDocument(html);
+  let description = '';
+  let keywords: string[] = [];
+
+  function traverse(node: any) {
+    if (isTag(node)) {
+      const element = node as Element;
+
+      if (element.name === 'meta') {
+        const name = element.attribs?.name?.toLowerCase() || '';
+        const property = element.attribs?.property?.toLowerCase() || '';
+        const content = element.attribs?.content || '';
+
+        // Extract description
+        if ((name === 'description' || property === 'og:description') && content) {
+          if (!description || content.length > description.length) {
+            description = content;
+          }
+        }
+
+        // Extract keywords
+        if (name === 'keywords' && content) {
+          const kws = content.split(/[,、]/).map(k => k.trim()).filter(k => k.length > 0);
+          keywords = [...keywords, ...kws];
+        }
+      }
+    }
+
+    if ('children' in node) {
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  }
+
+  traverse(document);
+  return { description, keywords };
+}
+
+// Extract company information from JSON-LD structured data
+function extractFromJsonLD(html: string): { description: string; name: string; foundedDate: string } {
+  let description = '';
+  let name = '';
+  let foundedDate = '';
+
+  try {
+    const document = parseDocument(html);
+
+    function traverse(node: any) {
+      if (isTag(node)) {
+        const element = node as Element;
+
+        if (element.name === 'script' && element.attribs?.type === 'application/ld+json') {
+          const textContent = element.children
+            .filter(child => isText(child))
+            .map(child => (child as any).data)
+            .join('');
+
+          try {
+            const data = JSON.parse(textContent);
+
+            // Handle array of JSON-LD objects
+            const items = Array.isArray(data) ? data : [data];
+
+            for (const item of items) {
+              if (item['@type'] === 'Organization' || item['@type'] === 'LocalBusiness') {
+                if (item.description && !description) {
+                  description = item.description;
+                }
+                if (item.name && !name) {
+                  name = item.name;
+                }
+                if (item.foundingDate && !foundedDate) {
+                  foundedDate = item.foundingDate;
+                }
+              }
+            }
+          } catch (e) {
+            // Invalid JSON, skip
+          }
+        }
+      }
+
+      if ('children' in node) {
+        for (const child of node.children) {
+          traverse(child);
+        }
+      }
+    }
+
+    traverse(document);
+  } catch (e) {
+    // Parsing error, return empty
+  }
+
+  return { description, name, foundedDate };
+}
+
+// Extract meaningful content from all paragraph tags (fallback method)
+function extractFromAllParagraphs(html: string): string[] {
+  const document = parseDocument(html);
+  const paragraphs: string[] = [];
+
+  function traverse(node: any) {
+    if (isTag(node)) {
+      const element = node as Element;
+
+      // Skip navigation elements
+      if (isNavigationElement(element)) {
+        return;
+      }
+
+      // Extract from p, div with substantial text
+      if (element.name === 'p' || (element.name === 'div' && !element.attribs?.class?.match(/nav|menu|header|footer/))) {
+        const text = extractMainContentFromSection(element).trim();
+
+        // Filter meaningful paragraphs
+        if (text.length > 50 && text.length < 500) {
+          // Must contain Japanese
+          if (text.match(/[ぁ-んァ-ヶー一-龠]/)) {
+            // Skip navigation-like text
+            if (!text.match(/^(ホーム|メニュー|お問い合わせ|サイトマップ)/)) {
+              paragraphs.push(text);
+            }
+          }
+        }
+      }
+    }
+
+    if ('children' in node) {
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  }
+
+  traverse(document);
+  return paragraphs.slice(0, 10); // Return top 10 paragraphs
+}
+
+// Extract company description from headings (h1, h2, h3)
+function extractFromHeadings(html: string): string[] {
+  const document = parseDocument(html);
+  const headings: string[] = [];
+
+  function traverse(node: any) {
+    if (isTag(node)) {
+      const element = node as Element;
+
+      if (['h1', 'h2', 'h3'].includes(element.name)) {
+        const text = extractAllText(element).trim();
+
+        if (text.length > 10 && text.length < 200) {
+          if (text.match(/[ぁ-んァ-ヶー一-龠]/)) {
+            // Skip navigation headings
+            if (!text.match(/^(ホーム|メニュー|お問い合わせ|新着情報|ニュース)/)) {
+              headings.push(text);
+            }
+          }
+        }
+      }
+    }
+
+    if ('children' in node) {
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  }
+
+  traverse(document);
+  return headings;
+}
+
 export function performDeepAnalysis(html: string, url: string): DeepAnalysisResult {
   const text = extractTextFromHTML(html);
   const lowerText = text.toLowerCase();
@@ -343,6 +519,38 @@ export function performDeepAnalysis(html: string, url: string): DeepAnalysisResu
     }
   }
 
+  // Fallback 3: Try meta tags
+  if (!presidentMessage || presidentMessage.length < 50) {
+    const metaData = extractFromMetaTags(html);
+    if (metaData.description && metaData.description.length > 50) {
+      presidentMessage = metaData.description;
+    }
+  }
+
+  // Fallback 4: Try JSON-LD
+  if (!presidentMessage || presidentMessage.length < 50) {
+    const jsonLD = extractFromJsonLD(html);
+    if (jsonLD.description && jsonLD.description.length > 50) {
+      presidentMessage = jsonLD.description;
+    }
+  }
+
+  // Fallback 5: Try headings
+  if (!presidentMessage || presidentMessage.length < 50) {
+    const headings = extractFromHeadings(html);
+    if (headings.length > 0) {
+      presidentMessage = headings.slice(0, 2).join('。');
+    }
+  }
+
+  // Fallback 6: Try all paragraphs
+  if (!presidentMessage || presidentMessage.length < 50) {
+    const paragraphs = extractFromAllParagraphs(html);
+    if (paragraphs.length > 0) {
+      presidentMessage = paragraphs.slice(0, 2).join(' ');
+    }
+  }
+
   // 2. 企業理念・ビジョンの抽出（セクション検索 + 全文検索）
   const philosophyKeywords = ['企業理念', 'ビジョン', 'ミッション', '経営理念', '理念', 'vision', 'mission',
                               'philosophy', '私たちの想い', '私たちの思い', 'our vision', 'コンセプト', '想い', '思い', '目指'];
@@ -359,6 +567,38 @@ export function performDeepAnalysis(html: string, url: string): DeepAnalysisResu
     const meaningfulSentences = extractLongMeaningfulSentences(text);
     if (meaningfulSentences.length > 0) {
       philosophy = meaningfulSentences[0];
+    }
+  }
+
+  // Fallback 3: Try meta tags
+  if (!philosophy || philosophy.length < 50) {
+    const metaData = extractFromMetaTags(html);
+    if (metaData.description && metaData.description.length > 50) {
+      philosophy = metaData.description;
+    }
+  }
+
+  // Fallback 4: Try JSON-LD
+  if (!philosophy || philosophy.length < 50) {
+    const jsonLD = extractFromJsonLD(html);
+    if (jsonLD.description && jsonLD.description.length > 50) {
+      philosophy = jsonLD.description;
+    }
+  }
+
+  // Fallback 5: Try headings
+  if (!philosophy || philosophy.length < 50) {
+    const headings = extractFromHeadings(html);
+    if (headings.length > 0) {
+      philosophy = headings.slice(0, 2).join('。');
+    }
+  }
+
+  // Fallback 6: Try all paragraphs
+  if (!philosophy || philosophy.length < 50) {
+    const paragraphs = extractFromAllParagraphs(html);
+    if (paragraphs.length > 0) {
+      philosophy = paragraphs.slice(0, 2).join(' ');
     }
   }
 
