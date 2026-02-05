@@ -47,7 +47,7 @@ export default {
     }
 
     if (url.pathname === '/sales-letter' && request.method === 'POST') {
-      const response = await handleSalesLetter(request);
+      const response = await handleSalesLetter(request, env);
       const newHeaders = new Headers(response.headers);
       Object.entries(corsHeaders).forEach(([key, value]) => {
         newHeaders.set(key, value);
@@ -60,7 +60,7 @@ export default {
 
     // Add /crawl as alias for /sales-letter (for Lovable compatibility)
     if (url.pathname === '/crawl' && request.method === 'POST') {
-      const response = await handleSalesLetter(request);
+      const response = await handleSalesLetter(request, env);
       const newHeaders = new Headers(response.headers);
       Object.entries(corsHeaders).forEach(([key, value]) => {
         newHeaders.set(key, value);

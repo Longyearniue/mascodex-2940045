@@ -5,6 +5,7 @@ import { Element, isTag, isText } from 'domhandler';
 import { performDeepAnalysis } from './salesLetter-deep-analysis';
 import { generateContextFromDeepAnalysis } from './salesLetter-context';
 import { HistoricalFigure } from './salesLetter-historical-figures';
+import { generateCreativeScript, CompanyContext as AICompanyContext } from './aiScriptGenerator';
 
 interface PageResult {
   url: string;
@@ -207,7 +208,8 @@ export interface SalesLetterResponse {
 }
 
 export async function handleSalesLetter(
-  request: Request
+  request: Request,
+  env?: any  // Contains AI binding
 ): Promise<Response> {
   try {
     let body: SalesLetterRequest;
@@ -349,12 +351,38 @@ export async function handleSalesLetter(
       }
     }
 
+    // Try to generate creative script using AI if available
+    let aiGeneratedScript = null;
+    if (env?.AI && analyzed) {
+      try {
+        const deepAnalysisObj = JSON.parse(finalCompanyInfo);
+        const companyContext: AICompanyContext = {
+          companyName: finalCompanyName || '企業',
+          businessType: deepAnalysisObj.businessType || '企業',
+          location: deepAnalysisObj.location || '',
+          philosophy: deepAnalysisObj.philosophy || '',
+          uniqueStrengths: deepAnalysisObj.uniqueStrengths || [],
+          keywords: deepAnalysisObj.keywords || []
+        };
+
+        console.log('[AI] Attempting to generate creative script...');
+        aiGeneratedScript = await generateCreativeScript(env.AI, companyContext);
+
+        if (aiGeneratedScript) {
+          console.log('[AI] Successfully generated creative script');
+        }
+      } catch (aiError) {
+        console.error('[AI] Error generating creative script:', aiError);
+      }
+    }
+
     // Generate sales letter using Time Embassy template
     const topPageHtml = pages.length > 0 ? pages[0].html : '';
     const salesLetter = generateTimeEmbassySalesLetter(
       companyUrl || 'https://example.com',
       finalCompanyInfo,
-      topPageHtml
+      topPageHtml,
+      aiGeneratedScript  // Pass AI-generated script if available
     );
 
     // Return response with both camelCase and snake_case for compatibility
@@ -411,7 +439,12 @@ export async function handleSalesLetter(
   }
 }
 
-function generateTimeEmbassySalesLetter(companyUrl: string, companyInfo: string, html?: string): string {
+function generateTimeEmbassySalesLetter(
+  companyUrl: string,
+  companyInfo: string,
+  html?: string,
+  aiScript?: { historicalNarrative: string; historicalFigure: string; attraction: string } | null
+): string {
   // Extract company name from HTML title or URL
   const companyName = extractCompanyName(companyUrl, html);
 
@@ -423,6 +456,17 @@ function generateTimeEmbassySalesLetter(companyUrl: string, companyInfo: string,
   } catch {
     // Fallback to simple analysis
     context = analyzeCompanyInfo(companyInfo);
+  }
+
+  // Override with AI-generated script if available
+  if (aiScript) {
+    console.log('[AI] Using AI-generated script in sales letter');
+    if (aiScript.historicalNarrative) {
+      context.historicalNarrative = aiScript.historicalNarrative;
+    }
+    if (aiScript.attraction) {
+      context.attraction = aiScript.attraction;
+    }
   }
 
   const salesLetter = `ご担当者様
