@@ -62,6 +62,34 @@ function generateDeepInsight(
   // 企業特徴から核となる概念を抽出（historicalNarrativeで使用）
   const coreConcept = extractCoreConcept(companyFeature);
 
+  // 実データから独自要素を抽出
+  const uniqueElements: string[] = [];
+
+  // Add philosophy if available
+  if (philosophy && philosophy.length > 20 && philosophy.length < 150) {
+    const cleanPhil = philosophy.replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
+    if (cleanPhil && !cleanPhil.match(/(キャンペーン|お知らせ|News|CP|予約|円)/)) {
+      uniqueElements.push(cleanPhil);
+    }
+  }
+
+  // Add president message if available
+  if (presidentMessage && presidentMessage.length > 20 && presidentMessage.length < 150) {
+    const cleanMsg = presidentMessage.replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
+    if (cleanMsg && !cleanMsg.match(/(キャンペーン|お知らせ|News|CP|予約|円)/)) {
+      uniqueElements.push(cleanMsg);
+    }
+  }
+
+  // Add strengths
+  if (uniqueStrengths && uniqueStrengths.length > 0) {
+    uniqueStrengths.slice(0, 2).forEach(s => {
+      if (s && s.length > 15 && s.length < 100) {
+        uniqueElements.push(s);
+      }
+    });
+  }
+
   // ユニークな物語を生成（複数の要素を組み合わせて独自性を高める）
   const uniqueNarrative = generateUniqueNarrative(
     businessType,
@@ -72,7 +100,8 @@ function generateDeepInsight(
     presidentMessage,
     uniqueStrengths,
     specificInitiatives,
-    keywords
+    keywords,
+    uniqueElements
   );
 
   // すべての業種で共通のアプローチ: uniqueNarrativeを使用
@@ -86,6 +115,7 @@ function generateDeepInsight(
 // Get default attraction text for each business type
 function getDefaultAttraction(businessType: string): string {
   const defaults: { [key: string]: string } = {
+    '介護・福祉サービス': '利用者様一人ひとりの尊厳を守り、その方らしい生活を支える介護・福祉サービスを提供し続けておられること',
     'マッサージ・整体': 'お客様一人ひとりに合わせた丁寧な施術により、高い満足度とリピート率を実現しておられること',
     '美容業': 'お客様一人ひとりの個性を活かした施術により、高い満足度を実現しておられること',
     '飲食店': '地域に根ざした営業と、お客様との信頼関係を大切にした飲食店経営を続けておられること',
@@ -102,6 +132,7 @@ function getDefaultAttraction(businessType: string): string {
 // Get default approach text for each business type
 function getDefaultApproach(businessType: string): string {
   const defaults: { [key: string]: string } = {
+    '介護・福祉サービス': '利用者様とご家族様の心に寄り添い、安心と信頼を大切にしたサービスを提供し続けておられること',
     'マッサージ・整体': 'お客様との信頼関係を大切にし、きめ細かい対応を続けておられること',
     '美容業': 'お客様との信頼関係を重視し、きめ細かい対応を続けておられること',
     '飲食店': '一皿一皿の品質にこだわり、お客様に支持される店づくりを続けておられること',
@@ -216,100 +247,11 @@ function generateUniqueNarrative(
   presidentMessage: string,
   uniqueStrengths: string[],
   specificInitiatives: string[],
-  keywords: string[]
+  keywords: string[],
+  uniqueElements: string[]
 ): string {
-  // 企業の独自性を示す要素を抽出
-  const uniqueElements: string[] = [];
-
-  // 1. 創業年・歴史的背景
-  if (foundedYear && foundedYear.match(/[0-9]{4}/)) {
-    const year = foundedYear.match(/([0-9]{4})/);
-    if (year) {
-      const yearNum = parseInt(year[1]);
-      if (yearNum < 1950) {
-        uniqueElements.push(`${foundedYear}から続く伝統と技術`);
-      } else if (yearNum < 1990) {
-        uniqueElements.push(`${foundedYear}以来培われた経験と信頼`);
-      } else {
-        uniqueElements.push(`${foundedYear}創業の情熱と挑戦の精神`);
-      }
-    }
-  }
-
-  // 2. 具体的な取り組み・強み（最も重要な独自性）
-  if (specificInitiatives.length > 0) {
-    for (const initiative of specificInitiatives.slice(0, 2)) {
-      if (initiative.length > 15 && initiative.length < 80) {
-        const cleaned = initiative
-          .replace(/^[・●◆]+/, '')
-          .replace(/です$/, '')
-          .replace(/ます$/, '')
-          .trim();
-        if (cleaned.length > 10) {
-          uniqueElements.push(cleaned);
-        }
-      }
-    }
-  }
-
-  // 3. 独自の強み
-  if (uniqueStrengths.length > 0) {
-    for (const strength of uniqueStrengths.slice(0, 2)) {
-      if (strength.length > 15 && strength.length < 80) {
-        const cleaned = strength
-          .replace(/^[・●◆]+/, '')
-          .replace(/です$/, '')
-          .replace(/ます$/, '')
-          .trim();
-        if (cleaned.length > 10 && !uniqueElements.includes(cleaned)) {
-          uniqueElements.push(cleaned);
-        }
-      }
-    }
-  }
-
-  // 4. 理念・哲学から独自性を抽出
-  if (philosophy) {
-    const sentences = philosophy.split(/[。．]/);
-    for (const sentence of sentences) {
-      const trimmed = sentence.trim();
-      if (trimmed.length > 20 && trimmed.length < 70) {
-        if (trimmed.match(/(こだわり|追求|目指|実現|大切|重視|提供|貢献)/)) {
-          uniqueElements.push(trimmed);
-          break;
-        }
-      }
-    }
-  }
-
-  // 5. 社長メッセージから独自性を抽出
-  if (uniqueElements.length < 2 && presidentMessage) {
-    const sentences = presidentMessage.split(/[。．]/);
-    for (const sentence of sentences) {
-      const trimmed = sentence.trim();
-      if (trimmed.length > 20 && trimmed.length < 70) {
-        if (trimmed.match(/(こだわり|追求|目指|実現|大切|重視|提供|貢献)/)) {
-          uniqueElements.push(trimmed);
-          break;
-        }
-      }
-    }
-  }
-
-  // 6. キーワードから特徴的なものを抽出
-  if (uniqueElements.length < 2 && keywords.length > 0) {
-    const meaningfulKeywords = keywords.filter(kw =>
-      kw.length > 2 &&
-      kw.length < 15 &&
-      !kw.match(/(ニュース|お知らせ|キャンペーン|円|NEWS|CP)/)
-    );
-    if (meaningfulKeywords.length > 0) {
-      uniqueElements.push(meaningfulKeywords.slice(0, 2).join('と'));
-    }
-  }
-
-  // 企業固有の内容から哲学的な表現を生成（テンプレート一切なし）
-  const philosophicalStatement = generatePhilosophicalStatement(
+  // Try to generate from real data first
+  const realContentStatement = generatePhilosophicalStatement(
     philosophy,
     presidentMessage,
     uniqueElements,
@@ -317,69 +259,48 @@ function generateUniqueNarrative(
     businessType
   );
 
-  // 複数の要素を組み合わせて、企業固有の深い物語を構築
-  if (uniqueElements.length >= 2) {
-    const elem1 = uniqueElements[0];
-    const elem2 = uniqueElements[1];
+  if (realContentStatement && realContentStatement.length > 20) {
+    // Build narrative from real content
+    const businessEssence = getBusinessEssence(businessType);
+    const locationStr = location || 'この地';
 
-    // 哲学的表現がある場合は使用、ない場合は要素のみで構成
-    if (philosophicalStatement) {
-      if (location && foundedYear) {
-        return `「${philosophicalStatement}${elem1}。そして${elem2}。${location}という土地で、その想いを形にし続けてきた。それこそが、この事業の本質である」`;
-      } else if (location) {
-        return `「${philosophicalStatement}${elem1}。${elem2}。${location}という場所で、これらを大切にしながら、一歩一歩進んでいる。それが、ここで選ばれ続ける理由なのだ」`;
-      } else if (foundedYear) {
-        return `「${philosophicalStatement}${elem1}。そして${elem2}。創業以来変わらぬこの姿勢が、人々の信頼を得てきた。これからも、この道を歩み続ける」`;
-      } else {
-        return `「${philosophicalStatement}${elem1}。そして${elem2}。その想いを日々の営みの中で体現し続けている」`;
-      }
-    } else {
-      // 哲学的表現がない場合: 要素だけで構成
-      if (location && foundedYear) {
-        return `「${elem1}。そして${elem2}。${location}という土地で、${foundedYear}からこれらを大切にし続けてきた」`;
-      } else if (location) {
-        return `「${elem1}。${elem2}。${location}という場所で、これらを実践し続けている」`;
-      } else {
-        return `「${elem1}。そして${elem2}。これらを日々の営みで体現し続けている」`;
-      }
-    }
-  } else if (uniqueElements.length === 1) {
-    const elem = uniqueElements[0];
+    // Format: 「[理念] + [業種の本質] + [具体的な取り組み] + [締めの一文]」
+    let narrative = `「${businessEssence}`;
 
-    if (philosophicalStatement) {
-      if (coreConcept) {
-        return `「${philosophicalStatement}${coreConcept}。そして${elem}。この一貫した想いが、お客様との深い信頼関係を生み出している」`;
+    // Add the real philosophical statement
+    if (realContentStatement.endsWith('。')) {
+      narrative += `${realContentStatement}`;
+    } else {
+      narrative += `${realContentStatement}。`;
+    }
+
+    // Add location or founding context if available
+    if (foundedYear) {
+      narrative += `${foundedYear}の創業以来、${locationStr}で`;
+    } else {
+      narrative += `${locationStr}で`;
+    }
+
+    // Add strength or approach from real data
+    if (uniqueStrengths && uniqueStrengths.length > 0) {
+      const strength = uniqueStrengths[0].replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
+      if (strength.length > 10 && strength.length < 80) {
+        narrative += `${strength}を続けてきた。`;
       } else {
-        return `「${philosophicalStatement}${elem}。その想いを、一つ一つの行動で示し続けている」`;
+        narrative += `真摯に事業を続けてきた。`;
       }
     } else {
-      // 哲学的表現がない場合
-      if (location) {
-        return `「${elem}。それを${location}という土地で、日々実践し続けている」`;
-      } else {
-        return `「${elem}。それを、一つ一つの仕事で体現し続けている」`;
-      }
+      narrative += `真摯に事業を続けてきた。`;
     }
-  } else {
-    // 要素がない場合: コアコンセプトと哲学的表現のみ
-    if (philosophicalStatement && coreConcept) {
-      if (location) {
-        return `「${philosophicalStatement}${coreConcept}。それを${location}という土地で、日々実践し続けている」`;
-      } else {
-        return `「${philosophicalStatement}${coreConcept}。それを貫き、お客様一人ひとりに真摯に向き合い続けている」`;
-      }
-    } else if (philosophicalStatement) {
-      // 哲学的表現のみ
-      if (location) {
-        return `「${philosophicalStatement}それを${location}という土地で、実践し続けている」`;
-      } else {
-        return `「${philosophicalStatement}それを日々の営みで体現し続けている」`;
-      }
-    } else {
-      // データが何もない場合のみ、最小限のフォールバック
-      return generateMinimalUniqueNarrative(businessType, location);
-    }
+
+    // Closing statement
+    narrative += `それこそが、真の${businessEssence.replace(/とは.*/, '')}である」`;
+
+    return narrative;
   }
+
+  // Fallback: Use business type template if no real data available
+  return getBusinessTypeTemplate(businessType, location);
 }
 
 // Generate unique philosophical statement from company's actual content
@@ -401,18 +322,38 @@ function generatePhilosophicalStatement(
       .replace(/[」』"']+$/, '')
       .trim();
 
+    // Filter out incomplete fragments
+    if (cleaned.match(/^[、。，．\s]+/)) {
+      return null; // 「、、といった」などの不完全な断片
+    }
+
+    // Filter out fragments starting with conjunctions/particles
+    if (cleaned.match(/^(、|。|といった|について|に関して|その他|など)/)) {
+      return null;
+    }
+
     // Filter out news/announcements/events (not philosophical)
     if (cleaned.match(/(^\d{4}[\.\/年月日]|お知らせ|ニュース|キャンペーン|イベント|開催|予約|受付|開始|終了|実施中|募集|参加|申込|詳細|見学会|説明会|CP|News)/)) {
       return null;
     }
 
+    // Filter out link text and navigation
+    if (cleaned.match(/※|移動します|サイトへ|クリック|こちら|詳細は/)) {
+      return null;
+    }
+
     // Filter out too short or too long
-    if (cleaned.length < 10 || cleaned.length > 80) {
+    if (cleaned.length < 15 || cleaned.length > 80) {
       return null;
     }
 
     // Must not be just a date or number
     if (cleaned.match(/^[\d\s\-\/年月日]+$/)) {
+      return null;
+    }
+
+    // Must contain meaningful verbs or adjectives
+    if (!cleaned.match(/(です|ます|ある|いる|おり|られ|する|される|こと|もの|大切|重要|追求|実現|提供|貢献)/)) {
       return null;
     }
 
@@ -487,11 +428,31 @@ function generatePhilosophicalStatement(
   return '';
 }
 
-// Minimal unique narrative as fallback (commercial-style with depth)
-function generateMinimalUniqueNarrative(businessType: string, location: string): string {
+// Get business essence (core question) for each business type
+function getBusinessEssence(businessType: string): string {
+  const essences: { [key: string]: string } = {
+    '介護・福祉サービス': '介護とは、ただ日常の支援をすることではない。',
+    'マッサージ・整体': '癒やしとは、ただ痛みを取り除くことではない。',
+    '美容業': '美しさとは、表面を整えることだけではない。',
+    '飲食店': '食とは、ただ空腹を満たすものではない。',
+    '宿泊施設': '宿とは、ただ休息を提供する場ではない。',
+    '製造業': 'ものづくりとは、単に製品を生み出すことではない。',
+    'IT企業': '技術とは、それ自体が目的ではない。',
+    '医療機関': '医療とは、ただ病を治すことではない。',
+    '教育機関': '教育とは、知識を授けるだけではない。',
+    '小売業': '商いとは、品物を売ることだけではない。',
+    '建設業': '建築とは、ただ建物を建てることではない。',
+  };
+
+  return essences[businessType] || '事業とは、利益を追求するだけではない。';
+}
+
+// Fallback: Business type template when no real data is available
+function getBusinessTypeTemplate(businessType: string, location: string): string {
   const locationStr = location || 'この地';
 
-  const narratives: { [key: string]: string } = {
+  const templates: { [key: string]: string } = {
+    '介護・福祉サービス': `「介護とは、ただ日常の支援をすることではない。一人ひとりの尊厳を守り、その方らしい生活を支える。心に寄り添い、共に歩み続けることで、利用者様とご家族様の安心を実現する。それこそが、真の介護である」`,
     'マッサージ・整体': `「癒やしとは、ただ痛みを取り除くことではない。一人ひとりの体に真摯に向き合い、その人本来の健やかさを取り戻す。心と体、その両方に寄り添いながら、${locationStr}で丁寧な施術を続けてきた。それこそが、真の癒やしなのだ」`,
     '美容業': `「美しさとは、表面を整えることだけではない。お客様一人ひとりの個性と魅力を引き出し、内側から輝く笑顔を実現する。その人らしさを大切にしながら、心からの美しさを追求し続ける。それこそが、真の美容である」`,
     '飲食店': `「食とは、ただ空腹を満たすものではない。食材一つ一つと真摯に向き合い、お客様と心を通わせ、温かな空間を創り続ける。${locationStr}の食文化を守りながら、人と人とのつながりを大切にする。それこそが、真の『食』の役割なのだ」`,
@@ -503,5 +464,5 @@ function generateMinimalUniqueNarrative(businessType: string, location: string):
     '小売業': `「商いとは、品物を売ることだけではない。お客様一人ひとりと真摯に向き合い、人と人とのつながりを大切にする。${locationStr}で地域に根ざしながら、信頼関係を築き続ける。それこそが、真の商いの姿である」`,
   };
 
-  return narratives[businessType] || `「事業とは、利益を追求するだけではない。お客様と真摯に向き合い、一つ一つの仕事に心を込めて価値を提供し続ける。${locationStr}という土地で、人々の暮らしに寄り添いながら、信頼される存在であり続ける。それこそが、真の事業の在り方なのだ」`;
+  return templates[businessType] || `「事業とは、利益を追求するだけではない。お客様と真摯に向き合い、一つ一つの仕事に心を込めて価値を提供し続ける。${locationStr}という土地で、人々の暮らしに寄り添いながら、信頼される存在であり続ける。それこそが、真の事業の在り方なのだ」`;
 }

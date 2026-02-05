@@ -14,6 +14,56 @@ export interface DeepAnalysisResult {
   specificInitiatives: string[];
 }
 
+// Extract main content from a section (skip navigation, buttons, menus)
+function extractMainContentFromSection(element: Element): string {
+  const textParts: string[] = [];
+
+  function traverse(n: any) {
+    if (isTag(n)) {
+      const elem = n as Element;
+
+      // Skip script, style, noscript
+      if (elem.name === 'script' || elem.name === 'style' || elem.name === 'noscript') {
+        return;
+      }
+
+      // Skip navigation/menu/header/footer
+      if (isNavigationElement(elem)) {
+        return;
+      }
+
+      // Skip buttons and CTAs
+      if (isButtonOrCTA(elem)) {
+        return;
+      }
+
+      // Skip list items that look like menu items
+      if (elem.name === 'li') {
+        const liText = extractAllText(elem);
+        if (liText.length < 20 || liText.match(/(ホーム|メニュー|会社概要|お問い合わせ|サービス一覧|アクセス)/)) {
+          return;
+        }
+      }
+    }
+
+    if (isText(n)) {
+      const text = n.data.trim();
+      if (text.length > 0) {
+        textParts.push(text);
+      }
+    }
+
+    if ('children' in n) {
+      for (const child of n.children) {
+        traverse(child);
+      }
+    }
+  }
+
+  traverse(element);
+  return textParts.join(' ');
+}
+
 // Extract text from specific sections
 function extractSectionText(html: string, node: any, sectionKeywords: string[]): string[] {
   const results: string[] = [];
@@ -24,6 +74,11 @@ function extractSectionText(html: string, node: any, sectionKeywords: string[]):
     if (isTag(n)) {
       const element = n as Element;
 
+      // Skip navigation elements at the top level
+      if (isNavigationElement(element)) {
+        return;
+      }
+
       // Check if this element or its attributes match section keywords
       const elementText = getDirectText(element);
       const className = element.attribs?.class || '';
@@ -33,8 +88,8 @@ function extractSectionText(html: string, node: any, sectionKeywords: string[]):
       const isRelevantSection = sectionKeywords.some(kw => combined.includes(kw.toLowerCase()));
 
       if (isRelevantSection) {
-        // Extract all text from this section
-        const sectionText = extractAllText(element);
+        // Extract main content from this section (filtered)
+        const sectionText = extractMainContentFromSection(element);
         if (sectionText.length > 50) {
           results.push(sectionText);
         }
@@ -362,7 +417,7 @@ export function performDeepAnalysis(html: string, url: string): DeepAnalysisResu
   };
 }
 
-// Extract meaningful content (filter out navigation, headers, etc.)
+// Extract meaningful content (filter out navigation, headers, buttons, menu items)
 function extractMeaningfulContent(text: string): string {
   if (!text || text.length < 30) return '';
 
@@ -390,9 +445,20 @@ function extractMeaningfulContent(text: string): string {
   const meaningful = sentences.filter(s => {
     s = s.trim();
 
-    // Filter out navigation, code, and junk
+    // Filter out short sentences
     if (s.length < 20) return false;
+
+    // Filter out navigation patterns
     if (s.match(/^(ホーム|メニュー|お問い合わせ|会社概要|サイトマップ|ニュース一覧|詳しく|もっと|こちら)/)) return false;
+    if (s.match(/(クリック|移動します|サイトへ|ページへ|リンク|詳細は|→)/)) return false;
+
+    // Filter out button text patterns
+    if (s.match(/^(お申込み|ご予約|お問い合わせ|資料請求|無料相談|今すぐ|詳細を見る|もっと見る)/)) return false;
+
+    // Filter out menu/list item patterns
+    if (s.match(/^[・●▪︎■□◆◇▶︎►]\s*(サービス|事業内容|会社情報|お知らせ|ニュース|採用情報|IR情報)/)) return false;
+
+    // Filter out code and technical junk
     if (s.match(/(function|var|const|let|return|article|labelTags|size:|type\d)/)) return false;
     if (s.match(/^[a-zA-Z0-9_\-\s]+$/)) return false; // Only alphanumeric
     if (s.match(/^[\d\s\-\/]+$/)) return false; // Only numbers and symbols
@@ -400,7 +466,10 @@ function extractMeaningfulContent(text: string): string {
     // Must contain Japanese characters
     if (!s.match(/[ぁ-んァ-ヶー一-龠]/)) return false;
 
-    // Must have substance
+    // Filter out promotional language that's too generic
+    if (s.match(/^(キャンペーン|セール|割引|お得|実施中|受付中|募集中)/)) return false;
+
+    // Must have substance and proper sentence structure
     return s.match(/(です|ます|ある|いる|おり|られ|こと|もの|よう)/);
   });
 
