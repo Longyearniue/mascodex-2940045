@@ -13,6 +13,18 @@ const INVALID_TEXT_PATTERNS = [
   /トップ[｜|]/,
   /TOP[｜|]/i,
   /HOME[｜|]/i,
+  // English navigation words
+  /\bPolicy\b/i,
+  /\bAbout\b/i,
+  /\bContact\b/i,
+  /\bService\b/i,
+  /\bNews\b/i,
+  /\bMenu\b/i,
+  // Multiple consecutive headings/menu items (navigation artifact)
+  /企業理念\s*経営理念/,
+  /経営理念\s*経営方針/,
+  /企業理念\s*経営方針/,
+  /理念\s*方針\s*ビジョン/,
   // Page title patterns
   /[｜|].{15,}[｜|]/,
   // Bracketed site/company names (crawl artifacts)
@@ -31,6 +43,8 @@ const INVALID_TEXT_PATTERNS = [
   /不動産検索/,
   /物件情報/,
   /こだわり条件/,
+  /資産形成のお手伝い/,
+  /快適な住まいを提供/,
   // URL patterns
   /https?:\/\//,
   /www\./,
@@ -274,7 +288,7 @@ function generateSpecificAttraction(
       .trim();
 
     // Filter out navigation/link text
-    if (cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします)/)) {
+    if (cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします|Policy|企業理念\s*経営理念|経営理念\s*経営方針|資産形成|快適な住まい)/i)) {
       return null;
     }
 
@@ -373,7 +387,7 @@ function extractCompanyFeature(philosophy: string, presidentMessage: string, key
       cleaned.length < 100 &&
       !cleaned.match(/(キャンペーン|お知らせ|News|CP|予約|円|font-family|color:|margin:|olapa|piko|マシン|アンダーヘア|ツルツル|スベスベ|｢|｣)/) &&
       // Exclude navigation/link text patterns
-      !cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜)/) &&
+      !cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜|Policy|企業理念\s*経営|経営理念\s*経営方針|資産形成|快適な住まい)/i) &&
       // Exclude page title patterns (contains ｜ or | as separator)
       !cleaned.match(/[｜|].{10,}/) &&
       !cleaned.includes('。') &&
@@ -396,7 +410,7 @@ function extractCompanyFeature(philosophy: string, presidentMessage: string, key
       cleaned.length < 100 &&
       !cleaned.match(/(キャンペーン|お知らせ|News|CP|予約|円|font-family|color:|margin:|olapa|piko|マシン|アンダーヘア|ツルツル|スベスベ|｢|｣)/) &&
       // Exclude navigation/link text patterns
-      !cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜)/) &&
+      !cleaned.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|TOP｜|HOME｜|Policy|企業理念\s*経営|経営理念\s*経営方針|資産形成|快適な住まい)/i) &&
       // Exclude page title patterns (contains ｜ or | as separator)
       !cleaned.match(/[｜|].{10,}/) &&
       !cleaned.includes('。') &&
@@ -509,7 +523,7 @@ function generateUniqueNarrative(
         const strength = s.replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
         // Filter out navigation/link text and promotional content
         if (strength.length > 10 && strength.length < 80 &&
-            !strength.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|[｜|].{10,}|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします)/)) {
+            !strength.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|[｜|].{10,}|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします|Policy|企業理念\s*経営|経営理念\s*経営方針|資産形成|快適な住まい)/i)) {
           narrative += `${strength}を続けてきた。`;
           strengthAdded = true;
           break;
@@ -609,7 +623,7 @@ function generatePhilosophicalStatement(
 
   // Helper: Check if text contains navigation/crawl junk
   const containsNavigationJunk = (text: string): boolean => {
-    return !!text.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|[｜|].{15,}|テナントビル|飲食店ビル|総合プランナー|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします)/);
+    return !!text.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|[｜|].{15,}|テナントビル|飲食店ビル|総合プランナー|【[^】]{3,}】|お部屋探し|賃貸マンション|デザイナーズマンション|アパマンショップ|こだわり条件|おすすめです$|お届けします|Policy|企業理念\s*経営理念|経営理念\s*経営方針|資産形成のお手伝い|快適な住まいを提供)/i);
   };
 
   // 1. 理念から価値観を示す文を抽出
