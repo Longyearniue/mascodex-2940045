@@ -369,15 +369,21 @@ function generateUniqueNarrative(
       narrative += `${locationStr}で`;
     }
 
-    // Add strength or approach from real data
+    // Add strength or approach from real data (with proper filtering)
+    let strengthAdded = false;
     if (uniqueStrengths && uniqueStrengths.length > 0) {
-      const strength = uniqueStrengths[0].replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
-      if (strength.length > 10 && strength.length < 80) {
-        narrative += `${strength}を続けてきた。`;
-      } else {
-        narrative += `真摯に事業を続けてきた。`;
+      for (const s of uniqueStrengths) {
+        const strength = s.replace(/^[・\s]+/, '').replace(/[。．]$/, '').trim();
+        // Filter out navigation/link text
+        if (strength.length > 10 && strength.length < 80 &&
+            !strength.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|[｜|].{10,})/)) {
+          narrative += `${strength}を続けてきた。`;
+          strengthAdded = true;
+          break;
+        }
       }
-    } else {
+    }
+    if (!strengthAdded) {
       narrative += `真摯に事業を続けてきた。`;
     }
 
@@ -468,8 +474,13 @@ function generatePhilosophicalStatement(
     return cleaned;
   };
 
+  // Helper: Check if text contains navigation/crawl junk
+  const containsNavigationJunk = (text: string): boolean => {
+    return !!text.match(/(詳しくはこちら|こちらから|クリック|ページへ|サイトへ|会社概要｜|ホーム｜|トップ｜|[｜|].{15,}|テナントビル|飲食店ビル|総合プランナー)/);
+  };
+
   // 1. 理念から価値観を示す文を抽出
-  if (philosophy) {
+  if (philosophy && !containsNavigationJunk(philosophy)) {
     // Split by period and also by "、、" pattern to separate fragments
     const philosophySentences = philosophy.split(/[。．]/).flatMap(s =>
       s.includes('、、') ? s.split(/、\s*、/) : [s]
@@ -494,7 +505,7 @@ function generatePhilosophicalStatement(
   }
 
   // 2. 社長メッセージから核心部分を抽出
-  if (presidentMessage) {
+  if (presidentMessage && !containsNavigationJunk(presidentMessage)) {
     const messageSentences = presidentMessage.split(/[。．]/);
     for (const sentence of messageSentences) {
       const cleaned = cleanAndValidate(sentence);
@@ -522,18 +533,15 @@ function generatePhilosophicalStatement(
     }
   }
 
-  // 4. 独自要素を組み合わせる
-  if (uniqueElements.length >= 2) {
-    const elem1 = uniqueElements[0].replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
-    const elem2 = uniqueElements[1].replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
-    if (elem1 && elem2) {
-      return `${elem1}と${elem2}。`;
-    }
-  } else if (uniqueElements.length === 1) {
-    const elem = uniqueElements[0].replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim();
-    if (elem) {
-      return `${elem}。`;
-    }
+  // 4. 独自要素を組み合わせる (filter out navigation junk)
+  const cleanElements = uniqueElements
+    .map(e => e.replace(/^[「『"']+/, '').replace(/[」』"']+$/, '').trim())
+    .filter(e => e && e.length > 10 && e.length < 80 && !containsNavigationJunk(e));
+
+  if (cleanElements.length >= 2) {
+    return `${cleanElements[0]}と${cleanElements[1]}。`;
+  } else if (cleanElements.length === 1) {
+    return `${cleanElements[0]}。`;
   }
 
   // 5. データがない場合: 空文字列を返す
