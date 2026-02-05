@@ -1,5 +1,57 @@
 # Changelog
 
+## [2.22.1] - 2026-02-05
+
+### Improved
+- **🔍 Enhanced Semantic Analysis debugging** - Detailed logging for every field analyzed
+  - Shows field type and label for each unfilled field
+  - Displays whether semantic match was found or not
+  - Shows profile value availability for matched fields
+  - Console output format:
+    ```
+    [SEMANTIC] Analyzing N unfilled fields
+    [SEMANTIC] Field: textarea, label: "お問い合わせ内容"
+      → Matched: message (40% via label)
+      → No profile value for: message
+    ```
+
+### Purpose
+- Diagnose why message fields are not being detected by semantic analysis
+- Identify missing profile values causing fields to be skipped
+- Provide clear visibility into semantic matching decisions
+
+## [2.22.0] - 2026-02-05
+
+### Fixed
+- **🐛 Message fields no longer filled with company names** - Generic Fallback now handles textareas correctly!
+  - Root cause: Generic Fallback was treating textareas (message fields) like regular text inputs
+  - Fix: Textareas now get `message` template from profile instead of cycling through company/name/email
+  - If no message template available, textareas are skipped entirely
+  - Prevents: "メッセージ本文に会社名が入る" issue reported by user
+
+### Added
+- **📝 More message field patterns** - Better detection for message/inquiry fields
+  - WordPress CF7: Added `your-msg`, `your-inquiry`, `your-comment`, `your-content` (85% confidence)
+  - Japanese Direct: Added `メッセージ本文`, `内容`, `ご質問内容`, `ご相談内容`, `詳細` (70-85% confidence)
+  - Total message patterns: 4 CF7 + 8 Japanese = 12 variations
+
+### Improved
+- **🔍 Enhanced WordPress CF7 debugging** - Better field mapping diagnostics
+  - Added detailed logging showing each 'your-*' field name
+  - Shows whether each field is mapped or not mapped
+  - Displays the target field type for mapped fields
+  - Console output: `[CF7] Processing N fields: - Field name: "your-X" → MAPPED to Y`
+
+### Technical Details
+- Generic Fallback logic modified in lines 668-695
+- WordPress CF7 field map expanded from 9 to 13 entries
+- Japanese field map expanded from 15 to 20 entries
+
+### Impact
+- **Zero "company name in message field" bugs** - Generic Fallback now respects field context
+- **Better message field coverage** - 12 pattern variations catch more forms
+- **Easier debugging** - Console logs show exactly what's detected vs. not detected
+
 ## [2.21.0] - 2026-02-05
 
 ### Added

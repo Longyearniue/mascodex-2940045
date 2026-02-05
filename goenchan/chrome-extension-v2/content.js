@@ -673,7 +673,7 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
 
     const item = fillOrder[fillIndex];
 
-    // Special handling for email/tel types
+    // Special handling for email/tel/textarea types
     const fieldType = field.type || field.tagName.toLowerCase();
     let valueToFill, fieldKey;
 
@@ -683,6 +683,14 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
     } else if (fieldType === 'tel' && profile.phone) {
       valueToFill = profile.phone;
       fieldKey = 'phone';
+    } else if (fieldType === 'textarea' && profile.message) {
+      // Textareas should get message template, not company/name
+      valueToFill = profile.message;
+      fieldKey = 'message';
+    } else if (fieldType === 'textarea') {
+      // Skip textarea if no message template available
+      console.log(`⏭️ [FALLBACK] Skipping textarea (no message template available)`);
+      continue;
     } else {
       valueToFill = item.value;
       fieldKey = item.key;
@@ -1011,10 +1019,19 @@ async function autoFillForm(profile) {
   const unfilledFields = getAllFormFields().filter(field => !filledFields.has(field));
   let semanticFilledCount = 0;
 
+  console.log(`  [SEMANTIC] Analyzing ${unfilledFields.length} unfilled fields`);
+
   for (const field of unfilledFields) {
+    const fieldType = field.type || field.tagName.toLowerCase();
+    const fieldLabel = getFieldLabel(field);
+
+    console.log(`  [SEMANTIC] Field: ${fieldType}, label: "${fieldLabel || '(no label)'}"`);
+
     const semantic = analyzeFieldSemantics(field);
 
     if (semantic) {
+      console.log(`    → Matched: ${semantic.type} (${semantic.confidence}% via ${semantic.source})`);
+
       const value = getProfileValue(profile, semantic.type);
 
       if (value) {
@@ -1040,7 +1057,11 @@ async function autoFillForm(profile) {
         });
 
         console.log(`✅ [SEMANTIC] Filled ${semantic.type} (${semantic.confidence}% via ${semantic.source})`);
+      } else {
+        console.log(`    → No profile value for: ${semantic.type}`);
       }
+    } else {
+      console.log(`    → No semantic match`);
     }
   }
 
@@ -2374,6 +2395,10 @@ function generateWordPressCF7Mapping(fields) {
     'your-email': { field: 'email', confidence: 95 },
     'your-subject': { field: 'subject', confidence: 90 },
     'your-message': { field: 'message', confidence: 90 },
+    'your-msg': { field: 'message', confidence: 85 },
+    'your-inquiry': { field: 'message', confidence: 85 },
+    'your-comment': { field: 'message', confidence: 85 },
+    'your-content': { field: 'message', confidence: 85 },
     'your-tel': { field: 'phone', confidence: 85 },
     'your-phone': { field: 'phone', confidence: 85 },
     'your-company': { field: 'company', confidence: 85 },
@@ -2381,8 +2406,12 @@ function generateWordPressCF7Mapping(fields) {
     'your-address': { field: 'address', confidence: 85 }
   };
 
+  console.log(`  [CF7] Processing ${fields.length} fields:`);
   fields.forEach(field => {
     const name = field.getAttribute('name') || '';
+    if (name.startsWith('your-')) {
+      console.log(`    - Field name: "${name}" → ${cf7FieldMap[name] ? 'MAPPED to ' + cf7FieldMap[name].field : 'NOT MAPPED'}`);
+    }
     if (cf7FieldMap[name]) {
       const { field: fieldType, confidence } = cf7FieldMap[name];
       mapping[fieldType] = {
@@ -2414,7 +2443,12 @@ function generateJapaneseDirectMapping(fields) {
     '件名': { field: 'subject', confidence: 85 },
     'お問い合わせ内容': { field: 'message', confidence: 85 },
     'メッセージ': { field: 'message', confidence: 80 },
+    'メッセージ本文': { field: 'message', confidence: 85 },
     '本文': { field: 'message', confidence: 80 },
+    '内容': { field: 'message', confidence: 75 },
+    'ご質問内容': { field: 'message', confidence: 80 },
+    'ご相談内容': { field: 'message', confidence: 80 },
+    '詳細': { field: 'message', confidence: 70 },
     '郵便番号': { field: 'zipcode', confidence: 85 },
     '住所': { field: 'address', confidence: 85 }
   };
