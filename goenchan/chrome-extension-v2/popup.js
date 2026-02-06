@@ -1002,6 +1002,14 @@ async function updateBatchStatus() {
         showStatus(`✅ バッチ完了: ${total}件処理しました`, 'success');
       }
     }
+
+    // Update message generation count
+    const stored = await chrome.storage.local.get(['batchGeneratedMessages']);
+    const messageCount = Object.keys(stored.batchGeneratedMessages || {}).length;
+    const messageGenCountEl = document.getElementById('messageGenCount');
+    if (messageGenCountEl) {
+      messageGenCountEl.textContent = messageCount;
+    }
   } catch (error) {
     console.log('Could not get batch status:', error);
   }

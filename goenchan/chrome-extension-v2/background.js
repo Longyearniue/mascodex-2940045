@@ -1,5 +1,8 @@
 // Background script for batch mode tab management
 
+// Worker API endpoint
+const WORKER_API_URL = 'https://crawler-worker-teamb.taiichifox.workers.dev';
+
 // Store batch state
 let batchState = {
   isRunning: false,
@@ -8,7 +11,8 @@ let batchState = {
   openTabs: [],
   completedTabs: [],
   tabsPerBatch: 10,
-  profile: null
+  profile: null,
+  generatedMessages: {} // URL -> generated message
 };
 
 // Listen for messages from popup
@@ -22,7 +26,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       total: batchState.urls.length,
       currentIndex: batchState.currentIndex,
       openTabs: batchState.openTabs.length,
-      completedTabs: batchState.completedTabs.length
+      completedTabs: batchState.completedTabs.length,
+      generatedMessages: Object.keys(batchState.generatedMessages).length
     });
   } else if (message.action === 'stopBatch') {
     stopBatchProcess();
@@ -48,17 +53,62 @@ async function startBatchProcess(urls, profile, tabsPerBatch) {
     openTabs: [],
     completedTabs: [],
     tabsPerBatch: tabsPerBatch,
-    profile: profile
+    profile: profile,
+    generatedMessages: {}
   };
 
   // Store profile for content scripts to access
   await chrome.storage.local.set({
     batchProfile: profile,
-    batchMode: true
+    batchMode: true,
+    batchGeneratedMessages: {}
   });
+
+  // Pre-generate messages for all URLs (in background)
+  generateMessagesForBatch(urls);
 
   // Open first batch
   await openNextBatch();
+}
+
+// Generate custom messages using Worker API
+async function generateMessagesForBatch(urls) {
+  console.log('[Batch] Starting message generation for', urls.length, 'URLs');
+
+  for (const url of urls) {
+    if (!batchState.isRunning) break;
+
+    try {
+      console.log('[Batch] Generating message for:', url);
+
+      const response = await fetch(`${WORKER_API_URL}/sales-letter`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.sales_letter || data.salesLetter) {
+          batchState.generatedMessages[url] = data.sales_letter || data.salesLetter;
+          console.log('[Batch] Message generated for:', url);
+
+          // Also store in chrome.storage for persistence
+          const stored = await chrome.storage.local.get(['batchGeneratedMessages']);
+          const messages = stored.batchGeneratedMessages || {};
+          messages[url] = batchState.generatedMessages[url];
+          await chrome.storage.local.set({ batchGeneratedMessages: messages });
+        }
+      }
+    } catch (error) {
+      console.error('[Batch] Error generating message for:', url, error);
+    }
+
+    // Small delay between API calls
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  console.log('[Batch] Message generation complete');
 }
 
 // Open next batch of tabs
@@ -158,22 +208,49 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && batchState.openTabs.includes(tabId)) {
     // Tab loaded, trigger auto-fill
-    const storage = await chrome.storage.local.get(['batchMode', 'batchProfile']);
+    const storage = await chrome.storage.local.get(['batchMode', 'batchProfile', 'batchGeneratedMessages']);
 
     if (storage.batchMode && storage.batchProfile) {
-      console.log('[Batch] Tab loaded, triggering auto-fill:', tabId);
+      console.log('[Batch] Tab loaded, triggering auto-fill:', tabId, tab.url);
 
       // Wait a bit for page to fully render
       setTimeout(async () => {
         try {
+          // Get the original URL for this tab (before any redirects)
+          const tabInfo = await chrome.storage.local.get([`batchTab_${tabId}`]);
+          const originalUrl = tabInfo[`batchTab_${tabId}`]?.url || tab.url;
+
+          // Get generated message for this URL
+          const generatedMessages = storage.batchGeneratedMessages || {};
+          let customMessage = generatedMessages[originalUrl];
+
+          // Also check current URL (in case of redirects)
+          if (!customMessage && tab.url) {
+            customMessage = generatedMessages[tab.url];
+          }
+
+          // Check in-memory state as well
+          if (!customMessage) {
+            customMessage = batchState.generatedMessages[originalUrl] || batchState.generatedMessages[tab.url];
+          }
+
+          // Create profile with custom message
+          const profileWithMessage = { ...storage.batchProfile };
+          if (customMessage) {
+            profileWithMessage.message = customMessage;
+            console.log('[Batch] Using generated message for:', originalUrl);
+          } else {
+            console.log('[Batch] No generated message found, using default profile message');
+          }
+
           await chrome.tabs.sendMessage(tabId, {
             action: 'batchAutoFill',
-            profile: storage.batchProfile
+            profile: profileWithMessage
           });
         } catch (e) {
           console.error('[Batch] Error sending auto-fill message:', e);
         }
-      }, 1500);
+      }, 2000); // Increased delay to allow message generation
     }
   }
 });
