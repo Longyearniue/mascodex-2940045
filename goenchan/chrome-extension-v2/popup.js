@@ -60,6 +60,13 @@ function setupCollapsibles() {
     content.classList.toggle('show');
     toggle.textContent = content.classList.contains('show') ? '▼ Bulk Site Crawler' : '▶ Bulk Site Crawler';
   });
+
+  document.getElementById('batchModeToggle').addEventListener('click', () => {
+    const content = document.getElementById('batchModeContent');
+    const toggle = document.getElementById('batchModeToggle');
+    content.classList.toggle('show');
+    toggle.textContent = content.classList.contains('show') ? '▼ Batch Mode (一括送信)' : '▶ Batch Mode (一括送信)';
+  });
 }
 
 // Load current tab URL
@@ -877,3 +884,138 @@ document.getElementById('uploadToCloud').addEventListener('click', async () => {
     showStatus('❌ Failed to upload to cloud', 'error');
   }
 });
+
+// =============================================================================
+// BATCH MODE (一括送信)
+// =============================================================================
+
+// Get current profile data
+function getCurrentProfile() {
+  return {
+    company: document.getElementById('company').value,
+    name: document.getElementById('name').value,
+    name_kana: document.getElementById('name_kana').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    zipcode: document.getElementById('zipcode').value,
+    address: document.getElementById('address').value,
+    department: document.getElementById('department').value,
+    subject: document.getElementById('subject').value,
+    message: document.getElementById('message').value
+  };
+}
+
+// Start batch button handler
+document.getElementById('startBatch').addEventListener('click', async () => {
+  const urlsText = document.getElementById('batchUrls').value.trim();
+  if (!urlsText) {
+    showStatus('URLを入力してください', 'error');
+    return;
+  }
+
+  const urls = urlsText.split('\n')
+    .map(url => url.trim())
+    .filter(url => url && url.startsWith('http'));
+
+  if (urls.length === 0) {
+    showStatus('有効なURLがありません', 'error');
+    return;
+  }
+
+  const profile = getCurrentProfile();
+  const tabsPerBatch = parseInt(document.getElementById('tabsPerBatch').value);
+
+  try {
+    await chrome.runtime.sendMessage({
+      action: 'startBatch',
+      urls: urls,
+      profile: profile,
+      tabsPerBatch: tabsPerBatch
+    });
+
+    // Update UI
+    document.getElementById('startBatch').disabled = true;
+    document.getElementById('nextBatch').disabled = false;
+    document.getElementById('stopBatch').disabled = false;
+    document.getElementById('batchStatus').style.display = 'block';
+
+    updateBatchStatus();
+    showStatus(`🚀 バッチ開始: ${urls.length}件のURLを処理します`, 'success');
+  } catch (error) {
+    console.error('Failed to start batch:', error);
+    showStatus('バッチ開始に失敗しました', 'error');
+  }
+});
+
+// Next batch button handler
+document.getElementById('nextBatch').addEventListener('click', async () => {
+  try {
+    await chrome.runtime.sendMessage({ action: 'nextBatch' });
+    showStatus('➡️ 次のバッチを開いています...', 'info');
+    updateBatchStatus();
+  } catch (error) {
+    console.error('Failed to open next batch:', error);
+    showStatus('次のバッチを開けませんでした', 'error');
+  }
+});
+
+// Stop batch button handler
+document.getElementById('stopBatch').addEventListener('click', async () => {
+  try {
+    await chrome.runtime.sendMessage({ action: 'stopBatch' });
+
+    // Update UI
+    document.getElementById('startBatch').disabled = false;
+    document.getElementById('nextBatch').disabled = true;
+    document.getElementById('stopBatch').disabled = true;
+    document.getElementById('batchStatus').style.display = 'none';
+
+    showStatus('⏹️ バッチを停止しました', 'info');
+  } catch (error) {
+    console.error('Failed to stop batch:', error);
+    showStatus('バッチ停止に失敗しました', 'error');
+  }
+});
+
+// Update batch status display
+async function updateBatchStatus() {
+  try {
+    const status = await chrome.runtime.sendMessage({ action: 'getBatchStatus' });
+
+    if (status) {
+      const total = status.total || 0;
+      const completed = status.completedTabs || 0;
+      const currentIndex = status.currentIndex || 0;
+      const openTabs = status.openTabs || 0;
+
+      document.getElementById('batchProgress').textContent = `${currentIndex}/${total}`;
+      document.getElementById('openTabsCount').textContent = openTabs;
+
+      const percentage = total > 0 ? (currentIndex / total) * 100 : 0;
+      document.getElementById('batchProgressBar').style.width = `${percentage}%`;
+
+      if (!status.isRunning && currentIndex >= total && total > 0) {
+        // Batch complete
+        document.getElementById('startBatch').disabled = false;
+        document.getElementById('nextBatch').disabled = true;
+        document.getElementById('stopBatch').disabled = true;
+        showStatus(`✅ バッチ完了: ${total}件処理しました`, 'success');
+      }
+    }
+  } catch (error) {
+    console.log('Could not get batch status:', error);
+  }
+}
+
+// Listen for batch complete message
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'batchComplete') {
+    document.getElementById('startBatch').disabled = false;
+    document.getElementById('nextBatch').disabled = true;
+    document.getElementById('stopBatch').disabled = true;
+    showStatus(`✅ バッチ完了: ${message.total}件すべて処理しました`, 'success');
+  }
+});
+
+// Poll batch status when popup is open
+setInterval(updateBatchStatus, 2000);

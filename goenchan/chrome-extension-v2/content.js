@@ -94,6 +94,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse(result);
     });
     return true; // Keep channel open for async
+  } else if (message.action === 'batchAutoFill') {
+    // Batch mode: auto-fill with provided profile
+    console.log('📦 [BATCH] Received batch auto-fill request');
+    autoFillForm(message.profile).then(result => {
+      console.log('📦 [BATCH] Auto-fill complete:', result);
+      // Highlight submit button for review
+      highlightSubmitButton();
+      sendResponse(result);
+    });
+    return true;
   } else if (message.action === 'inspectForm') {
     const formData = inspectForm();
     sendResponse({ success: true, formData });
@@ -103,6 +113,65 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   return true;
 });
+
+// Highlight submit button for batch mode
+function highlightSubmitButton() {
+  const submitButtons = document.querySelectorAll(
+    'button[type="submit"], input[type="submit"], button:not([type]), input[type="button"][value*="送信"], button[class*="submit"]'
+  );
+
+  submitButtons.forEach(btn => {
+    // Add pulsing highlight effect
+    btn.style.boxShadow = '0 0 0 4px rgba(76, 175, 80, 0.5)';
+    btn.style.animation = 'batchPulse 1s infinite';
+  });
+
+  // Add pulse animation if not exists
+  if (!document.getElementById('batchPulseStyle')) {
+    const style = document.createElement('style');
+    style.id = 'batchPulseStyle';
+    style.textContent = `
+      @keyframes batchPulse {
+        0% { box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.5); }
+        50% { box-shadow: 0 0 0 8px rgba(76, 175, 80, 0.3); }
+        100% { box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.5); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Show notification banner
+  const banner = document.createElement('div');
+  banner.id = 'batchModeBanner';
+  banner.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #4caf50, #8bc34a);
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 999999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  `;
+  banner.innerHTML = '✅ フォーム入力完了 - 内容を確認して送信ボタンをクリックしてください';
+
+  // Remove existing banner if any
+  const existingBanner = document.getElementById('batchModeBanner');
+  if (existingBanner) existingBanner.remove();
+
+  document.body.appendChild(banner);
+
+  // Auto-hide banner after 10 seconds
+  setTimeout(() => {
+    banner.style.transition = 'opacity 0.5s';
+    banner.style.opacity = '0';
+    setTimeout(() => banner.remove(), 500);
+  }, 10000);
+}
 
 // =============================================================================
 // AUTO-FILL ON PAGE LOAD
