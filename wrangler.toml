@@ -7,4 +7,15 @@ pages_build_output_dir = "."
 [[kv_namespaces]]
 binding = "USER_KV"
 id = "341800e6a62d4efa886e69e08ca04cef"
-preview_id = "65ddc6c899c94cf89e825099c1c1d329" 
+preview_id = "65ddc6c899c94cf89e825099c1c1d329"
+
+# === Amoeba City Game additions ===
+[[kv_namespaces]]
+binding = "GAME_KV"
+id = "PLACEHOLDER_GAME_KV_ID"
+preview_id = "PLACEHOLDER_GAME_KV_PREVIEW_ID"
+
+[[d1_databases]]
+binding = "GAME_DB"
+database_name = "mascodex-game"
+database_id = "PLACEHOLDER_D1_DATABASE_ID"
