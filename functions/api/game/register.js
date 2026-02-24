@@ -1,6 +1,7 @@
 import { jsonResponse, errorResponse, corsResponse, getPlayerId, getTodayJST } from './_lib/helpers.js';
 import { getElement, getRegion } from './_lib/elements.js';
 import { getDistrictCode } from './_lib/districts.js';
+import { getCharacterProfile } from './_lib/character.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -27,6 +28,11 @@ export async function onRequest(context) {
     await env.GAME_DB.prepare(
       'INSERT OR IGNORE INTO players (id, postal_code, prefecture, district, last_login_date) VALUES (?, ?, ?, ?, ?)'
     ).bind(playerId, clean, district.prefecture, districtCode, today).run();
+
+    // Create starter character for the player (ignore if already exists)
+    await env.GAME_DB.prepare(
+      'INSERT OR IGNORE INTO player_characters (player_id, postal_code, level, xp, evolved, is_team) VALUES (?, ?, 1, 0, 0, 1)'
+    ).bind(playerId, clean).run();
 
     // Update player count using accurate count query to prevent double-counting
     await env.GAME_DB.prepare(
@@ -60,6 +66,7 @@ export async function onRequest(context) {
       },
       element,
       region,
+      starter: getCharacterProfile(clean),
     });
   } catch (err) {
     console.error('Register error:', err);
