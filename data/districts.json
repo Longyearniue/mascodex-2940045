@@ -1,0 +1,5972 @@
+{
+  "100": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "千代田区",
+    "element": "thunder"
+  },
+  "101": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "千代田区神田",
+    "element": "thunder"
+  },
+  "102": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "千代田区麹町",
+    "element": "thunder"
+  },
+  "103": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "中央区日本橋",
+    "element": "thunder"
+  },
+  "104": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "中央区銀座",
+    "element": "thunder"
+  },
+  "105": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "港区新橋",
+    "element": "thunder"
+  },
+  "106": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "港区六本木",
+    "element": "thunder"
+  },
+  "107": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "港区赤坂",
+    "element": "thunder"
+  },
+  "108": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "港区高輪",
+    "element": "thunder"
+  },
+  "109": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "港区",
+    "element": "thunder"
+  },
+  "110": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "台東区",
+    "element": "thunder"
+  },
+  "111": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "台東区浅草",
+    "element": "thunder"
+  },
+  "112": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "文京区",
+    "element": "thunder"
+  },
+  "113": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "文京区本郷",
+    "element": "thunder"
+  },
+  "114": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "北区",
+    "element": "thunder"
+  },
+  "115": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "北区赤羽",
+    "element": "thunder"
+  },
+  "116": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "荒川区",
+    "element": "thunder"
+  },
+  "117": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "北区周辺",
+    "element": "thunder"
+  },
+  "118": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "北区王子",
+    "element": "thunder"
+  },
+  "119": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "板橋区周辺",
+    "element": "thunder"
+  },
+  "120": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "足立区",
+    "element": "thunder"
+  },
+  "121": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "足立区西部",
+    "element": "thunder"
+  },
+  "122": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "葛飾区",
+    "element": "thunder"
+  },
+  "123": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "葛飾区西部",
+    "element": "thunder"
+  },
+  "124": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "葛飾区東部",
+    "element": "thunder"
+  },
+  "125": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "葛飾区北部",
+    "element": "thunder"
+  },
+  "126": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江戸川区北部",
+    "element": "thunder"
+  },
+  "127": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "足立区北部",
+    "element": "thunder"
+  },
+  "128": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江戸川区南部",
+    "element": "thunder"
+  },
+  "129": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "足立区東部",
+    "element": "thunder"
+  },
+  "130": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "墨田区",
+    "element": "thunder"
+  },
+  "131": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "墨田区東部",
+    "element": "thunder"
+  },
+  "132": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江戸川区",
+    "element": "thunder"
+  },
+  "133": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江戸川区西部",
+    "element": "thunder"
+  },
+  "134": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江戸川区中部",
+    "element": "thunder"
+  },
+  "135": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江東区",
+    "element": "thunder"
+  },
+  "136": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江東区南部",
+    "element": "thunder"
+  },
+  "137": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江東区東部",
+    "element": "thunder"
+  },
+  "138": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "墨田区周辺",
+    "element": "thunder"
+  },
+  "139": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "江戸川区周辺",
+    "element": "thunder"
+  },
+  "140": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "品川区",
+    "element": "thunder"
+  },
+  "141": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "品川区南部",
+    "element": "thunder"
+  },
+  "142": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "品川区西部",
+    "element": "thunder"
+  },
+  "143": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区",
+    "element": "thunder"
+  },
+  "144": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区南部",
+    "element": "thunder"
+  },
+  "145": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区西部",
+    "element": "thunder"
+  },
+  "146": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区東部",
+    "element": "thunder"
+  },
+  "147": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区北部",
+    "element": "thunder"
+  },
+  "148": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区中部",
+    "element": "thunder"
+  },
+  "149": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "大田区周辺",
+    "element": "thunder"
+  },
+  "150": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "渋谷区",
+    "element": "thunder"
+  },
+  "151": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "渋谷区代々木",
+    "element": "thunder"
+  },
+  "152": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "目黒区",
+    "element": "thunder"
+  },
+  "153": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "目黒区南部",
+    "element": "thunder"
+  },
+  "154": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "世田谷区",
+    "element": "thunder"
+  },
+  "155": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "世田谷区北部",
+    "element": "thunder"
+  },
+  "156": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "世田谷区南部",
+    "element": "thunder"
+  },
+  "157": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "世田谷区西部",
+    "element": "thunder"
+  },
+  "158": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "世田谷区東部",
+    "element": "thunder"
+  },
+  "159": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "世田谷区周辺",
+    "element": "thunder"
+  },
+  "160": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "新宿区",
+    "element": "thunder"
+  },
+  "161": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "新宿区北部",
+    "element": "thunder"
+  },
+  "162": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "新宿区西部",
+    "element": "thunder"
+  },
+  "163": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "新宿区西新宿",
+    "element": "thunder"
+  },
+  "164": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "中野区",
+    "element": "thunder"
+  },
+  "165": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "中野区南部",
+    "element": "thunder"
+  },
+  "166": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "杉並区",
+    "element": "thunder"
+  },
+  "167": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "杉並区北部",
+    "element": "thunder"
+  },
+  "168": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "杉並区南部",
+    "element": "thunder"
+  },
+  "169": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "新宿区高田馬場",
+    "element": "thunder"
+  },
+  "170": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "豊島区",
+    "element": "thunder"
+  },
+  "171": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "豊島区南部",
+    "element": "thunder"
+  },
+  "172": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "板橋区",
+    "element": "thunder"
+  },
+  "173": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "板橋区北部",
+    "element": "thunder"
+  },
+  "174": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "板橋区東部",
+    "element": "thunder"
+  },
+  "175": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "板橋区西部",
+    "element": "thunder"
+  },
+  "176": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "練馬区",
+    "element": "thunder"
+  },
+  "177": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "練馬区西部",
+    "element": "thunder"
+  },
+  "178": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "練馬区北部",
+    "element": "thunder"
+  },
+  "179": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "練馬区東部",
+    "element": "thunder"
+  },
+  "180": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "武蔵野市",
+    "element": "thunder"
+  },
+  "181": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "三鷹市",
+    "element": "thunder"
+  },
+  "182": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "調布市",
+    "element": "thunder"
+  },
+  "183": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "府中市",
+    "element": "thunder"
+  },
+  "184": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "小金井市",
+    "element": "thunder"
+  },
+  "185": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "国分寺市",
+    "element": "thunder"
+  },
+  "186": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "国立市",
+    "element": "thunder"
+  },
+  "187": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "小平市",
+    "element": "thunder"
+  },
+  "188": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "西東京市",
+    "element": "thunder"
+  },
+  "189": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "東村山市",
+    "element": "thunder"
+  },
+  "190": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "立川市",
+    "element": "thunder"
+  },
+  "191": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "日野市",
+    "element": "thunder"
+  },
+  "192": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "八王子市",
+    "element": "thunder"
+  },
+  "193": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "八王子市西部",
+    "element": "thunder"
+  },
+  "194": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "町田市",
+    "element": "thunder"
+  },
+  "195": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "町田市周辺",
+    "element": "thunder"
+  },
+  "196": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "昭島市",
+    "element": "thunder"
+  },
+  "197": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "福生市",
+    "element": "thunder"
+  },
+  "198": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "青梅市",
+    "element": "thunder"
+  },
+  "199": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "あきる野市",
+    "element": "thunder"
+  },
+  "200": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "東京都島嶼",
+    "element": "thunder"
+  },
+  "201": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "狛江市",
+    "element": "thunder"
+  },
+  "202": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "西東京市周辺",
+    "element": "thunder"
+  },
+  "203": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "東久留米市",
+    "element": "thunder"
+  },
+  "204": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "清瀬市",
+    "element": "thunder"
+  },
+  "205": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "羽村市",
+    "element": "thunder"
+  },
+  "206": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "多摩市",
+    "element": "thunder"
+  },
+  "207": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "東大和市",
+    "element": "thunder"
+  },
+  "208": {
+    "prefecture": "東京都",
+    "prefectureCode": "13",
+    "name": "武蔵村山市",
+    "element": "thunder"
+  },
+  "210": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市川崎区",
+    "element": "thunder"
+  },
+  "211": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市中原区",
+    "element": "thunder"
+  },
+  "212": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市幸区",
+    "element": "thunder"
+  },
+  "213": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市高津区",
+    "element": "thunder"
+  },
+  "214": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市多摩区",
+    "element": "thunder"
+  },
+  "215": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市麻生区",
+    "element": "thunder"
+  },
+  "216": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市宮前区",
+    "element": "thunder"
+  },
+  "217": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市周辺",
+    "element": "thunder"
+  },
+  "218": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市北部",
+    "element": "thunder"
+  },
+  "219": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "川崎市西部",
+    "element": "thunder"
+  },
+  "220": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市西区",
+    "element": "thunder"
+  },
+  "221": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市神奈川区",
+    "element": "thunder"
+  },
+  "222": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市港北区",
+    "element": "thunder"
+  },
+  "223": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市港北区北",
+    "element": "thunder"
+  },
+  "224": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市都筑区",
+    "element": "thunder"
+  },
+  "225": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市青葉区",
+    "element": "thunder"
+  },
+  "226": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市緑区",
+    "element": "thunder"
+  },
+  "227": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市青葉区南",
+    "element": "thunder"
+  },
+  "228": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "相模原市",
+    "element": "thunder"
+  },
+  "229": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "相模原市周辺",
+    "element": "thunder"
+  },
+  "230": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市鶴見区",
+    "element": "thunder"
+  },
+  "231": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市中区",
+    "element": "thunder"
+  },
+  "232": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市南区",
+    "element": "thunder"
+  },
+  "233": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市港南区",
+    "element": "thunder"
+  },
+  "234": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市港南区南",
+    "element": "thunder"
+  },
+  "235": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市磯子区",
+    "element": "thunder"
+  },
+  "236": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市金沢区",
+    "element": "thunder"
+  },
+  "237": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横須賀市",
+    "element": "thunder"
+  },
+  "238": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横須賀市南部",
+    "element": "thunder"
+  },
+  "239": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横須賀市北部",
+    "element": "thunder"
+  },
+  "240": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市保土ケ谷区",
+    "element": "thunder"
+  },
+  "241": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市旭区",
+    "element": "thunder"
+  },
+  "242": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "大和市",
+    "element": "thunder"
+  },
+  "243": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "厚木市",
+    "element": "thunder"
+  },
+  "244": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市戸塚区",
+    "element": "thunder"
+  },
+  "245": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市泉区",
+    "element": "thunder"
+  },
+  "246": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市瀬谷区",
+    "element": "thunder"
+  },
+  "247": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "横浜市栄区",
+    "element": "thunder"
+  },
+  "248": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "鎌倉市",
+    "element": "thunder"
+  },
+  "249": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "逗子市",
+    "element": "thunder"
+  },
+  "250": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "小田原市",
+    "element": "thunder"
+  },
+  "251": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "藤沢市",
+    "element": "thunder"
+  },
+  "252": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "相模原市南区",
+    "element": "thunder"
+  },
+  "253": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "茅ヶ崎市",
+    "element": "thunder"
+  },
+  "254": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "平塚市",
+    "element": "thunder"
+  },
+  "255": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "中郡",
+    "element": "thunder"
+  },
+  "256": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "小田原市周辺",
+    "element": "thunder"
+  },
+  "257": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "秦野市",
+    "element": "thunder"
+  },
+  "258": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "足柄上郡",
+    "element": "thunder"
+  },
+  "259": {
+    "prefecture": "神奈川県",
+    "prefectureCode": "14",
+    "name": "足柄下郡",
+    "element": "thunder"
+  },
+  "260": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市中央区",
+    "element": "thunder"
+  },
+  "261": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市美浜区",
+    "element": "thunder"
+  },
+  "262": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市花見川区",
+    "element": "thunder"
+  },
+  "263": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市稲毛区",
+    "element": "thunder"
+  },
+  "264": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市若葉区",
+    "element": "thunder"
+  },
+  "265": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市緑区",
+    "element": "thunder"
+  },
+  "266": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市緑区南",
+    "element": "thunder"
+  },
+  "267": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市緑区周辺",
+    "element": "thunder"
+  },
+  "268": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市緑区東",
+    "element": "thunder"
+  },
+  "269": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市周辺",
+    "element": "thunder"
+  },
+  "270": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "松戸市",
+    "element": "thunder"
+  },
+  "271": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "松戸市周辺",
+    "element": "thunder"
+  },
+  "272": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "市川市",
+    "element": "thunder"
+  },
+  "273": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "船橋市",
+    "element": "thunder"
+  },
+  "274": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "船橋市東部",
+    "element": "thunder"
+  },
+  "275": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "習志野市",
+    "element": "thunder"
+  },
+  "276": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "八千代市",
+    "element": "thunder"
+  },
+  "277": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "柏市",
+    "element": "thunder"
+  },
+  "278": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "野田市",
+    "element": "thunder"
+  },
+  "279": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "浦安市",
+    "element": "thunder"
+  },
+  "280": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市中央区周辺",
+    "element": "thunder"
+  },
+  "281": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "千葉市北部",
+    "element": "thunder"
+  },
+  "282": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "成田市周辺",
+    "element": "thunder"
+  },
+  "283": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "東金市",
+    "element": "thunder"
+  },
+  "284": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "四街道市",
+    "element": "thunder"
+  },
+  "285": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "佐倉市",
+    "element": "thunder"
+  },
+  "286": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "成田市",
+    "element": "thunder"
+  },
+  "287": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "香取市",
+    "element": "thunder"
+  },
+  "288": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "銚子市",
+    "element": "thunder"
+  },
+  "289": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "香取郡",
+    "element": "thunder"
+  },
+  "290": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "市原市",
+    "element": "thunder"
+  },
+  "291": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "市原市南部",
+    "element": "thunder"
+  },
+  "292": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "木更津市",
+    "element": "thunder"
+  },
+  "293": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "富津市",
+    "element": "thunder"
+  },
+  "294": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "館山市周辺",
+    "element": "thunder"
+  },
+  "295": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "南房総市",
+    "element": "thunder"
+  },
+  "296": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "鴨川市",
+    "element": "thunder"
+  },
+  "297": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "茂原市",
+    "element": "thunder"
+  },
+  "298": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "いすみ市",
+    "element": "thunder"
+  },
+  "299": {
+    "prefecture": "千葉県",
+    "prefectureCode": "12",
+    "name": "夷隅郡",
+    "element": "thunder"
+  },
+  "300": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "土浦市",
+    "element": "thunder"
+  },
+  "301": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "龍ケ崎市",
+    "element": "thunder"
+  },
+  "302": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "取手市",
+    "element": "thunder"
+  },
+  "303": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "常総市",
+    "element": "thunder"
+  },
+  "304": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "下妻市",
+    "element": "thunder"
+  },
+  "305": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "つくば市",
+    "element": "thunder"
+  },
+  "306": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "古河市",
+    "element": "thunder"
+  },
+  "307": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "結城市",
+    "element": "thunder"
+  },
+  "308": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "筑西市",
+    "element": "thunder"
+  },
+  "309": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "笠間市",
+    "element": "thunder"
+  },
+  "310": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "水戸市",
+    "element": "thunder"
+  },
+  "311": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "ひたちなか市",
+    "element": "thunder"
+  },
+  "312": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "ひたちなか市周辺",
+    "element": "thunder"
+  },
+  "313": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "常陸太田市",
+    "element": "thunder"
+  },
+  "314": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "鹿嶋市",
+    "element": "thunder"
+  },
+  "315": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "石岡市",
+    "element": "thunder"
+  },
+  "316": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "日立市",
+    "element": "thunder"
+  },
+  "317": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "日立市周辺",
+    "element": "thunder"
+  },
+  "318": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "高萩市",
+    "element": "thunder"
+  },
+  "319": {
+    "prefecture": "茨城県",
+    "prefectureCode": "08",
+    "name": "北茨城市",
+    "element": "thunder"
+  },
+  "320": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "宇都宮市",
+    "element": "thunder"
+  },
+  "321": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "宇都宮市周辺",
+    "element": "thunder"
+  },
+  "322": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "鹿沼市",
+    "element": "thunder"
+  },
+  "323": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "栃木市",
+    "element": "thunder"
+  },
+  "324": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "大田原市",
+    "element": "thunder"
+  },
+  "325": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "那須塩原市",
+    "element": "thunder"
+  },
+  "326": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "足利市",
+    "element": "thunder"
+  },
+  "327": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "佐野市",
+    "element": "thunder"
+  },
+  "328": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "栃木市周辺",
+    "element": "thunder"
+  },
+  "329": {
+    "prefecture": "栃木県",
+    "prefectureCode": "09",
+    "name": "那須郡",
+    "element": "thunder"
+  },
+  "330": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "さいたま市浦和区",
+    "element": "thunder"
+  },
+  "331": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "さいたま市北区",
+    "element": "thunder"
+  },
+  "332": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "川口市",
+    "element": "thunder"
+  },
+  "333": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "川口市北部",
+    "element": "thunder"
+  },
+  "334": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "川口市南部",
+    "element": "thunder"
+  },
+  "335": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "戸田市",
+    "element": "thunder"
+  },
+  "336": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "さいたま市南区",
+    "element": "thunder"
+  },
+  "337": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "さいたま市見沼区",
+    "element": "thunder"
+  },
+  "338": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "さいたま市中央区",
+    "element": "thunder"
+  },
+  "339": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "さいたま市岩槻区",
+    "element": "thunder"
+  },
+  "340": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "草加市",
+    "element": "thunder"
+  },
+  "341": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "三郷市",
+    "element": "thunder"
+  },
+  "342": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "吉川市",
+    "element": "thunder"
+  },
+  "343": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "越谷市",
+    "element": "thunder"
+  },
+  "344": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "春日部市",
+    "element": "thunder"
+  },
+  "345": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "北葛飾郡",
+    "element": "thunder"
+  },
+  "346": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "久喜市",
+    "element": "thunder"
+  },
+  "347": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "加須市",
+    "element": "thunder"
+  },
+  "348": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "羽生市",
+    "element": "thunder"
+  },
+  "349": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "南埼玉郡",
+    "element": "thunder"
+  },
+  "350": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "川越市",
+    "element": "thunder"
+  },
+  "351": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "朝霞市",
+    "element": "thunder"
+  },
+  "352": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "新座市",
+    "element": "thunder"
+  },
+  "353": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "志木市",
+    "element": "thunder"
+  },
+  "354": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "富士見市",
+    "element": "thunder"
+  },
+  "355": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "東松山市",
+    "element": "thunder"
+  },
+  "356": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "ふじみ野市",
+    "element": "thunder"
+  },
+  "357": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "飯能市",
+    "element": "thunder"
+  },
+  "358": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "入間市",
+    "element": "thunder"
+  },
+  "359": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "所沢市",
+    "element": "thunder"
+  },
+  "360": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "熊谷市",
+    "element": "thunder"
+  },
+  "361": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "行田市",
+    "element": "thunder"
+  },
+  "362": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "上尾市",
+    "element": "thunder"
+  },
+  "363": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "桶川市",
+    "element": "thunder"
+  },
+  "364": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "北本市",
+    "element": "thunder"
+  },
+  "365": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "鴻巣市",
+    "element": "thunder"
+  },
+  "366": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "深谷市",
+    "element": "thunder"
+  },
+  "367": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "本庄市",
+    "element": "thunder"
+  },
+  "368": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "秩父市",
+    "element": "thunder"
+  },
+  "369": {
+    "prefecture": "埼玉県",
+    "prefectureCode": "11",
+    "name": "秩父郡",
+    "element": "thunder"
+  },
+  "370": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "高崎市",
+    "element": "thunder"
+  },
+  "371": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "前橋市",
+    "element": "thunder"
+  },
+  "372": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "伊勢崎市",
+    "element": "thunder"
+  },
+  "373": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "太田市",
+    "element": "thunder"
+  },
+  "374": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "館林市",
+    "element": "thunder"
+  },
+  "375": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "藤岡市",
+    "element": "thunder"
+  },
+  "376": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "桐生市",
+    "element": "thunder"
+  },
+  "377": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "渋川市",
+    "element": "thunder"
+  },
+  "378": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "沼田市",
+    "element": "thunder"
+  },
+  "379": {
+    "prefecture": "群馬県",
+    "prefectureCode": "10",
+    "name": "利根郡",
+    "element": "thunder"
+  },
+  "380": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "長野市",
+    "element": "earth"
+  },
+  "381": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "長野市周辺",
+    "element": "earth"
+  },
+  "382": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "須坂市",
+    "element": "earth"
+  },
+  "383": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "中野市",
+    "element": "earth"
+  },
+  "384": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "小諸市",
+    "element": "earth"
+  },
+  "385": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "佐久市",
+    "element": "earth"
+  },
+  "386": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "上田市",
+    "element": "earth"
+  },
+  "387": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "千曲市",
+    "element": "earth"
+  },
+  "388": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "長野市南部",
+    "element": "earth"
+  },
+  "389": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "北佐久郡",
+    "element": "earth"
+  },
+  "390": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "松本市",
+    "element": "earth"
+  },
+  "391": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "松本市周辺",
+    "element": "earth"
+  },
+  "392": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "諏訪市",
+    "element": "earth"
+  },
+  "393": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "諏訪郡",
+    "element": "earth"
+  },
+  "394": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "岡谷市",
+    "element": "earth"
+  },
+  "395": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "飯田市",
+    "element": "earth"
+  },
+  "396": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "伊那市",
+    "element": "earth"
+  },
+  "397": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "木曽郡",
+    "element": "earth"
+  },
+  "398": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "大町市",
+    "element": "earth"
+  },
+  "399": {
+    "prefecture": "長野県",
+    "prefectureCode": "20",
+    "name": "安曇野市",
+    "element": "earth"
+  },
+  "400": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "甲府市",
+    "element": "earth"
+  },
+  "401": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "富士吉田市",
+    "element": "earth"
+  },
+  "402": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "都留市",
+    "element": "earth"
+  },
+  "403": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "富士河口湖町",
+    "element": "earth"
+  },
+  "404": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "山梨市",
+    "element": "earth"
+  },
+  "405": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "山梨市周辺",
+    "element": "earth"
+  },
+  "406": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "北杜市",
+    "element": "earth"
+  },
+  "407": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "韮崎市",
+    "element": "earth"
+  },
+  "408": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "北杜市周辺",
+    "element": "earth"
+  },
+  "409": {
+    "prefecture": "山梨県",
+    "prefectureCode": "19",
+    "name": "南巨摩郡",
+    "element": "earth"
+  },
+  "410": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "沼津市",
+    "element": "earth"
+  },
+  "411": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "三島市",
+    "element": "earth"
+  },
+  "412": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "御殿場市",
+    "element": "earth"
+  },
+  "413": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "熱海市",
+    "element": "earth"
+  },
+  "414": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "伊東市",
+    "element": "earth"
+  },
+  "415": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "下田市",
+    "element": "earth"
+  },
+  "416": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "富士市",
+    "element": "earth"
+  },
+  "417": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "富士市周辺",
+    "element": "earth"
+  },
+  "418": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "富士宮市",
+    "element": "earth"
+  },
+  "419": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "富士宮市周辺",
+    "element": "earth"
+  },
+  "420": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "静岡市葵区",
+    "element": "earth"
+  },
+  "421": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "静岡市駿河区",
+    "element": "earth"
+  },
+  "422": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "静岡市駿河区南",
+    "element": "earth"
+  },
+  "423": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "静岡市清水区",
+    "element": "earth"
+  },
+  "424": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "静岡市清水区南",
+    "element": "earth"
+  },
+  "425": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "焼津市",
+    "element": "earth"
+  },
+  "426": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "藤枝市",
+    "element": "earth"
+  },
+  "427": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "島田市",
+    "element": "earth"
+  },
+  "428": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "榛原郡",
+    "element": "earth"
+  },
+  "429": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "榛原郡周辺",
+    "element": "earth"
+  },
+  "430": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "浜松市中央区",
+    "element": "earth"
+  },
+  "431": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "浜松市周辺",
+    "element": "earth"
+  },
+  "432": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "浜松市中区",
+    "element": "earth"
+  },
+  "433": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "浜松市北区",
+    "element": "earth"
+  },
+  "434": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "浜松市天竜区",
+    "element": "earth"
+  },
+  "435": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "浜松市東区",
+    "element": "earth"
+  },
+  "436": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "掛川市",
+    "element": "earth"
+  },
+  "437": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "袋井市",
+    "element": "earth"
+  },
+  "438": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "磐田市",
+    "element": "earth"
+  },
+  "439": {
+    "prefecture": "静岡県",
+    "prefectureCode": "22",
+    "name": "菊川市",
+    "element": "earth"
+  },
+  "440": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊橋市",
+    "element": "earth"
+  },
+  "441": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊橋市周辺",
+    "element": "earth"
+  },
+  "442": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊川市",
+    "element": "earth"
+  },
+  "443": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "蒲郡市",
+    "element": "earth"
+  },
+  "444": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "岡崎市",
+    "element": "earth"
+  },
+  "445": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "西尾市",
+    "element": "earth"
+  },
+  "446": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "安城市",
+    "element": "earth"
+  },
+  "447": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "碧南市",
+    "element": "earth"
+  },
+  "448": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "刈谷市",
+    "element": "earth"
+  },
+  "449": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊田市周辺",
+    "element": "earth"
+  },
+  "450": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市中村区",
+    "element": "earth"
+  },
+  "451": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市西区",
+    "element": "earth"
+  },
+  "452": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市西区周辺",
+    "element": "earth"
+  },
+  "453": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市中村区南",
+    "element": "earth"
+  },
+  "454": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市中川区",
+    "element": "earth"
+  },
+  "455": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市港区",
+    "element": "earth"
+  },
+  "456": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市熱田区",
+    "element": "earth"
+  },
+  "457": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市南区",
+    "element": "earth"
+  },
+  "458": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市緑区",
+    "element": "earth"
+  },
+  "459": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市緑区周辺",
+    "element": "earth"
+  },
+  "460": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市中区",
+    "element": "earth"
+  },
+  "461": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市東区",
+    "element": "earth"
+  },
+  "462": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市北区",
+    "element": "earth"
+  },
+  "463": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市守山区",
+    "element": "earth"
+  },
+  "464": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市千種区",
+    "element": "earth"
+  },
+  "465": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市名東区",
+    "element": "earth"
+  },
+  "466": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市昭和区",
+    "element": "earth"
+  },
+  "467": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市瑞穂区",
+    "element": "earth"
+  },
+  "468": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市天白区",
+    "element": "earth"
+  },
+  "469": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "名古屋市周辺",
+    "element": "earth"
+  },
+  "470": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊田市",
+    "element": "earth"
+  },
+  "471": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊田市南部",
+    "element": "earth"
+  },
+  "472": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "知立市",
+    "element": "earth"
+  },
+  "473": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "豊田市東部",
+    "element": "earth"
+  },
+  "474": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "大府市",
+    "element": "earth"
+  },
+  "475": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "半田市",
+    "element": "earth"
+  },
+  "476": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "東海市",
+    "element": "earth"
+  },
+  "477": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "東海市周辺",
+    "element": "earth"
+  },
+  "478": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "知多市",
+    "element": "earth"
+  },
+  "479": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "常滑市",
+    "element": "earth"
+  },
+  "480": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "丹羽郡",
+    "element": "earth"
+  },
+  "481": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "北名古屋市",
+    "element": "earth"
+  },
+  "482": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "岩倉市",
+    "element": "earth"
+  },
+  "483": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "江南市",
+    "element": "earth"
+  },
+  "484": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "犬山市",
+    "element": "earth"
+  },
+  "485": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "小牧市",
+    "element": "earth"
+  },
+  "486": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "春日井市",
+    "element": "earth"
+  },
+  "487": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "春日井市周辺",
+    "element": "earth"
+  },
+  "488": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "尾張旭市",
+    "element": "earth"
+  },
+  "489": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "瀬戸市",
+    "element": "earth"
+  },
+  "490": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "海部郡",
+    "element": "earth"
+  },
+  "491": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "一宮市",
+    "element": "earth"
+  },
+  "492": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "稲沢市",
+    "element": "earth"
+  },
+  "493": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "あま市",
+    "element": "earth"
+  },
+  "494": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "愛西市",
+    "element": "earth"
+  },
+  "495": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "稲沢市周辺",
+    "element": "earth"
+  },
+  "496": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "津島市",
+    "element": "earth"
+  },
+  "497": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "海部郡周辺",
+    "element": "earth"
+  },
+  "498": {
+    "prefecture": "愛知県",
+    "prefectureCode": "23",
+    "name": "弥富市",
+    "element": "earth"
+  },
+  "500": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "岐阜市",
+    "element": "earth"
+  },
+  "501": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "岐阜市周辺",
+    "element": "earth"
+  },
+  "502": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "岐阜市北部",
+    "element": "earth"
+  },
+  "503": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "大垣市",
+    "element": "earth"
+  },
+  "504": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "各務原市",
+    "element": "earth"
+  },
+  "505": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "美濃加茂市",
+    "element": "earth"
+  },
+  "506": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "高山市",
+    "element": "earth"
+  },
+  "507": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "多治見市",
+    "element": "earth"
+  },
+  "508": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "中津川市",
+    "element": "earth"
+  },
+  "509": {
+    "prefecture": "岐阜県",
+    "prefectureCode": "21",
+    "name": "可児市",
+    "element": "earth"
+  },
+  "510": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "四日市市",
+    "element": "fire"
+  },
+  "511": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "桑名市",
+    "element": "fire"
+  },
+  "512": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "四日市市北部",
+    "element": "fire"
+  },
+  "513": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "鈴鹿市",
+    "element": "fire"
+  },
+  "514": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "津市",
+    "element": "fire"
+  },
+  "515": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "松阪市",
+    "element": "fire"
+  },
+  "516": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "伊勢市",
+    "element": "fire"
+  },
+  "517": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "鳥羽市",
+    "element": "fire"
+  },
+  "518": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "名張市",
+    "element": "fire"
+  },
+  "519": {
+    "prefecture": "三重県",
+    "prefectureCode": "24",
+    "name": "伊賀市",
+    "element": "fire"
+  },
+  "520": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "大津市",
+    "element": "fire"
+  },
+  "521": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "米原市",
+    "element": "fire"
+  },
+  "522": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "彦根市",
+    "element": "fire"
+  },
+  "523": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "近江八幡市",
+    "element": "fire"
+  },
+  "524": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "守山市",
+    "element": "fire"
+  },
+  "525": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "草津市",
+    "element": "fire"
+  },
+  "526": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "長浜市",
+    "element": "fire"
+  },
+  "527": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "東近江市",
+    "element": "fire"
+  },
+  "528": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "甲賀市",
+    "element": "fire"
+  },
+  "529": {
+    "prefecture": "滋賀県",
+    "prefectureCode": "25",
+    "name": "長浜市周辺",
+    "element": "fire"
+  },
+  "530": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市北区",
+    "element": "fire"
+  },
+  "531": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市北区周辺",
+    "element": "fire"
+  },
+  "532": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市淀川区",
+    "element": "fire"
+  },
+  "533": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市東淀川区",
+    "element": "fire"
+  },
+  "534": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市都島区",
+    "element": "fire"
+  },
+  "535": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市旭区",
+    "element": "fire"
+  },
+  "536": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市城東区",
+    "element": "fire"
+  },
+  "537": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市東成区",
+    "element": "fire"
+  },
+  "538": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市鶴見区",
+    "element": "fire"
+  },
+  "539": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市東成区周辺",
+    "element": "fire"
+  },
+  "540": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市中央区",
+    "element": "fire"
+  },
+  "541": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市中央区東",
+    "element": "fire"
+  },
+  "542": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市中央区南",
+    "element": "fire"
+  },
+  "543": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市天王寺区",
+    "element": "fire"
+  },
+  "544": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市生野区",
+    "element": "fire"
+  },
+  "545": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市阿倍野区",
+    "element": "fire"
+  },
+  "546": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市東住吉区",
+    "element": "fire"
+  },
+  "547": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市平野区",
+    "element": "fire"
+  },
+  "548": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市平野区周辺",
+    "element": "fire"
+  },
+  "549": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市周辺",
+    "element": "fire"
+  },
+  "550": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市西区",
+    "element": "fire"
+  },
+  "551": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市大正区",
+    "element": "fire"
+  },
+  "552": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市港区",
+    "element": "fire"
+  },
+  "553": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市福島区",
+    "element": "fire"
+  },
+  "554": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市此花区",
+    "element": "fire"
+  },
+  "555": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市西淀川区",
+    "element": "fire"
+  },
+  "556": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市浪速区",
+    "element": "fire"
+  },
+  "557": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市西成区",
+    "element": "fire"
+  },
+  "558": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市住吉区",
+    "element": "fire"
+  },
+  "559": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪市住之江区",
+    "element": "fire"
+  },
+  "560": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "豊中市",
+    "element": "fire"
+  },
+  "561": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "豊中市周辺",
+    "element": "fire"
+  },
+  "562": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "箕面市",
+    "element": "fire"
+  },
+  "563": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "池田市",
+    "element": "fire"
+  },
+  "564": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "吹田市",
+    "element": "fire"
+  },
+  "565": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "吹田市周辺",
+    "element": "fire"
+  },
+  "566": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "摂津市",
+    "element": "fire"
+  },
+  "567": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "茨木市",
+    "element": "fire"
+  },
+  "568": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "茨木市周辺",
+    "element": "fire"
+  },
+  "569": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "高槻市",
+    "element": "fire"
+  },
+  "570": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "守口市",
+    "element": "fire"
+  },
+  "571": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "門真市",
+    "element": "fire"
+  },
+  "572": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "寝屋川市",
+    "element": "fire"
+  },
+  "573": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "枚方市",
+    "element": "fire"
+  },
+  "574": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大東市",
+    "element": "fire"
+  },
+  "575": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "四條畷市",
+    "element": "fire"
+  },
+  "576": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "交野市",
+    "element": "fire"
+  },
+  "577": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "東大阪市",
+    "element": "fire"
+  },
+  "578": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "東大阪市周辺",
+    "element": "fire"
+  },
+  "579": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "東大阪市南部",
+    "element": "fire"
+  },
+  "580": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "松原市",
+    "element": "fire"
+  },
+  "581": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "八尾市",
+    "element": "fire"
+  },
+  "582": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "柏原市",
+    "element": "fire"
+  },
+  "583": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "藤井寺市",
+    "element": "fire"
+  },
+  "584": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "富田林市",
+    "element": "fire"
+  },
+  "585": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "南河内郡",
+    "element": "fire"
+  },
+  "586": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "河内長野市",
+    "element": "fire"
+  },
+  "587": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "堺市東区",
+    "element": "fire"
+  },
+  "588": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "堺市南区",
+    "element": "fire"
+  },
+  "589": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "大阪狭山市",
+    "element": "fire"
+  },
+  "590": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "堺市堺区",
+    "element": "fire"
+  },
+  "591": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "堺市北区",
+    "element": "fire"
+  },
+  "592": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "堺市西区",
+    "element": "fire"
+  },
+  "593": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "堺市周辺",
+    "element": "fire"
+  },
+  "594": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "和泉市",
+    "element": "fire"
+  },
+  "595": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "泉大津市",
+    "element": "fire"
+  },
+  "596": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "岸和田市",
+    "element": "fire"
+  },
+  "597": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "貝塚市",
+    "element": "fire"
+  },
+  "598": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "泉佐野市",
+    "element": "fire"
+  },
+  "599": {
+    "prefecture": "大阪府",
+    "prefectureCode": "27",
+    "name": "泉南市",
+    "element": "fire"
+  },
+  "600": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市下京区",
+    "element": "fire"
+  },
+  "601": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市南区",
+    "element": "fire"
+  },
+  "602": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市上京区",
+    "element": "fire"
+  },
+  "603": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市北区",
+    "element": "fire"
+  },
+  "604": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市中京区",
+    "element": "fire"
+  },
+  "605": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市東山区",
+    "element": "fire"
+  },
+  "606": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市左京区",
+    "element": "fire"
+  },
+  "607": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市山科区",
+    "element": "fire"
+  },
+  "608": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市南区周辺",
+    "element": "fire"
+  },
+  "609": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市西京区",
+    "element": "fire"
+  },
+  "610": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市伏見区",
+    "element": "fire"
+  },
+  "611": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "宇治市",
+    "element": "fire"
+  },
+  "612": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市伏見区南",
+    "element": "fire"
+  },
+  "613": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市伏見区東",
+    "element": "fire"
+  },
+  "614": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "八幡市",
+    "element": "fire"
+  },
+  "615": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市右京区",
+    "element": "fire"
+  },
+  "616": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京都市右京区北",
+    "element": "fire"
+  },
+  "617": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "向日市",
+    "element": "fire"
+  },
+  "618": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "大山崎町",
+    "element": "fire"
+  },
+  "619": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "木津川市",
+    "element": "fire"
+  },
+  "620": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "福知山市",
+    "element": "fire"
+  },
+  "621": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "亀岡市",
+    "element": "fire"
+  },
+  "622": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "南丹市",
+    "element": "fire"
+  },
+  "623": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "綾部市",
+    "element": "fire"
+  },
+  "624": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "舞鶴市",
+    "element": "fire"
+  },
+  "625": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "舞鶴市周辺",
+    "element": "fire"
+  },
+  "626": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "宮津市",
+    "element": "fire"
+  },
+  "627": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京丹後市",
+    "element": "fire"
+  },
+  "628": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "京丹後市周辺",
+    "element": "fire"
+  },
+  "629": {
+    "prefecture": "京都府",
+    "prefectureCode": "26",
+    "name": "船井郡",
+    "element": "fire"
+  },
+  "630": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "奈良市",
+    "element": "fire"
+  },
+  "631": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "奈良市西部",
+    "element": "fire"
+  },
+  "632": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "天理市",
+    "element": "fire"
+  },
+  "633": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "桜井市",
+    "element": "fire"
+  },
+  "634": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "橿原市",
+    "element": "fire"
+  },
+  "635": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "大和高田市",
+    "element": "fire"
+  },
+  "636": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "北葛城郡",
+    "element": "fire"
+  },
+  "637": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "五條市",
+    "element": "fire"
+  },
+  "638": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "吉野郡",
+    "element": "fire"
+  },
+  "639": {
+    "prefecture": "奈良県",
+    "prefectureCode": "29",
+    "name": "香芝市",
+    "element": "fire"
+  },
+  "640": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "和歌山市",
+    "element": "fire"
+  },
+  "641": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "和歌山市南部",
+    "element": "fire"
+  },
+  "642": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "海南市",
+    "element": "fire"
+  },
+  "643": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "有田市",
+    "element": "fire"
+  },
+  "644": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "日高郡",
+    "element": "fire"
+  },
+  "645": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "田辺市",
+    "element": "fire"
+  },
+  "646": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "田辺市周辺",
+    "element": "fire"
+  },
+  "647": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "新宮市",
+    "element": "fire"
+  },
+  "648": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "新宮市周辺",
+    "element": "fire"
+  },
+  "649": {
+    "prefecture": "和歌山県",
+    "prefectureCode": "30",
+    "name": "有田郡",
+    "element": "fire"
+  },
+  "650": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市中央区",
+    "element": "fire"
+  },
+  "651": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市中央区周辺",
+    "element": "fire"
+  },
+  "652": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市兵庫区",
+    "element": "fire"
+  },
+  "653": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市長田区",
+    "element": "fire"
+  },
+  "654": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市須磨区",
+    "element": "fire"
+  },
+  "655": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市垂水区",
+    "element": "fire"
+  },
+  "656": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "洲本市",
+    "element": "fire"
+  },
+  "657": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市灘区",
+    "element": "fire"
+  },
+  "658": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "神戸市東灘区",
+    "element": "fire"
+  },
+  "659": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "芦屋市",
+    "element": "fire"
+  },
+  "660": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "尼崎市",
+    "element": "fire"
+  },
+  "661": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "尼崎市北部",
+    "element": "fire"
+  },
+  "662": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "西宮市",
+    "element": "fire"
+  },
+  "663": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "西宮市南部",
+    "element": "fire"
+  },
+  "664": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "伊丹市",
+    "element": "fire"
+  },
+  "665": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "宝塚市",
+    "element": "fire"
+  },
+  "666": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "川西市",
+    "element": "fire"
+  },
+  "667": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "養父市",
+    "element": "fire"
+  },
+  "668": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "豊岡市",
+    "element": "fire"
+  },
+  "669": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "丹波篠山市",
+    "element": "fire"
+  },
+  "670": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "姫路市",
+    "element": "fire"
+  },
+  "671": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "姫路市周辺",
+    "element": "fire"
+  },
+  "672": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "姫路市南部",
+    "element": "fire"
+  },
+  "673": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "明石市",
+    "element": "fire"
+  },
+  "674": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "明石市周辺",
+    "element": "fire"
+  },
+  "675": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "加古川市",
+    "element": "fire"
+  },
+  "676": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "高砂市",
+    "element": "fire"
+  },
+  "677": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "西脇市",
+    "element": "fire"
+  },
+  "678": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "相生市",
+    "element": "fire"
+  },
+  "679": {
+    "prefecture": "兵庫県",
+    "prefectureCode": "28",
+    "name": "たつの市",
+    "element": "fire"
+  },
+  "680": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "鳥取市",
+    "element": "wood"
+  },
+  "681": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "鳥取市周辺",
+    "element": "wood"
+  },
+  "682": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "倉吉市",
+    "element": "wood"
+  },
+  "683": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "米子市",
+    "element": "wood"
+  },
+  "684": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "境港市",
+    "element": "wood"
+  },
+  "685": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "日野郡",
+    "element": "wood"
+  },
+  "686": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "日野郡周辺",
+    "element": "wood"
+  },
+  "687": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "八頭郡",
+    "element": "wood"
+  },
+  "688": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "八頭郡周辺",
+    "element": "wood"
+  },
+  "689": {
+    "prefecture": "鳥取県",
+    "prefectureCode": "31",
+    "name": "東伯郡",
+    "element": "wood"
+  },
+  "690": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "松江市",
+    "element": "wood"
+  },
+  "691": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "松江市周辺",
+    "element": "wood"
+  },
+  "692": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "安来市",
+    "element": "wood"
+  },
+  "693": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "出雲市",
+    "element": "wood"
+  },
+  "694": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "大田市",
+    "element": "wood"
+  },
+  "695": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "江津市",
+    "element": "wood"
+  },
+  "696": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "邑智郡",
+    "element": "wood"
+  },
+  "697": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "浜田市",
+    "element": "wood"
+  },
+  "698": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "益田市",
+    "element": "wood"
+  },
+  "699": {
+    "prefecture": "島根県",
+    "prefectureCode": "32",
+    "name": "仁多郡",
+    "element": "wood"
+  },
+  "700": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "岡山市北区",
+    "element": "wood"
+  },
+  "701": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "岡山市南区",
+    "element": "wood"
+  },
+  "702": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "岡山市東区",
+    "element": "wood"
+  },
+  "703": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "岡山市中区",
+    "element": "wood"
+  },
+  "704": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "岡山市東区周辺",
+    "element": "wood"
+  },
+  "705": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "備前市",
+    "element": "wood"
+  },
+  "706": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "玉野市",
+    "element": "wood"
+  },
+  "707": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "美作市",
+    "element": "wood"
+  },
+  "708": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "津山市",
+    "element": "wood"
+  },
+  "709": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "赤磐市",
+    "element": "wood"
+  },
+  "710": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "倉敷市",
+    "element": "wood"
+  },
+  "711": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "倉敷市周辺",
+    "element": "wood"
+  },
+  "712": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "倉敷市水島",
+    "element": "wood"
+  },
+  "713": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "倉敷市南部",
+    "element": "wood"
+  },
+  "714": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "笠岡市",
+    "element": "wood"
+  },
+  "715": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "井原市",
+    "element": "wood"
+  },
+  "716": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "高梁市",
+    "element": "wood"
+  },
+  "717": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "新見市",
+    "element": "wood"
+  },
+  "718": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "新見市周辺",
+    "element": "wood"
+  },
+  "719": {
+    "prefecture": "岡山県",
+    "prefectureCode": "33",
+    "name": "総社市",
+    "element": "wood"
+  },
+  "720": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "福山市",
+    "element": "wood"
+  },
+  "721": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "福山市周辺",
+    "element": "wood"
+  },
+  "722": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "尾道市",
+    "element": "wood"
+  },
+  "723": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "三原市",
+    "element": "wood"
+  },
+  "724": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "竹原市",
+    "element": "wood"
+  },
+  "725": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "竹原市周辺",
+    "element": "wood"
+  },
+  "726": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "府中市",
+    "element": "wood"
+  },
+  "727": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "庄原市",
+    "element": "wood"
+  },
+  "728": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "三次市",
+    "element": "wood"
+  },
+  "729": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "神石郡",
+    "element": "wood"
+  },
+  "730": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "広島市中区",
+    "element": "wood"
+  },
+  "731": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "広島市安佐南区",
+    "element": "wood"
+  },
+  "732": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "広島市東区",
+    "element": "wood"
+  },
+  "733": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "広島市西区",
+    "element": "wood"
+  },
+  "734": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "広島市南区",
+    "element": "wood"
+  },
+  "735": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "安芸郡",
+    "element": "wood"
+  },
+  "736": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "安芸郡周辺",
+    "element": "wood"
+  },
+  "737": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "呉市",
+    "element": "wood"
+  },
+  "738": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "廿日市市",
+    "element": "wood"
+  },
+  "739": {
+    "prefecture": "広島県",
+    "prefectureCode": "34",
+    "name": "東広島市",
+    "element": "wood"
+  },
+  "740": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "岩国市",
+    "element": "wood"
+  },
+  "741": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "岩国市周辺",
+    "element": "wood"
+  },
+  "742": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "柳井市",
+    "element": "wood"
+  },
+  "743": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "光市",
+    "element": "wood"
+  },
+  "744": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "下松市",
+    "element": "wood"
+  },
+  "745": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "周南市",
+    "element": "wood"
+  },
+  "746": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "周南市周辺",
+    "element": "wood"
+  },
+  "747": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "防府市",
+    "element": "wood"
+  },
+  "748": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "防府市周辺",
+    "element": "wood"
+  },
+  "749": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "防府市南部",
+    "element": "wood"
+  },
+  "750": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "下関市",
+    "element": "wood"
+  },
+  "751": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "下関市周辺",
+    "element": "wood"
+  },
+  "752": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "下関市南部",
+    "element": "wood"
+  },
+  "753": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "山口市",
+    "element": "wood"
+  },
+  "754": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "山口市周辺",
+    "element": "wood"
+  },
+  "755": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "宇部市",
+    "element": "wood"
+  },
+  "756": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "山陽小野田市",
+    "element": "wood"
+  },
+  "757": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "山口市南部",
+    "element": "wood"
+  },
+  "758": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "萩市",
+    "element": "wood"
+  },
+  "759": {
+    "prefecture": "山口県",
+    "prefectureCode": "35",
+    "name": "長門市",
+    "element": "wood"
+  },
+  "760": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "高松市",
+    "element": "wood"
+  },
+  "761": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "高松市周辺",
+    "element": "wood"
+  },
+  "762": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "坂出市",
+    "element": "wood"
+  },
+  "763": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "丸亀市",
+    "element": "wood"
+  },
+  "764": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "仲多度郡",
+    "element": "wood"
+  },
+  "765": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "善通寺市",
+    "element": "wood"
+  },
+  "766": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "三豊市",
+    "element": "wood"
+  },
+  "767": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "三豊市周辺",
+    "element": "wood"
+  },
+  "768": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "観音寺市",
+    "element": "wood"
+  },
+  "769": {
+    "prefecture": "香川県",
+    "prefectureCode": "37",
+    "name": "観音寺市周辺",
+    "element": "wood"
+  },
+  "770": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "徳島市",
+    "element": "wood"
+  },
+  "771": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "徳島市周辺",
+    "element": "wood"
+  },
+  "772": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "鳴門市",
+    "element": "wood"
+  },
+  "773": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "小松島市",
+    "element": "wood"
+  },
+  "774": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "阿南市",
+    "element": "wood"
+  },
+  "775": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "阿波市",
+    "element": "wood"
+  },
+  "776": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "吉野川市",
+    "element": "wood"
+  },
+  "777": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "美馬市",
+    "element": "wood"
+  },
+  "778": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "三好市",
+    "element": "wood"
+  },
+  "779": {
+    "prefecture": "徳島県",
+    "prefectureCode": "36",
+    "name": "三好郡",
+    "element": "wood"
+  },
+  "780": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "高知市",
+    "element": "wood"
+  },
+  "781": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "高知市周辺",
+    "element": "wood"
+  },
+  "782": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "香美市",
+    "element": "wood"
+  },
+  "783": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "南国市",
+    "element": "wood"
+  },
+  "784": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "安芸市",
+    "element": "wood"
+  },
+  "785": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "須崎市",
+    "element": "wood"
+  },
+  "786": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "高岡郡",
+    "element": "wood"
+  },
+  "787": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "四万十市",
+    "element": "wood"
+  },
+  "788": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "宿毛市",
+    "element": "wood"
+  },
+  "789": {
+    "prefecture": "高知県",
+    "prefectureCode": "39",
+    "name": "長岡郡",
+    "element": "wood"
+  },
+  "790": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "松山市",
+    "element": "wood"
+  },
+  "791": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "松山市周辺",
+    "element": "wood"
+  },
+  "792": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "新居浜市",
+    "element": "wood"
+  },
+  "793": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "西条市",
+    "element": "wood"
+  },
+  "794": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "今治市",
+    "element": "wood"
+  },
+  "795": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "大洲市",
+    "element": "wood"
+  },
+  "796": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "八幡浜市",
+    "element": "wood"
+  },
+  "797": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "西予市",
+    "element": "wood"
+  },
+  "798": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "宇和島市",
+    "element": "wood"
+  },
+  "799": {
+    "prefecture": "愛媛県",
+    "prefectureCode": "38",
+    "name": "四国中央市",
+    "element": "wood"
+  },
+  "800": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市門司区",
+    "element": "fire"
+  },
+  "801": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市門司区周辺",
+    "element": "fire"
+  },
+  "802": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市小倉北区",
+    "element": "fire"
+  },
+  "803": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市小倉北区周辺",
+    "element": "fire"
+  },
+  "804": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市戸畑区",
+    "element": "fire"
+  },
+  "805": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市八幡東区",
+    "element": "fire"
+  },
+  "806": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市八幡西区",
+    "element": "fire"
+  },
+  "807": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市八幡西区周辺",
+    "element": "fire"
+  },
+  "808": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "北九州市若松区",
+    "element": "fire"
+  },
+  "809": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "中間市",
+    "element": "fire"
+  },
+  "810": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市中央区",
+    "element": "fire"
+  },
+  "811": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市東区",
+    "element": "fire"
+  },
+  "812": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市博多区",
+    "element": "fire"
+  },
+  "813": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市東区周辺",
+    "element": "fire"
+  },
+  "814": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市早良区",
+    "element": "fire"
+  },
+  "815": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市南区",
+    "element": "fire"
+  },
+  "816": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "春日市",
+    "element": "fire"
+  },
+  "817": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "対馬市",
+    "element": "fire"
+  },
+  "818": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "筑紫野市",
+    "element": "fire"
+  },
+  "819": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "福岡市西区",
+    "element": "fire"
+  },
+  "820": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "飯塚市",
+    "element": "fire"
+  },
+  "821": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "嘉穂郡",
+    "element": "fire"
+  },
+  "822": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "直方市",
+    "element": "fire"
+  },
+  "823": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "宮若市",
+    "element": "fire"
+  },
+  "824": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "行橋市",
+    "element": "fire"
+  },
+  "825": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "田川市",
+    "element": "fire"
+  },
+  "826": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "田川郡",
+    "element": "fire"
+  },
+  "827": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "田川郡周辺",
+    "element": "fire"
+  },
+  "828": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "豊前市",
+    "element": "fire"
+  },
+  "829": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "田川郡南部",
+    "element": "fire"
+  },
+  "830": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "久留米市",
+    "element": "fire"
+  },
+  "831": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "久留米市周辺",
+    "element": "fire"
+  },
+  "832": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "柳川市",
+    "element": "fire"
+  },
+  "833": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "筑後市",
+    "element": "fire"
+  },
+  "834": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "八女市",
+    "element": "fire"
+  },
+  "835": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "みやま市",
+    "element": "fire"
+  },
+  "836": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "大牟田市",
+    "element": "fire"
+  },
+  "837": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "大牟田市周辺",
+    "element": "fire"
+  },
+  "838": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "朝倉市",
+    "element": "fire"
+  },
+  "839": {
+    "prefecture": "福岡県",
+    "prefectureCode": "40",
+    "name": "うきは市",
+    "element": "fire"
+  },
+  "840": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "佐賀市",
+    "element": "fire"
+  },
+  "841": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "鳥栖市",
+    "element": "fire"
+  },
+  "842": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "神埼市",
+    "element": "fire"
+  },
+  "843": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "唐津市",
+    "element": "fire"
+  },
+  "844": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "西松浦郡",
+    "element": "fire"
+  },
+  "845": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "小城市",
+    "element": "fire"
+  },
+  "846": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "多久市",
+    "element": "fire"
+  },
+  "847": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "唐津市周辺",
+    "element": "fire"
+  },
+  "848": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "伊万里市",
+    "element": "fire"
+  },
+  "849": {
+    "prefecture": "佐賀県",
+    "prefectureCode": "41",
+    "name": "鹿島市",
+    "element": "fire"
+  },
+  "850": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "長崎市",
+    "element": "fire"
+  },
+  "851": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "長崎市周辺",
+    "element": "fire"
+  },
+  "852": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "長崎市北部",
+    "element": "fire"
+  },
+  "853": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "五島市",
+    "element": "fire"
+  },
+  "854": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "諫早市",
+    "element": "fire"
+  },
+  "855": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "島原市",
+    "element": "fire"
+  },
+  "856": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "大村市",
+    "element": "fire"
+  },
+  "857": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "佐世保市",
+    "element": "fire"
+  },
+  "858": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "佐世保市周辺",
+    "element": "fire"
+  },
+  "859": {
+    "prefecture": "長崎県",
+    "prefectureCode": "42",
+    "name": "東彼杵郡",
+    "element": "fire"
+  },
+  "860": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "熊本市中央区",
+    "element": "fire"
+  },
+  "861": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "熊本市周辺",
+    "element": "fire"
+  },
+  "862": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "熊本市南区",
+    "element": "fire"
+  },
+  "863": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "天草市",
+    "element": "fire"
+  },
+  "864": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "荒尾市",
+    "element": "fire"
+  },
+  "865": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "玉名市",
+    "element": "fire"
+  },
+  "866": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "八代市",
+    "element": "fire"
+  },
+  "867": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "人吉市",
+    "element": "fire"
+  },
+  "868": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "球磨郡",
+    "element": "fire"
+  },
+  "869": {
+    "prefecture": "熊本県",
+    "prefectureCode": "43",
+    "name": "宇土市",
+    "element": "fire"
+  },
+  "870": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "大分市",
+    "element": "fire"
+  },
+  "871": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "中津市",
+    "element": "fire"
+  },
+  "872": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "宇佐市",
+    "element": "fire"
+  },
+  "873": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "杵築市",
+    "element": "fire"
+  },
+  "874": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "別府市",
+    "element": "fire"
+  },
+  "875": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "臼杵市",
+    "element": "fire"
+  },
+  "876": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "佐伯市",
+    "element": "fire"
+  },
+  "877": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "日田市",
+    "element": "fire"
+  },
+  "878": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "竹田市",
+    "element": "fire"
+  },
+  "879": {
+    "prefecture": "大分県",
+    "prefectureCode": "44",
+    "name": "由布市",
+    "element": "fire"
+  },
+  "880": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "宮崎市",
+    "element": "fire"
+  },
+  "881": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "西都市",
+    "element": "fire"
+  },
+  "882": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "延岡市",
+    "element": "fire"
+  },
+  "883": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "日向市",
+    "element": "fire"
+  },
+  "884": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "児湯郡",
+    "element": "fire"
+  },
+  "885": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "都城市",
+    "element": "fire"
+  },
+  "886": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "小林市",
+    "element": "fire"
+  },
+  "887": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "日南市",
+    "element": "fire"
+  },
+  "888": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "串間市",
+    "element": "fire"
+  },
+  "889": {
+    "prefecture": "宮崎県",
+    "prefectureCode": "45",
+    "name": "宮崎郡",
+    "element": "fire"
+  },
+  "890": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "鹿児島市",
+    "element": "fire"
+  },
+  "891": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "鹿児島市周辺",
+    "element": "fire"
+  },
+  "892": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "鹿児島市中央",
+    "element": "fire"
+  },
+  "893": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "鹿屋市",
+    "element": "fire"
+  },
+  "894": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "奄美市",
+    "element": "fire"
+  },
+  "895": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "薩摩川内市",
+    "element": "fire"
+  },
+  "896": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "いちき串木野市",
+    "element": "fire"
+  },
+  "897": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "南さつま市",
+    "element": "fire"
+  },
+  "898": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "枕崎市",
+    "element": "fire"
+  },
+  "899": {
+    "prefecture": "鹿児島県",
+    "prefectureCode": "46",
+    "name": "霧島市",
+    "element": "fire"
+  },
+  "900": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "那覇市",
+    "element": "fire"
+  },
+  "901": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "那覇市周辺",
+    "element": "fire"
+  },
+  "902": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "那覇市東部",
+    "element": "fire"
+  },
+  "903": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "名護市",
+    "element": "fire"
+  },
+  "904": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "沖縄市",
+    "element": "fire"
+  },
+  "905": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "名護市周辺",
+    "element": "fire"
+  },
+  "906": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "宮古島市",
+    "element": "fire"
+  },
+  "907": {
+    "prefecture": "沖縄県",
+    "prefectureCode": "47",
+    "name": "石垣市",
+    "element": "fire"
+  },
+  "910": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "福井市",
+    "element": "earth"
+  },
+  "911": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "勝山市",
+    "element": "earth"
+  },
+  "912": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "大野市",
+    "element": "earth"
+  },
+  "913": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "坂井市周辺",
+    "element": "earth"
+  },
+  "914": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "敦賀市",
+    "element": "earth"
+  },
+  "915": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "越前市",
+    "element": "earth"
+  },
+  "916": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "鯖江市",
+    "element": "earth"
+  },
+  "917": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "小浜市",
+    "element": "earth"
+  },
+  "918": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "福井市周辺",
+    "element": "earth"
+  },
+  "919": {
+    "prefecture": "福井県",
+    "prefectureCode": "18",
+    "name": "坂井市",
+    "element": "earth"
+  },
+  "920": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "金沢市",
+    "element": "earth"
+  },
+  "921": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "金沢市南部",
+    "element": "earth"
+  },
+  "922": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "加賀市",
+    "element": "earth"
+  },
+  "923": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "小松市",
+    "element": "earth"
+  },
+  "924": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "白山市",
+    "element": "earth"
+  },
+  "925": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "羽咋市",
+    "element": "earth"
+  },
+  "926": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "七尾市",
+    "element": "earth"
+  },
+  "927": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "珠洲市",
+    "element": "earth"
+  },
+  "928": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "輪島市周辺",
+    "element": "earth"
+  },
+  "929": {
+    "prefecture": "石川県",
+    "prefectureCode": "17",
+    "name": "かほく市",
+    "element": "earth"
+  },
+  "930": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "富山市",
+    "element": "earth"
+  },
+  "931": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "富山市周辺",
+    "element": "earth"
+  },
+  "932": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "小矢部市",
+    "element": "earth"
+  },
+  "933": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "高岡市",
+    "element": "earth"
+  },
+  "934": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "射水市",
+    "element": "earth"
+  },
+  "935": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "氷見市",
+    "element": "earth"
+  },
+  "936": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "滑川市",
+    "element": "earth"
+  },
+  "937": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "魚津市",
+    "element": "earth"
+  },
+  "938": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "黒部市",
+    "element": "earth"
+  },
+  "939": {
+    "prefecture": "富山県",
+    "prefectureCode": "16",
+    "name": "南砺市",
+    "element": "earth"
+  },
+  "940": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "長岡市",
+    "element": "earth"
+  },
+  "941": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "糸魚川市周辺",
+    "element": "earth"
+  },
+  "942": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "十日町市",
+    "element": "earth"
+  },
+  "943": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "小千谷市",
+    "element": "earth"
+  },
+  "944": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "妙高市",
+    "element": "earth"
+  },
+  "945": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "柏崎市",
+    "element": "earth"
+  },
+  "946": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "魚沼市",
+    "element": "earth"
+  },
+  "947": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "小千谷市周辺",
+    "element": "earth"
+  },
+  "948": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "十日町市周辺",
+    "element": "earth"
+  },
+  "949": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "南魚沼市",
+    "element": "earth"
+  },
+  "950": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "新潟市中央区",
+    "element": "earth"
+  },
+  "951": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "新潟市中央区周辺",
+    "element": "earth"
+  },
+  "952": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "佐渡市",
+    "element": "earth"
+  },
+  "953": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "新潟市西蒲区",
+    "element": "earth"
+  },
+  "954": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "見附市",
+    "element": "earth"
+  },
+  "955": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "三条市",
+    "element": "earth"
+  },
+  "956": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "新潟市秋葉区",
+    "element": "earth"
+  },
+  "957": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "新発田市",
+    "element": "earth"
+  },
+  "958": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "村上市",
+    "element": "earth"
+  },
+  "959": {
+    "prefecture": "新潟県",
+    "prefectureCode": "15",
+    "name": "燕市",
+    "element": "earth"
+  },
+  "960": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "福島市",
+    "element": "water"
+  },
+  "961": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "白河市",
+    "element": "water"
+  },
+  "962": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "須賀川市",
+    "element": "water"
+  },
+  "963": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "郡山市",
+    "element": "water"
+  },
+  "964": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "二本松市",
+    "element": "water"
+  },
+  "965": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "会津若松市",
+    "element": "water"
+  },
+  "966": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "南会津郡",
+    "element": "water"
+  },
+  "967": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "南会津郡周辺",
+    "element": "water"
+  },
+  "968": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "大沼郡",
+    "element": "water"
+  },
+  "969": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "耶麻郡",
+    "element": "water"
+  },
+  "970": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "いわき市",
+    "element": "water"
+  },
+  "971": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "いわき市周辺",
+    "element": "water"
+  },
+  "972": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "いわき市南部",
+    "element": "water"
+  },
+  "973": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "いわき市東部",
+    "element": "water"
+  },
+  "974": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "いわき市北部",
+    "element": "water"
+  },
+  "975": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "いわき市西部",
+    "element": "water"
+  },
+  "976": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "相馬市",
+    "element": "water"
+  },
+  "977": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "相馬郡",
+    "element": "water"
+  },
+  "978": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "双葉郡",
+    "element": "water"
+  },
+  "979": {
+    "prefecture": "福島県",
+    "prefectureCode": "07",
+    "name": "双葉郡周辺",
+    "element": "water"
+  },
+  "980": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "仙台市青葉区",
+    "element": "water"
+  },
+  "981": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "仙台市青葉区周辺",
+    "element": "water"
+  },
+  "982": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "仙台市太白区",
+    "element": "water"
+  },
+  "983": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "仙台市宮城野区",
+    "element": "water"
+  },
+  "984": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "仙台市若林区",
+    "element": "water"
+  },
+  "985": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "塩竈市",
+    "element": "water"
+  },
+  "986": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "石巻市",
+    "element": "water"
+  },
+  "987": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "登米市",
+    "element": "water"
+  },
+  "988": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "気仙沼市",
+    "element": "water"
+  },
+  "989": {
+    "prefecture": "宮城県",
+    "prefectureCode": "04",
+    "name": "白石市",
+    "element": "water"
+  },
+  "990": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "山形市",
+    "element": "water"
+  },
+  "991": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "寒河江市",
+    "element": "water"
+  },
+  "992": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "米沢市",
+    "element": "water"
+  },
+  "993": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "長井市",
+    "element": "water"
+  },
+  "994": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "天童市",
+    "element": "water"
+  },
+  "995": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "村山市",
+    "element": "water"
+  },
+  "996": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "新庄市",
+    "element": "water"
+  },
+  "997": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "鶴岡市",
+    "element": "water"
+  },
+  "998": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "酒田市",
+    "element": "water"
+  },
+  "999": {
+    "prefecture": "山形県",
+    "prefectureCode": "06",
+    "name": "最上郡",
+    "element": "water"
+  },
+  "001": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市北区",
+    "element": "water"
+  },
+  "002": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市北区篠路",
+    "element": "water"
+  },
+  "003": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市白石区",
+    "element": "water"
+  },
+  "004": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市厚別区",
+    "element": "water"
+  },
+  "005": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市南区",
+    "element": "water"
+  },
+  "006": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市手稲区",
+    "element": "water"
+  },
+  "007": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市北区太平",
+    "element": "water"
+  },
+  "008": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市中央区",
+    "element": "water"
+  },
+  "009": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市清田区",
+    "element": "water"
+  },
+  "010": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "秋田市",
+    "element": "water"
+  },
+  "011": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "秋田市南部",
+    "element": "water"
+  },
+  "012": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "湯沢市",
+    "element": "water"
+  },
+  "013": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "横手市",
+    "element": "water"
+  },
+  "014": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "大仙市",
+    "element": "water"
+  },
+  "015": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "由利本荘市",
+    "element": "water"
+  },
+  "016": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "能代市",
+    "element": "water"
+  },
+  "017": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "大館市",
+    "element": "water"
+  },
+  "018": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "にかほ市周辺",
+    "element": "water"
+  },
+  "019": {
+    "prefecture": "秋田県",
+    "prefectureCode": "05",
+    "name": "秋田市河辺",
+    "element": "water"
+  },
+  "020": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "盛岡市",
+    "element": "water"
+  },
+  "021": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "盛岡市南部",
+    "element": "water"
+  },
+  "022": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "大船渡市",
+    "element": "water"
+  },
+  "023": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "奥州市",
+    "element": "water"
+  },
+  "024": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "北上市",
+    "element": "water"
+  },
+  "025": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "花巻市",
+    "element": "water"
+  },
+  "026": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "釜石市",
+    "element": "water"
+  },
+  "027": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "一関市",
+    "element": "water"
+  },
+  "028": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "岩手郡",
+    "element": "water"
+  },
+  "029": {
+    "prefecture": "岩手県",
+    "prefectureCode": "03",
+    "name": "一関市周辺",
+    "element": "water"
+  },
+  "030": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "青森市",
+    "element": "water"
+  },
+  "031": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "八戸市",
+    "element": "water"
+  },
+  "032": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "十和田市周辺",
+    "element": "water"
+  },
+  "033": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "三沢市",
+    "element": "water"
+  },
+  "034": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "十和田市",
+    "element": "water"
+  },
+  "035": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "むつ市",
+    "element": "water"
+  },
+  "036": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "弘前市",
+    "element": "water"
+  },
+  "037": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "五所川原市",
+    "element": "water"
+  },
+  "038": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "南津軽郡",
+    "element": "water"
+  },
+  "039": {
+    "prefecture": "青森県",
+    "prefectureCode": "02",
+    "name": "三戸郡",
+    "element": "water"
+  },
+  "040": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "函館市",
+    "element": "water"
+  },
+  "041": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "函館市周辺",
+    "element": "water"
+  },
+  "042": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "函館市西部",
+    "element": "water"
+  },
+  "043": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "檜山郡",
+    "element": "water"
+  },
+  "044": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "虻田郡",
+    "element": "water"
+  },
+  "045": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "岩内郡",
+    "element": "water"
+  },
+  "046": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "余市郡",
+    "element": "water"
+  },
+  "047": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "小樽市",
+    "element": "water"
+  },
+  "048": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "余市郡周辺",
+    "element": "water"
+  },
+  "049": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "虻田郡北部",
+    "element": "water"
+  },
+  "050": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "室蘭市",
+    "element": "water"
+  },
+  "051": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "室蘭市周辺",
+    "element": "water"
+  },
+  "052": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "伊達市",
+    "element": "water"
+  },
+  "053": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "苫小牧市",
+    "element": "water"
+  },
+  "054": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "勇払郡",
+    "element": "water"
+  },
+  "055": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "沙流郡",
+    "element": "water"
+  },
+  "056": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "浦河郡",
+    "element": "water"
+  },
+  "057": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "浦河町周辺",
+    "element": "water"
+  },
+  "058": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "幌泉郡",
+    "element": "water"
+  },
+  "059": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "日高郡",
+    "element": "water"
+  },
+  "060": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市中央区",
+    "element": "water"
+  },
+  "061": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市周辺",
+    "element": "water"
+  },
+  "062": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市豊平区",
+    "element": "water"
+  },
+  "063": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市西区",
+    "element": "water"
+  },
+  "064": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市中央区南",
+    "element": "water"
+  },
+  "065": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "札幌市東区",
+    "element": "water"
+  },
+  "066": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "千歳市",
+    "element": "water"
+  },
+  "067": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "江別市",
+    "element": "water"
+  },
+  "068": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "岩見沢市",
+    "element": "water"
+  },
+  "069": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "江別市周辺",
+    "element": "water"
+  },
+  "070": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "旭川市",
+    "element": "water"
+  },
+  "071": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "旭川市周辺",
+    "element": "water"
+  },
+  "072": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "美唄市",
+    "element": "water"
+  },
+  "073": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "滝川市",
+    "element": "water"
+  },
+  "074": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "深川市",
+    "element": "water"
+  },
+  "075": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "芦別市",
+    "element": "water"
+  },
+  "076": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "富良野市",
+    "element": "water"
+  },
+  "077": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "留萌市",
+    "element": "water"
+  },
+  "078": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "旭川市東部",
+    "element": "water"
+  },
+  "079": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "上川郡",
+    "element": "water"
+  },
+  "080": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "帯広市",
+    "element": "water"
+  },
+  "081": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "帯広市周辺",
+    "element": "water"
+  },
+  "082": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "河西郡",
+    "element": "water"
+  },
+  "083": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "中川郡",
+    "element": "water"
+  },
+  "084": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "釧路市",
+    "element": "water"
+  },
+  "085": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "釧路市周辺",
+    "element": "water"
+  },
+  "086": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "釧路郡",
+    "element": "water"
+  },
+  "087": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "根室市",
+    "element": "water"
+  },
+  "088": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "釧路町",
+    "element": "water"
+  },
+  "089": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "中川郡周辺",
+    "element": "water"
+  },
+  "090": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "北見市",
+    "element": "water"
+  },
+  "091": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "北見市周辺",
+    "element": "water"
+  },
+  "092": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "網走郡",
+    "element": "water"
+  },
+  "093": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "網走市",
+    "element": "water"
+  },
+  "094": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "紋別市",
+    "element": "water"
+  },
+  "095": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "士別市",
+    "element": "water"
+  },
+  "096": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "名寄市",
+    "element": "water"
+  },
+  "097": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "稚内市",
+    "element": "water"
+  },
+  "098": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "天塩郡",
+    "element": "water"
+  },
+  "099": {
+    "prefecture": "北海道",
+    "prefectureCode": "01",
+    "name": "紋別郡",
+    "element": "water"
+  }
+}
