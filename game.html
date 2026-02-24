@@ -3,1717 +3,2019 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>アメーバ・シティ - あなたの街を守ろう！</title>
-
-  <!-- OGP Meta Tags -->
-  <meta property="og:title" content="アメーバ・シティ - あなたの街を守ろう！">
-  <meta property="og:description" content="12万体のゆるキャラで日本を防衛するゲーム。都道府県ランキングで1位を目指せ！">
+  <title>アメーバ・シティ - 12万体のゆるキャラで日本を守れ</title>
+  <meta property="og:title" content="アメーバ・シティ - 12万体のゆるキャラで日本を守れ">
+  <meta property="og:description" content="日本全国12万体のゆるキャラを集めて、アメーバから街を防衛しよう！">
   <meta property="og:image" content="https://img.mascodex.com/game-ogp.png">
   <meta property="og:url" content="https://mascodex.com/game.html">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="アメーバ・シティ - あなたの街を守ろう！">
-  <meta name="twitter:description" content="12万体のゆるキャラで日本を防衛するゲーム。都道府県ランキングで1位を目指せ！">
-  <meta name="twitter:image" content="https://img.mascodex.com/game-ogp.png">
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      background: #0f0c29;
       color: #fff;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── Header ─────────────────────────────────── */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 24px;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .header-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #e94560, #ff6b81);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 0.04em;
-    }
-    .header-nav { display: flex; gap: 16px; align-items: center; }
-    .header-nav a {
-      color: rgba(255,255,255,0.65);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.2s;
-    }
-    .header-nav a:hover { color: #fff; }
+    /* ── Scrollbar ─────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
 
-    /* ── Main Layout ────────────────────────────── */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      grid-template-rows: 1fr auto;
-      gap: 0;
-      min-height: calc(100vh - 56px);
-    }
-
-    /* ── Rankings Sidebar ───────────────────────── */
-    .rankings-sidebar {
-      grid-row: 1 / 3;
-      background: rgba(255,255,255,0.03);
-      border-right: 1px solid rgba(255,255,255,0.06);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .rankings-header {
-      padding: 16px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.9);
-      flex-shrink: 0;
-    }
-    .rankings-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 0;
-    }
-    .rankings-list::-webkit-scrollbar { width: 4px; }
-    .rankings-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-
-    .rank-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      cursor: pointer;
-      transition: background 0.15s;
-      font-size: 0.85rem;
-    }
-    .rank-item:hover { background: rgba(255,255,255,0.06); }
-    .rank-item.active { background: rgba(233,69,96,0.15); }
-
-    .rank-num {
-      width: 24px;
-      text-align: right;
-      font-weight: 700;
-      color: rgba(255,255,255,0.5);
-      font-size: 0.8rem;
-    }
-    .rank-item:nth-child(1) .rank-num { color: #ffd700; }
-    .rank-item:nth-child(2) .rank-num { color: #c0c0c0; }
-    .rank-item:nth-child(3) .rank-num { color: #cd7f32; }
-
-    .rank-name { flex: 1; }
-    .rank-change {
-      font-size: 0.75rem;
-      font-weight: 600;
-      min-width: 28px;
-      text-align: right;
-    }
-    .rank-change.up { color: #4caf50; }
-    .rank-change.down { color: #f44336; }
-    .rank-change.same { color: rgba(255,255,255,0.25); }
-
-    .rank-score {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.4);
-      min-width: 36px;
-      text-align: right;
-    }
-
-    /* ── Map Area ───────────────────────────────── */
-    .map-area {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      overflow: hidden;
-    }
-
-    .japan-map-container {
-      position: relative;
-      width: 100%;
-      max-width: 560px;
-    }
-
-    .japan-map-container svg { width: 100%; height: auto; }
-
-    .pref-rect {
-      stroke: rgba(255,255,255,0.15);
-      stroke-width: 1;
-      cursor: pointer;
-      transition: opacity 0.2s, stroke-width 0.15s;
-    }
-    .pref-rect:hover {
-      opacity: 0.85;
-      stroke: #fff;
-      stroke-width: 2;
-    }
-    .pref-rect.selected {
-      stroke: #e94560;
-      stroke-width: 2.5;
-    }
-
-    .pref-label {
-      font-size: 7px;
-      fill: rgba(255,255,255,0.85);
-      pointer-events: none;
-      text-anchor: middle;
-      dominant-baseline: central;
-      font-weight: 600;
-    }
-
-    /* Amoeba dots on map */
-    .amoeba-dot {
-      animation: amoebaPulse 2s ease-in-out infinite;
-    }
-    @keyframes amoebaPulse {
-      0%, 100% { r: 4; opacity: 0.8; }
-      50% { r: 7; opacity: 0.4; }
-    }
-
-    /* Prefecture detail tooltip */
-    .pref-detail-panel {
-      position: absolute;
-      right: 24px;
-      top: 24px;
-      width: 260px;
-      background: rgba(20,20,40,0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 20px;
-      display: none;
-      z-index: 10;
-    }
-    .pref-detail-panel.visible { display: block; }
-    .pref-detail-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    .pref-detail-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      padding: 4px 0;
-      color: rgba(255,255,255,0.7);
-    }
-    .pref-detail-row span:last-child { color: #fff; font-weight: 600; }
-    .pref-detail-close {
-      position: absolute;
-      top: 12px;
-      right: 14px;
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.5);
-      font-size: 1.1rem;
-      cursor: pointer;
-    }
-    .pref-detail-close:hover { color: #fff; }
-
-    .hp-bar-container {
-      width: 100%;
-      height: 8px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      margin: 8px 0;
-    }
-    .hp-bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.6s ease, background-color 0.6s ease;
-    }
-
-    /* Map legend */
-    .map-legend {
-      position: absolute;
-      bottom: 16px;
-      left: 24px;
-      display: flex;
-      gap: 12px;
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.55);
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .legend-swatch {
-      width: 12px;
-      height: 8px;
-      border-radius: 2px;
-    }
-
-    /* Active amoeba count badge */
-    .amoeba-badge {
-      position: absolute;
-      top: 16px;
-      left: 24px;
-      background: rgba(233,69,96,0.2);
-      border: 1px solid rgba(233,69,96,0.4);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .amoeba-badge-dot {
-      width: 8px;
-      height: 8px;
-      background: #e94560;
-      border-radius: 50%;
-      animation: amoebaBadgePulse 1.5s ease-in-out infinite;
-    }
-    @keyframes amoebaBadgePulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* ── Bottom Panel ───────────────────────────── */
-    .bottom-panel {
-      background: rgba(255,255,255,0.04);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 20px 24px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    /* Character display */
-    .character-section {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-shrink: 0;
-    }
-    .character-img-wrap {
-      width: 72px;
-      height: 72px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.15);
-      flex-shrink: 0;
-    }
-    .character-img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .character-info { font-size: 0.85rem; }
-    .character-name { font-weight: 700; margin-bottom: 2px; }
-    .character-level {
-      color: rgba(255,255,255,0.5);
-      font-size: 0.78rem;
-      margin-bottom: 6px;
-    }
-    .character-xp-bar {
-      width: 120px;
-      height: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .character-xp-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      border-radius: 2px;
-      transition: width 0.5s ease;
-    }
-
-    .character-district {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.5);
-    }
-    .character-district-hp {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .district-hp-bar {
-      width: 100px;
-      height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .district-hp-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.6s ease, background-color 0.6s ease;
-    }
-    .district-hp-text {
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.5);
-    }
-
-    /* Divider */
-    .panel-divider {
-      width: 1px;
-      height: 48px;
-      background: rgba(255,255,255,0.1);
-      flex-shrink: 0;
-    }
-
-    /* Action buttons */
-    .actions-section {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex: 1;
-    }
-    .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 18px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      white-space: nowrap;
-      font-family: inherit;
-    }
-    .action-btn:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.2);
-    }
-    .action-btn:active { transform: scale(0.97); }
-    .action-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-    .action-btn.primary {
-      background: linear-gradient(135deg, #e94560, #c0392b);
-      border-color: transparent;
-    }
-    .action-btn.primary:hover {
-      background: linear-gradient(135deg, #ff5a75, #e94560);
-    }
-    .action-icon { font-size: 1.1rem; }
-
-    /* Notification toast */
+    /* ── Toast ──────────────────────────────────── */
     .toast-container {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center;
+      pointer-events: none;
     }
     .toast {
-      background: rgba(20,20,40,0.95);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-size: 0.85rem;
+      background: rgba(20,20,40,0.95); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+      padding: 12px 20px; font-size: 0.85rem; max-width: 380px; text-align: center;
       animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
-      max-width: 360px;
-      text-align: center;
+      pointer-events: auto;
     }
     .toast.success { border-color: rgba(76,175,80,0.5); }
     .toast.error { border-color: rgba(244,67,54,0.5); }
     .toast.info { border-color: rgba(33,150,243,0.5); }
+    @keyframes toastIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateY(-12px); } }
 
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(16px); }
+    /* ── Loading Spinner ───────────────────────── */
+    .spinner {
+      display: inline-block; width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.2); border-top-color: #e94560;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    .spinner-lg { width: 40px; height: 40px; border-width: 3px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ════════════════════════════════════════════════
+       SECTION 1: LANDING PAGE
+       ════════════════════════════════════════════════ */
+
+    #landingPage { display: block; }
+    #landingPage.hidden { display: none; }
+
+    /* Hero */
+    .lp-hero {
+      position: relative; padding: 80px 20px 60px; text-align: center; overflow: hidden;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    }
+    .lp-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 20%, rgba(233,69,96,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 80%, rgba(102,126,234,0.15) 0%, transparent 60%);
+      animation: heroGlow 10s ease-in-out infinite alternate;
+    }
+    @keyframes heroGlow {
+      0% { opacity: 0.6; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+    .lp-hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .lp-title {
+      font-size: 3.5rem; font-weight: 900; position: relative; z-index: 1;
+      background: linear-gradient(135deg, #e94560 0%, #ff6b81 40%, #ffdd57 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      letter-spacing: 0.08em; text-shadow: none;
+      animation: titlePulse 3s ease-in-out infinite;
+    }
+    @keyframes titlePulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.15); }
+    }
+    .lp-subtitle {
+      font-size: 1.2rem; color: rgba(255,255,255,0.75); margin-top: 8px;
+      position: relative; z-index: 1; letter-spacing: 0.05em;
+    }
+    .lp-cta-hint {
+      margin-top: 32px; position: relative; z-index: 1;
+      font-size: 0.9rem; color: rgba(255,255,255,0.45);
+    }
+    .lp-cta-hint .arrow-down {
+      display: inline-block; animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* Character Search */
+    .lp-search-section {
+      max-width: 640px; margin: -30px auto 0; padding: 0 16px; position: relative; z-index: 2;
+    }
+    .lp-search-card {
+      background: rgba(255,255,255,0.06); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 32px;
+    }
+    .lp-search-title {
+      text-align: center; font-size: 1.15rem; font-weight: 700; margin-bottom: 20px;
+    }
+    .lp-search-row {
+      display: flex; gap: 10px; margin-bottom: 14px;
+    }
+    .lp-input {
+      flex: 1; padding: 13px 18px; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; background: rgba(255,255,255,0.06); color: #fff;
+      font-size: 1rem; outline: none; font-family: inherit;
+    }
+    .lp-input::placeholder { color: rgba(255,255,255,0.3); }
+    .lp-input:focus { border-color: rgba(233,69,96,0.5); }
+    .lp-btn {
+      padding: 13px 24px; border: none; border-radius: 12px; font-size: 0.95rem;
+      font-weight: 700; cursor: pointer; font-family: inherit; transition: transform 0.15s, opacity 0.15s;
+      color: #000; background: linear-gradient(135deg, #ffdd57, #ffb347);
+    }
+    .lp-btn:hover { opacity: 0.9; }
+    .lp-btn:active { transform: scale(0.97); }
+    .lp-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .lp-btn-primary {
+      background: linear-gradient(135deg, #e94560, #c0392b); color: #fff;
+    }
+    .lp-divider {
+      text-align: center; color: rgba(255,255,255,0.4); font-size: 0.82rem;
+      margin: 14px 0; position: relative;
+    }
+    .lp-divider::before, .lp-divider::after {
+      content: ''; position: absolute; top: 50%; width: 30%; height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .lp-divider::before { left: 5%; }
+    .lp-divider::after { right: 5%; }
+
+    .lp-addr-row {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .lp-select {
+      flex: 1; min-width: 0; padding: 11px 14px; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; background: rgba(255,255,255,0.06); color: #fff;
+      font-size: 0.88rem; outline: none; font-family: inherit;
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+    }
+    .lp-select option { background: #1a1640; color: #fff; }
+    .lp-search-msg {
+      text-align: center; font-size: 0.85rem; color: #ffdd57; min-height: 1.2em; margin-top: 8px;
+    }
+
+    /* Character Result Card */
+    .lp-result-area {
+      max-width: 640px; margin: 24px auto 0; padding: 0 16px; display: none;
+    }
+    .lp-result-area.visible { display: block; }
+    .char-result-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; overflow: hidden; animation: cardSlideIn 0.4s ease;
+    }
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes toastOut {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(-12px); }
+    .char-result-images {
+      display: flex; justify-content: center; gap: 12px; padding: 24px 16px 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+    }
+    .char-result-img {
+      width: 110px; height: 110px; border-radius: 16px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.12); transition: transform 0.2s;
+      background: rgba(255,255,255,0.03);
+    }
+    .char-result-img:hover { transform: scale(1.05); }
+    .char-result-img.active-img {
+      border-color: #e94560; box-shadow: 0 0 20px rgba(233,69,96,0.3);
+    }
+    .char-result-body { padding: 20px 24px 24px; }
+    .char-result-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .char-result-name { font-size: 1.2rem; font-weight: 700; }
+    .char-result-code { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+
+    /* Element Badge */
+    .element-badge {
+      display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+      border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+    }
+    .element-fire { background: rgba(255,87,34,0.2); color: #ff5722; }
+    .element-water { background: rgba(33,150,243,0.2); color: #2196f3; }
+    .element-wood { background: rgba(76,175,80,0.2); color: #4caf50; }
+    .element-earth { background: rgba(121,85,72,0.2); color: #bcaaa4; }
+    .element-thunder { background: rgba(255,235,59,0.2); color: #ffeb3b; }
+
+    .element-icon-fire::before { content: '\1F525'; }
+    .element-icon-water::before { content: '\1F4A7'; }
+    .element-icon-wood::before { content: '\1F33F'; }
+    .element-icon-earth::before { content: '\1FAA8'; }
+    .element-icon-thunder::before { content: '\26A1'; }
+
+    /* Rarity */
+    .rarity-normal { }
+    .rarity-rare { border-color: #ffd700 !important; box-shadow: 0 0 12px rgba(255,215,0,0.3); }
+    .rarity-super_rare { border-color: #9c27b0 !important; box-shadow: 0 0 18px rgba(156,39,176,0.4); }
+    .rarity-legend {
+      border-image: linear-gradient(135deg, #ff0000, #ff8800, #ffff00, #00ff00, #0088ff, #8800ff) 1 !important;
+      animation: rainbowGlow 2s linear infinite;
+    }
+    @keyframes rainbowGlow {
+      0% { box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+      33% { box-shadow: 0 0 15px rgba(0,255,0,0.4); }
+      66% { box-shadow: 0 0 15px rgba(0,0,255,0.4); }
+      100% { box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+    }
+    .rarity-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 4px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    }
+    .rarity-tag-normal { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+    .rarity-tag-rare { background: rgba(255,215,0,0.2); color: #ffd700; }
+    .rarity-tag-super_rare { background: rgba(156,39,176,0.2); color: #ce93d8; }
+    .rarity-tag-legend { background: linear-gradient(135deg, rgba(255,0,0,0.2), rgba(0,0,255,0.2)); color: #ff8a80; }
+
+    /* Stats Bars */
+    .stats-grid {
+      display: grid; gap: 8px; margin: 16px 0;
+    }
+    .stat-row {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .stat-label {
+      width: 32px; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.6); text-align: right;
+    }
+    .stat-bar-bg {
+      flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden;
+    }
+    .stat-bar-fill {
+      height: 100%; border-radius: 4px; transition: width 0.6s ease;
+    }
+    .stat-hp .stat-bar-fill { background: linear-gradient(90deg, #4caf50, #8bc34a); }
+    .stat-atk .stat-bar-fill { background: linear-gradient(90deg, #f44336, #ff5722); }
+    .stat-def .stat-bar-fill { background: linear-gradient(90deg, #2196f3, #03a9f4); }
+    .stat-spd .stat-bar-fill { background: linear-gradient(90deg, #ffeb3b, #ffc107); }
+    .stat-sp .stat-bar-fill { background: linear-gradient(90deg, #9c27b0, #ce93d8); }
+    .stat-value {
+      width: 28px; font-size: 0.75rem; color: rgba(255,255,255,0.7); text-align: right;
     }
 
-    /* ── Character CSS States ───────────────────── */
-    .char-healthy { /* default */ }
-    .char-anxious { animation: tremble 0.3s infinite; filter: saturate(0.8); }
-    .char-pain { filter: grayscale(30%) brightness(0.85); }
-    .char-dark { filter: hue-rotate(180deg) brightness(0.5) contrast(1.3); }
-    .char-fallen { filter: grayscale(100%) brightness(0.3); opacity: 0.7; }
-    .char-evolved { filter: brightness(1.2) saturate(1.5); box-shadow: 0 0 30px rgba(255,215,0,0.8); }
+    .char-result-skill {
+      background: rgba(255,255,255,0.04); border-radius: 10px; padding: 12px;
+      margin-top: 12px; font-size: 0.85rem;
+    }
+    .char-result-skill-name { font-weight: 700; margin-bottom: 2px; }
+    .char-result-skill-desc { color: rgba(255,255,255,0.5); font-size: 0.8rem; }
 
-    @keyframes tremble {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(2px); }
+    .char-result-cta {
+      display: block; width: 100%; margin-top: 20px; padding: 14px;
+      background: linear-gradient(135deg, #e94560, #c0392b); color: #fff;
+      border: none; border-radius: 12px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: opacity 0.2s, transform 0.1s;
+    }
+    .char-result-cta:hover { opacity: 0.9; }
+    .char-result-cta:active { transform: scale(0.98); }
+
+    /* Login / Register Gate */
+    .lp-gate-section {
+      max-width: 480px; margin: 40px auto; padding: 0 16px 60px; text-align: center;
+    }
+    .lp-gate-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 32px;
+    }
+    .lp-gate-title {
+      font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;
+      background: linear-gradient(135deg, #e94560, #ff6b81);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .lp-gate-desc {
+      color: rgba(255,255,255,0.55); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.5;
+    }
+    .lp-gate-error {
+      color: #f44336; font-size: 0.82rem; min-height: 1.2em; margin-top: 8px;
+    }
+    .lp-gate-link {
+      margin-top: 16px; font-size: 0.85rem; color: rgba(255,255,255,0.5);
+    }
+    .lp-gate-link a { color: #e94560; text-decoration: none; }
+    .lp-gate-link a:hover { text-decoration: underline; }
+
+    /* ════════════════════════════════════════════════
+       SECTION 2: MAIN GAME UI
+       ════════════════════════════════════════════════ */
+
+    #gameUI { display: none; }
+    #gameUI.visible { display: block; }
+
+    /* Game Header */
+    .game-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .game-header-title {
+      font-size: 1.1rem; font-weight: 700;
+      background: linear-gradient(135deg, #e94560, #ff6b81);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .game-header-nav { display: flex; gap: 12px; align-items: center; }
+    .game-header-nav a {
+      color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.82rem;
+    }
+    .game-header-nav a:hover { color: #fff; }
+
+    /* Tab Navigation */
+    .tab-bar {
+      display: flex; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .tab-btn {
+      flex: 1; min-width: 0; padding: 14px 8px; border: none; background: none;
+      color: rgba(255,255,255,0.45); font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; position: relative;
+      transition: color 0.2s; white-space: nowrap; text-align: center;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.7); }
+    .tab-btn.active {
+      color: #e94560;
+    }
+    .tab-btn.active::after {
+      content: ''; position: absolute; bottom: 0; left: 20%; right: 20%;
+      height: 3px; background: #e94560; border-radius: 3px 3px 0 0;
     }
 
-    /* ── Quiz Modal ─────────────────────────────── */
+    /* Tab Content */
+    .tab-content { display: none; padding: 20px; min-height: calc(100vh - 110px); }
+    .tab-content.active { display: block; }
+
+    /* ── MAP TAB ───────────────────────────────── */
+    .map-layout {
+      display: grid; grid-template-columns: 1fr 280px; gap: 20px; max-width: 900px; margin: 0 auto;
+    }
+    .japan-map-wrap { position: relative; }
+    .japan-map-wrap svg { width: 100%; height: auto; }
+    .pref-rect {
+      stroke: rgba(255,255,255,0.15); stroke-width: 1; cursor: pointer;
+      transition: opacity 0.2s, stroke-width 0.15s;
+    }
+    .pref-rect:hover { opacity: 0.85; stroke: #fff; stroke-width: 2; }
+    .pref-rect.selected { stroke: #e94560; stroke-width: 2.5; }
+    .pref-label {
+      font-size: 7px; fill: rgba(255,255,255,0.85); pointer-events: none;
+      text-anchor: middle; dominant-baseline: central; font-weight: 600;
+    }
+    .amoeba-dot { animation: amoebaPulse 2s ease-in-out infinite; }
+    @keyframes amoebaPulse {
+      0%, 100% { r: 4; opacity: 0.8; }
+      50% { r: 7; opacity: 0.4; }
+    }
+    .map-legend {
+      display: flex; gap: 12px; font-size: 0.72rem; color: rgba(255,255,255,0.5);
+      margin-top: 8px; justify-content: center;
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-swatch { width: 12px; height: 8px; border-radius: 2px; }
+
+    /* Map sidebar */
+    .map-sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .map-pref-detail {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 18px; display: none;
+    }
+    .map-pref-detail.visible { display: block; }
+    .map-pref-title {
+      font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .map-pref-close {
+      background: none; border: none; color: rgba(255,255,255,0.4);
+      font-size: 1.1rem; cursor: pointer;
+    }
+    .map-pref-close:hover { color: #fff; }
+    .map-pref-row {
+      display: flex; justify-content: space-between; font-size: 0.83rem;
+      padding: 4px 0; color: rgba(255,255,255,0.6);
+    }
+    .map-pref-row span:last-child { color: #fff; font-weight: 600; }
+    .map-hp-bar {
+      width: 100%; height: 6px; background: rgba(255,255,255,0.08);
+      border-radius: 3px; overflow: hidden; margin: 8px 0;
+    }
+    .map-hp-fill { height: 100%; border-radius: 3px; transition: width 0.5s, background-color 0.5s; }
+
+    /* Player character card on map tab */
+    .map-player-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 16px; display: flex; gap: 14px; align-items: center;
+    }
+    .map-char-img {
+      width: 64px; height: 64px; border-radius: 12px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03);
+    }
+    .map-char-info { flex: 1; font-size: 0.85rem; }
+    .map-char-name { font-weight: 700; margin-bottom: 2px; }
+    .map-char-level { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
+    .map-xp-bar {
+      width: 100%; height: 4px; background: rgba(255,255,255,0.08);
+      border-radius: 2px; overflow: hidden; margin-top: 6px;
+    }
+    .map-xp-fill {
+      height: 100%; background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 2px; transition: width 0.5s;
+    }
+
+    /* ── COLLECTION TAB ────────────────────────── */
+    .collection-header {
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 16px;
+    }
+    .collection-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px; max-width: 900px; margin: 0 auto;
+    }
+    .collection-card {
+      background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 14px; overflow: hidden; cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .collection-card:hover { transform: translateY(-3px); }
+    .collection-card img {
+      width: 100%; aspect-ratio: 1; object-fit: cover; background: rgba(255,255,255,0.02);
+    }
+    .collection-card-info {
+      padding: 8px 10px; font-size: 0.78rem;
+    }
+    .collection-card-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .collection-card-level { color: rgba(255,255,255,0.4); font-size: 0.72rem; }
+
+    /* Collection detail modal */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 300;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px); display: none; align-items: center;
+      justify-content: center; z-index: 500; padding: 20px;
     }
-    .modal-overlay.visible {
-      display: flex;
-    }
+    .modal-overlay.visible { display: flex; }
     .modal-card {
       background: linear-gradient(145deg, #1e1e3a, #16213e);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 32px;
-      max-width: 480px;
-      width: 90%;
-      position: relative;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+      padding: 28px; max-width: 420px; width: 100%; position: relative;
+      max-height: 90vh; overflow-y: auto;
     }
     .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.5);
-      font-size: 1.2rem;
-      cursor: pointer;
+      position: absolute; top: 14px; right: 14px; background: none;
+      border: none; color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer;
     }
     .modal-close:hover { color: #fff; }
-    .modal-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .quiz-question {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 20px;
-      padding: 16px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 10px;
-    }
-    .quiz-options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .quiz-option-btn {
-      padding: 12px 16px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, transform 0.1s;
-      text-align: left;
-      font-family: inherit;
-    }
-    .quiz-option-btn:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.2);
-    }
-    .quiz-option-btn:active { transform: scale(0.98); }
-    .quiz-option-btn.correct {
-      background: rgba(76,175,80,0.25);
-      border-color: #4caf50;
-    }
-    .quiz-option-btn.wrong {
-      background: rgba(244,67,54,0.2);
-      border-color: #f44336;
-    }
-    .quiz-option-btn:disabled { cursor: default; opacity: 0.7; }
 
-    .quiz-result {
-      text-align: center;
-      padding: 16px;
-      font-size: 0.95rem;
-      display: none;
+    /* ── TEAM TAB ──────────────────────────────── */
+    .team-section { max-width: 600px; margin: 0 auto; }
+    .team-slots { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .team-slot {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 16px; display: flex; gap: 14px; align-items: center;
+      position: relative;
     }
-    .quiz-result.visible { display: block; }
-    .quiz-result-icon { font-size: 2.5rem; margin-bottom: 8px; }
-    .quiz-result-hp {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.6);
-      margin-top: 4px;
+    .team-slot-num {
+      position: absolute; top: -8px; left: 12px; background: #e94560;
+      color: #fff; font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 10px;
     }
+    .team-slot-img {
+      width: 64px; height: 64px; border-radius: 12px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03);
+    }
+    .team-slot-empty {
+      width: 64px; height: 64px; border-radius: 12px;
+      border: 2px dashed rgba(255,255,255,0.15); display: flex; align-items: center;
+      justify-content: center; color: rgba(255,255,255,0.2); font-size: 1.5rem;
+    }
+    .team-slot-info { flex: 1; font-size: 0.85rem; }
+    .team-slot-name { font-weight: 700; margin-bottom: 2px; }
+    .team-slot-detail { color: rgba(255,255,255,0.45); font-size: 0.78rem; }
+    .team-slot-btn {
+      padding: 8px 14px; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;
+      font-size: 0.78rem; cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .team-slot-btn:hover { background: rgba(255,255,255,0.1); }
 
-    /* ── Share Panel ─────────────────────────────── */
-    .share-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(20,20,40,0.97);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px 16px 0 0;
-      padding: 24px;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-      z-index: 250;
+    .explore-section {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 20px; text-align: center;
     }
-    .share-panel.visible { transform: translateY(0); }
-    .share-panel-title {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-    .share-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-    }
-    .share-btn {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      color: #fff;
-      font-family: inherit;
-    }
-    .share-btn:hover { opacity: 0.9; }
-    .share-btn:active { transform: scale(0.97); }
-    .share-btn.twitter { background: #1da1f2; }
-    .share-btn.line { background: #06c755; }
-    .share-panel-close {
-      display: block;
-      margin: 16px auto 0;
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.5);
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    .share-panel-close:hover { color: #fff; }
-
-    /* ── Registration / Login Gate ───────────────── */
-    .gate-overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 500;
-    }
-    .gate-overlay.hidden { display: none; }
-    .gate-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 420px;
-      width: 90%;
-      text-align: center;
-    }
-    .gate-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #e94560, #ff6b81);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 12px;
-    }
-    .gate-subtitle {
-      color: rgba(255,255,255,0.6);
-      font-size: 0.9rem;
-      margin-bottom: 32px;
-      line-height: 1.5;
-    }
-    .gate-input {
-      display: block;
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      font-size: 0.95rem;
-      margin-bottom: 12px;
-      outline: none;
-      font-family: inherit;
-      text-align: center;
-      letter-spacing: 0.15em;
-    }
-    .gate-input::placeholder {
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.05em;
-    }
-    .gate-input:focus {
-      border-color: rgba(233,69,96,0.5);
-    }
-    .gate-btn {
-      display: inline-block;
-      padding: 12px 32px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #e94560, #c0392b);
-      color: #fff;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
+    .explore-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .explore-desc { font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+    .explore-btn {
+      padding: 14px 32px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+      font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
       transition: opacity 0.2s, transform 0.1s;
-      font-family: inherit;
     }
-    .gate-btn:hover { opacity: 0.9; }
-    .gate-btn:active { transform: scale(0.97); }
-    .gate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .gate-link {
-      color: rgba(255,255,255,0.5);
-      font-size: 0.85rem;
-      margin-top: 16px;
+    .explore-btn:hover { opacity: 0.9; }
+    .explore-btn:active { transform: scale(0.97); }
+    .explore-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .explore-remaining { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-top: 10px; }
+
+    .explore-result {
+      margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.04);
+      border-radius: 12px; display: none; animation: cardSlideIn 0.3s ease;
     }
-    .gate-link a {
-      color: #e94560;
-      text-decoration: none;
+    .explore-result.visible { display: block; }
+
+    /* Character picker modal */
+    .picker-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px; margin-top: 16px; max-height: 300px; overflow-y: auto;
     }
-    .gate-link a:hover { text-decoration: underline; }
-    .gate-error {
-      color: #f44336;
-      font-size: 0.82rem;
-      margin-top: 8px;
-      min-height: 1.2em;
+    .picker-item {
+      border-radius: 10px; overflow: hidden; cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.08); transition: border-color 0.15s;
+    }
+    .picker-item:hover { border-color: rgba(255,255,255,0.3); }
+    .picker-item.selected { border-color: #e94560; }
+    .picker-item img {
+      width: 100%; aspect-ratio: 1; object-fit: cover; display: block;
+    }
+    .picker-item-name {
+      font-size: 0.65rem; padding: 3px 4px; text-align: center;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* ── Loading Spinner ────────────────────────── */
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: #e94560;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    /* ── BATTLE TAB ────────────────────────────── */
+    .battle-list { max-width: 600px; margin: 0 auto; }
+    .battle-list-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; }
+    .amoeba-list { display: flex; flex-direction: column; gap: 12px; }
+    .amoeba-card {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 16px; display: flex; gap: 14px; align-items: center;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .amoeba-icon {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; flex-shrink: 0;
     }
-
-    /* ── Mobile Responsive ──────────────────────── */
-    @media (max-width: 860px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr auto;
-      }
-      .rankings-sidebar {
-        grid-row: 1;
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        max-height: none;
-      }
-      .rankings-list {
-        display: flex;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 8px 12px;
-        gap: 4px;
-      }
-      .rankings-list::-webkit-scrollbar { height: 3px; }
-      .rank-item {
-        flex-shrink: 0;
-        padding: 6px 12px;
-        border-radius: 8px;
-        background: rgba(255,255,255,0.04);
-        min-width: 100px;
-        font-size: 0.78rem;
-      }
-      .map-area {
-        padding: 16px;
-      }
-      .pref-detail-panel {
-        position: fixed;
-        left: 16px;
-        right: 16px;
-        bottom: 100px;
-        top: auto;
-        width: auto;
-      }
-      .bottom-panel {
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 16px;
-      }
-      .character-section { width: 100%; }
-      .panel-divider { display: none; }
-      .actions-section {
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .action-btn {
-        flex: 1;
-        min-width: 0;
-        justify-content: center;
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
+    .amoeba-icon-fire { background: rgba(255,87,34,0.2); }
+    .amoeba-icon-water { background: rgba(33,150,243,0.2); }
+    .amoeba-icon-wood { background: rgba(76,175,80,0.2); }
+    .amoeba-icon-earth { background: rgba(121,85,72,0.2); }
+    .amoeba-icon-thunder { background: rgba(255,235,59,0.2); }
+    .amoeba-info { flex: 1; }
+    .amoeba-name {
+      font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;
+    }
+    .boss-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; text-transform: uppercase;
+    }
+    .boss-weekly { background: rgba(255,152,0,0.2); color: #ff9800; }
+    .boss-monthly { background: rgba(244,67,54,0.2); color: #f44336; }
+    .amoeba-detail {
+      font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 2px;
+    }
+    .amoeba-hp-bar {
+      width: 100%; height: 6px; background: rgba(255,255,255,0.08);
+      border-radius: 3px; overflow: hidden; margin-top: 8px;
+    }
+    .amoeba-hp-fill {
+      height: 100%; border-radius: 3px; background: linear-gradient(90deg, #f44336, #ff5722);
+      transition: width 0.5s;
+    }
+    .amoeba-fight-btn {
+      padding: 10px 18px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #e94560, #c0392b); color: #fff;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+      flex-shrink: 0; transition: opacity 0.15s, transform 0.1s;
+    }
+    .amoeba-fight-btn:hover { opacity: 0.9; }
+    .amoeba-fight-btn:active { transform: scale(0.97); }
+    .amoeba-fight-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .no-amoebas {
+      text-align: center; padding: 40px; color: rgba(255,255,255,0.3);
+      font-size: 0.95rem;
     }
 
-    @media (max-width: 480px) {
-      .header { padding: 12px 16px; }
-      .header-title { font-size: 1.05rem; }
-      .map-area { padding: 8px; }
-      .pref-label { font-size: 5.5px; }
+    /* ── BATTLE SCREEN ─────────────────────────── */
+    .battle-screen {
+      position: fixed; inset: 0; background: linear-gradient(180deg, #0f0c29 0%, #1a1a3e 100%);
+      z-index: 800; display: none; flex-direction: column;
+    }
+    .battle-screen.visible { display: flex; }
+    .battle-field {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 40px;
+      padding: 20px; position: relative;
+    }
+    .battle-vs {
+      font-size: 2rem; font-weight: 900; color: rgba(255,255,255,0.15);
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    .battle-entity {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; width: 180px;
+    }
+    .battle-entity-img {
+      width: 120px; height: 120px; border-radius: 16px; object-fit: cover;
+      border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);
+    }
+    .battle-entity-name {
+      font-weight: 700; font-size: 0.9rem; text-align: center;
+    }
+    .battle-hp-wrap { width: 100%; }
+    .battle-hp-label {
+      display: flex; justify-content: space-between; font-size: 0.72rem;
+      color: rgba(255,255,255,0.5); margin-bottom: 3px;
+    }
+    .battle-hp-bar {
+      width: 100%; height: 8px; background: rgba(255,255,255,0.1);
+      border-radius: 4px; overflow: hidden;
+    }
+    .battle-hp-fill {
+      height: 100%; border-radius: 4px; transition: width 0.4s ease;
+    }
+    .battle-hp-player { background: linear-gradient(90deg, #4caf50, #8bc34a); }
+    .battle-hp-enemy { background: linear-gradient(90deg, #f44336, #ff5722); }
+    .battle-sp-wrap { width: 100%; margin-top: 4px; }
+    .battle-sp-label {
+      font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-bottom: 2px;
+    }
+    .battle-sp-bar {
+      width: 100%; height: 5px; background: rgba(255,255,255,0.08);
+      border-radius: 3px; overflow: hidden;
+    }
+    .battle-sp-fill {
+      height: 100%; background: linear-gradient(90deg, #9c27b0, #ce93d8);
+      border-radius: 3px; transition: width 0.3s;
+    }
+
+    .battle-amoeba-blob {
+      width: 120px; height: 120px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; animation: blobPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes blobPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    /* Battle controls */
+    .battle-controls {
+      padding: 16px 20px; background: rgba(255,255,255,0.04);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .battle-cmd-row {
+      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+      max-width: 500px; margin: 0 auto;
+    }
+    .battle-cmd {
+      flex: 1; min-width: 80px; padding: 12px 8px; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; background: rgba(255,255,255,0.05); color: #fff;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s; text-align: center;
+    }
+    .battle-cmd:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+    .battle-cmd:active { transform: scale(0.97); }
+    .battle-cmd:disabled { opacity: 0.3; cursor: not-allowed; }
+    .battle-cmd.cmd-attack { border-color: rgba(244,67,54,0.4); }
+    .battle-cmd.cmd-skill { border-color: rgba(156,39,176,0.4); }
+    .battle-cmd.cmd-defend { border-color: rgba(33,150,243,0.4); }
+    .battle-cmd.cmd-switch { border-color: rgba(255,152,0,0.4); }
+
+    .battle-log {
+      max-height: 100px; overflow-y: auto; padding: 10px 16px;
+      background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 10px;
+      max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+    .battle-log-line {
+      font-size: 0.78rem; color: rgba(255,255,255,0.6); padding: 2px 0;
+    }
+    .battle-log-line.effective { color: #4caf50; font-weight: 600; }
+    .battle-log-line.ineffective { color: #f44336; }
+    .battle-log-line.system { color: #ffeb3b; }
+
+    /* Battle result overlay */
+    .battle-result-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: none; align-items: center; justify-content: center;
+      z-index: 810; flex-direction: column;
+    }
+    .battle-result-overlay.visible { display: flex; }
+    .battle-result-title {
+      font-size: 2.5rem; font-weight: 900; margin-bottom: 16px;
+    }
+    .battle-result-win { color: #ffdd57; }
+    .battle-result-lose { color: #f44336; }
+    .battle-result-details {
+      font-size: 0.95rem; color: rgba(255,255,255,0.7); margin-bottom: 24px;
+      text-align: center; line-height: 1.6;
+    }
+    .battle-result-btn {
+      padding: 14px 40px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #e94560, #c0392b); color: #fff;
+      font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .battle-result-btn:hover { opacity: 0.9; }
+
+    /* ── Responsive ────────────────────────────── */
+    @media (max-width: 700px) {
+      .lp-title { font-size: 2.2rem; }
+      .lp-subtitle { font-size: 1rem; }
+      .lp-search-card { padding: 20px; }
+      .lp-addr-row { flex-direction: column; }
+      .char-result-images { flex-wrap: wrap; }
+      .char-result-img { width: 90px; height: 90px; }
+      .map-layout { grid-template-columns: 1fr; }
+      .map-sidebar { order: -1; }
+      .collection-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+      .battle-field { flex-direction: column; gap: 20px; }
+      .battle-entity { width: 140px; }
+      .battle-entity-img { width: 90px; height: 90px; }
+      .battle-amoeba-blob { width: 90px; height: 90px; font-size: 2.2rem; }
+      .battle-vs { display: none; }
+    }
+    @media (max-width: 400px) {
+      .lp-title { font-size: 1.8rem; }
+      .lp-search-card { padding: 16px; }
+      .tab-btn { font-size: 0.8rem; padding: 12px 6px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ── Header ──────────────────────────────────── -->
-  <header class="header">
-    <div class="header-title">アメーバ・シティ</div>
-    <nav class="header-nav">
+<!-- ════════════════════════════════════════════════
+     SECTION 1: LANDING PAGE
+     ════════════════════════════════════════════════ -->
+<div id="landingPage">
+
+  <!-- Hero -->
+  <section class="lp-hero">
+    <h1 class="lp-title">アメーバ・シティ</h1>
+    <p class="lp-subtitle">12万体のゆるキャラで日本を守れ</p>
+    <div class="lp-cta-hint">
+      キャラを検索して冒険を始めよう <span class="arrow-down">&#x25BC;</span>
+    </div>
+  </section>
+
+  <!-- Character Search -->
+  <div class="lp-search-section">
+    <div class="lp-search-card">
+      <div class="lp-search-title">キャラクター検索</div>
+
+      <!-- Postal code search -->
+      <div class="lp-search-row">
+        <input type="text" id="lpZipInput" class="lp-input" placeholder="郵便番号（例: 1000001）" maxlength="7" inputmode="numeric">
+        <button class="lp-btn" id="lpZipBtn">検索</button>
+      </div>
+
+      <div class="lp-divider">または住所から探す</div>
+
+      <!-- Address cascading dropdowns -->
+      <div class="lp-addr-row">
+        <select id="lpKen" class="lp-select"><option>都道府県</option></select>
+        <select id="lpShi" class="lp-select"><option>市区町村</option></select>
+        <select id="lpCho" class="lp-select"><option>町域</option></select>
+      </div>
+      <button class="lp-btn" id="lpAddrBtn" style="width:100%;margin-top:8px;">住所で検索</button>
+
+      <div class="lp-search-msg" id="lpSearchMsg"></div>
+    </div>
+  </div>
+
+  <!-- Character Result Card -->
+  <div class="lp-result-area" id="lpResultArea">
+    <div class="char-result-card" id="lpResultCard">
+      <div class="char-result-images" id="lpResultImages"></div>
+      <div class="char-result-body">
+        <div class="char-result-header">
+          <div>
+            <div class="char-result-name" id="lpCharName">-</div>
+            <div class="char-result-code" id="lpCharCode">-</div>
+          </div>
+          <div id="lpCharElement"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <span class="rarity-tag" id="lpCharRarity">-</span>
+        </div>
+        <div class="stats-grid" id="lpCharStats"></div>
+        <div class="char-result-skill" id="lpCharSkill"></div>
+        <button class="char-result-cta" id="lpStartBtn">このキャラで冒険を始める</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login / Register Gate -->
+  <div class="lp-gate-section" id="lpGateSection">
+    <div class="lp-gate-card" id="lpLoginGate">
+      <div class="lp-gate-title">冒険に参加しよう</div>
+      <div class="lp-gate-desc">ログインしてゲームに参戦！<br>あなたの街のキャラを育てよう</div>
+      <a href="index.html" class="lp-btn lp-btn-primary" style="display:inline-block;text-decoration:none;padding:14px 40px;">ログインページへ</a>
+    </div>
+    <div class="lp-gate-card" id="lpRegisterGate" style="display:none;">
+      <div class="lp-gate-title">ゲーム登録</div>
+      <div class="lp-gate-desc">あなたの郵便番号でキャラと地区が決まります</div>
+      <input type="text" id="lpRegPostal" class="lp-input" placeholder="郵便番号（例: 1000001）" maxlength="7" inputmode="numeric" style="text-align:center;letter-spacing:0.15em;margin-bottom:12px;">
+      <div class="lp-gate-error" id="lpRegError"></div>
+      <button class="lp-btn lp-btn-primary" id="lpRegBtn" style="width:100%;padding:14px;">参戦する</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════
+     SECTION 2: MAIN GAME UI
+     ════════════════════════════════════════════════ -->
+<div id="gameUI">
+
+  <!-- Game Header -->
+  <header class="game-header">
+    <div class="game-header-title">アメーバ・シティ</div>
+    <nav class="game-header-nav">
       <a href="index.html">ホーム</a>
-      <a href="game.html">ゲーム</a>
+      <a href="#" onclick="logout();return false;">ログアウト</a>
     </nav>
   </header>
 
-  <!-- ── Login Gate ──────────────────────────────── -->
-  <div id="loginGate" class="gate-overlay">
-    <div class="gate-card">
-      <div class="gate-title">アメーバ・シティ</div>
-      <div class="gate-subtitle">ログインしてからゲームに参加できます</div>
-      <a href="index.html" class="gate-btn" style="text-decoration:none;">ログインページへ</a>
-    </div>
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="map">マップ</button>
+    <button class="tab-btn" data-tab="collection">図鑑</button>
+    <button class="tab-btn" data-tab="team">チーム</button>
+    <button class="tab-btn" data-tab="battle">バトル</button>
   </div>
 
-  <!-- ── Registration Gate ───────────────────────── -->
-  <div id="registerGate" class="gate-overlay hidden">
-    <div class="gate-card">
-      <div class="gate-title">ゲーム登録</div>
-      <div class="gate-subtitle">あなたの郵便番号でキャラと地区が決まります。<br>どの街を守る？</div>
-      <input type="text" id="postalCodeInput" class="gate-input" placeholder="郵便番号 (例: 1000001)" maxlength="8" inputmode="numeric">
-      <div class="gate-error" id="registerError"></div>
-      <button class="gate-btn" id="registerBtn" onclick="registerPlayer()">参戦する</button>
-    </div>
-  </div>
-
-  <!-- ── Main Game UI ────────────────────────────── -->
-  <div class="main-grid" id="gameUI" style="display:none;">
-
-    <!-- Rankings Sidebar -->
-    <aside class="rankings-sidebar">
-      <div class="rankings-header">都道府県ランキング</div>
-      <div class="rankings-list" id="rankingsList">
-        <!-- Populated by JS -->
-      </div>
-    </aside>
-
-    <!-- Map Area -->
-    <main class="map-area">
-      <div class="amoeba-badge" id="amoebaBadge">
-        <div class="amoeba-badge-dot"></div>
-        <span id="amoebaCountText">アメーバ: 0体</span>
-      </div>
-
-      <div class="japan-map-container">
-        <svg id="japanMap" viewBox="0 0 380 700" xmlns="http://www.w3.org/2000/svg">
-          <!-- 47 Prefectures rendered as rects in a stylized Japan shape -->
-          <!-- Will be generated by JS for clean coordinate management -->
-        </svg>
-      </div>
-
-      <!-- Prefecture Detail Panel -->
-      <div class="pref-detail-panel" id="prefDetailPanel">
-        <button class="pref-detail-close" onclick="closePrefDetail()">&times;</button>
-        <div class="pref-detail-title" id="prefDetailTitle">-</div>
-        <div class="hp-bar-container">
-          <div class="hp-bar-fill" id="prefDetailHpBar" style="width:100%;background:#4caf50;"></div>
+  <!-- Tab: Map -->
+  <div class="tab-content active" id="tab-map">
+    <div class="map-layout">
+      <div>
+        <div class="japan-map-wrap">
+          <svg id="japanMap" viewBox="0 0 380 700" xmlns="http://www.w3.org/2000/svg"></svg>
         </div>
-        <div class="pref-detail-row"><span>平均HP</span><span id="prefDetailHp">-</span></div>
-        <div class="pref-detail-row"><span>侵食率</span><span id="prefDetailInfection">-</span></div>
-        <div class="pref-detail-row"><span>プレイヤー</span><span id="prefDetailPlayers">-</span></div>
-        <div class="pref-detail-row"><span>感染地区</span><span id="prefDetailInfected">-</span></div>
-      </div>
-
-      <!-- Map Legend -->
-      <div class="map-legend">
-        <div class="legend-item"><div class="legend-swatch" style="background:#4caf50;"></div>安全</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:#ff9800;"></div>注意</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:#f44336;"></div>危険</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:#880e4f;"></div>壊滅</div>
-      </div>
-    </main>
-
-    <!-- Bottom Panel -->
-    <div class="bottom-panel" style="grid-column: 1 / -1;">
-      <!-- Character Display -->
-      <div class="character-section">
-        <div class="character-img-wrap" id="characterImgWrap">
-          <img id="characterImg" src="" alt="キャラクター" onerror="this.style.display='none'">
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-swatch" style="background:#4caf50;"></div>安全</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#ff9800;"></div>注意</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#f44336;"></div>危険</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#880e4f;"></div>壊滅</div>
         </div>
-        <div>
-          <div class="character-info">
-            <div class="character-name" id="charName">-</div>
-            <div class="character-level" id="charLevel">Lv.1</div>
-            <div class="character-xp-bar">
-              <div class="character-xp-fill" id="charXpFill" style="width:0%"></div>
-            </div>
-          </div>
-          <div class="character-district" id="charDistrict">-</div>
-          <div class="character-district-hp">
-            <div class="district-hp-bar">
-              <div class="district-hp-fill" id="districtHpFill" style="width:100%;background:#4caf50;"></div>
-            </div>
-            <span class="district-hp-text" id="districtHpText">100/100</span>
+      </div>
+      <div class="map-sidebar">
+        <div class="map-player-card" id="mapPlayerCard">
+          <img class="map-char-img" id="mapCharImg" src="" alt="キャラ" onerror="this.style.display='none'">
+          <div class="map-char-info">
+            <div class="map-char-name" id="mapCharName">-</div>
+            <div class="map-char-level" id="mapCharLevel">Lv.1</div>
+            <div id="mapCharElement"></div>
+            <div class="map-xp-bar"><div class="map-xp-fill" id="mapXpFill" style="width:0%"></div></div>
           </div>
         </div>
-      </div>
-
-      <div class="panel-divider"></div>
-
-      <!-- Action Buttons -->
-      <div class="actions-section">
-        <button class="action-btn primary" id="loginBonusBtn" onclick="claimLoginBonus()">
-          <span class="action-icon">&#x1F381;</span> ログインボーナス
-        </button>
-        <button class="action-btn" id="quizBtn" onclick="openQuiz()">
-          <span class="action-icon">&#x2753;</span> クイズに挑戦
-        </button>
-        <button class="action-btn" id="shareBtn" onclick="openSharePanel()">
-          <span class="action-icon">&#x1F4E2;</span> シェアして防衛
-        </button>
+        <div class="map-pref-detail" id="mapPrefDetail">
+          <div class="map-pref-title">
+            <span id="mapPrefName">-</span>
+            <button class="map-pref-close" onclick="closePrefDetail()">&times;</button>
+          </div>
+          <div class="map-hp-bar"><div class="map-hp-fill" id="mapPrefHpBar" style="width:100%;background:#4caf50;"></div></div>
+          <div class="map-pref-row"><span>平均HP</span><span id="mapPrefHp">-</span></div>
+          <div class="map-pref-row"><span>侵食率</span><span id="mapPrefInfection">-</span></div>
+          <div class="map-pref-row"><span>プレイヤー</span><span id="mapPrefPlayers">-</span></div>
+          <div class="map-pref-row"><span>感染地区</span><span id="mapPrefInfected">-</span></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ── Quiz Modal ──────────────────────────────── -->
-  <div class="modal-overlay" id="quizModal">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeQuiz()">&times;</button>
-      <div class="modal-title" id="quizModalTitle">ご当地クイズ</div>
-      <div class="quiz-question" id="quizQuestion">読み込み中...</div>
-      <div class="quiz-options" id="quizOptions">
-        <!-- Populated by JS -->
-      </div>
-      <div class="quiz-result" id="quizResult">
-        <div class="quiz-result-icon" id="quizResultIcon"></div>
-        <div id="quizResultText"></div>
-        <div class="quiz-result-hp" id="quizResultHp"></div>
+  <!-- Tab: Collection -->
+  <div class="tab-content" id="tab-collection">
+    <div class="collection-header" id="collectionHeader">図鑑 0体 収集済み</div>
+    <div class="collection-grid" id="collectionGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.3);">
+        読み込み中... <div class="spinner" style="margin-left:8px;vertical-align:middle;"></div>
       </div>
     </div>
   </div>
 
-  <!-- ── Share Panel ─────────────────────────────── -->
-  <div class="share-panel" id="sharePanel">
-    <div class="share-panel-title">SNSでシェアして防衛力UP！</div>
-    <div class="share-buttons">
-      <button class="share-btn twitter" onclick="shareTwitter()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Xで共有
-      </button>
-      <button class="share-btn line" onclick="shareLine()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 5.82 2 10.5c0 3.12 2.24 5.83 5.47 7.15-.08.3-.48 1.82-.55 2.1-.08.35.13.34.27.25.11-.07 1.72-1.14 2.43-1.6.78.11 1.58.17 2.38.17 5.52 0 10-3.82 10-8.5S17.52 2 12 2z"/></svg>
-        LINEで共有
-      </button>
+  <!-- Tab: Team -->
+  <div class="tab-content" id="tab-team">
+    <div class="team-section">
+      <div class="team-slots" id="teamSlots">
+        <!-- 3 slots rendered by JS -->
+      </div>
+      <div class="explore-section">
+        <div class="explore-title">探索</div>
+        <div class="explore-desc">近くの地区を探索して新しいキャラを見つけよう</div>
+        <button class="explore-btn" id="exploreBtn" onclick="doExplore()">探索する</button>
+        <div class="explore-remaining" id="exploreRemaining"></div>
+        <div class="explore-result" id="exploreResult"></div>
+      </div>
     </div>
-    <button class="share-panel-close" onclick="closeSharePanel()">閉じる</button>
   </div>
 
-  <!-- ── Toast Container ─────────────────────────── -->
-  <div class="toast-container" id="toastContainer"></div>
+  <!-- Tab: Battle -->
+  <div class="tab-content" id="tab-battle">
+    <div class="battle-list">
+      <div class="battle-list-title">出現中のアメーバ</div>
+      <div class="amoeba-list" id="amoebaList">
+        <div class="no-amoebas">読み込み中...</div>
+      </div>
+    </div>
+  </div>
 
-  <script>
-    /* ═════════════════════════════════════════════════
-       Constants & State
-       ═════════════════════════════════════════════════ */
-    const API_BASE = '';  // same origin (Cloudflare Pages Functions)
-    let authToken = null;
-    let playerData = null;
-    let districtData = null;
-    let gameState = null;  // { prefectures: [...] }
-    let rankingsData = null;
-    let amoebasData = null;
-    let currentQuizId = null;
-    let refreshInterval = null;
+</div>
 
-    // Prefecture data: code(01-47), name, grid position (col, row)
-    const PREFECTURES = [
-      { code: '01', name: '北海道',   col: 8, row: 0 },
-      { code: '02', name: '青森県',   col: 7, row: 2 },
-      { code: '03', name: '岩手県',   col: 8, row: 3 },
-      { code: '04', name: '宮城県',   col: 8, row: 4 },
-      { code: '05', name: '秋田県',   col: 7, row: 3 },
-      { code: '06', name: '山形県',   col: 7, row: 4 },
-      { code: '07', name: '福島県',   col: 7, row: 5 },
-      { code: '08', name: '茨城県',   col: 8, row: 6 },
-      { code: '09', name: '栃木県',   col: 7, row: 6 },
-      { code: '10', name: '群馬県',   col: 6, row: 6 },
-      { code: '11', name: '埼玉県',   col: 7, row: 7 },
-      { code: '12', name: '千葉県',   col: 8, row: 7 },
-      { code: '13', name: '東京都',   col: 7, row: 8 },
-      { code: '14', name: '神奈川県', col: 7, row: 9 },
-      { code: '15', name: '新潟県',   col: 6, row: 5 },
-      { code: '16', name: '富山県',   col: 5, row: 6 },
-      { code: '17', name: '石川県',   col: 5, row: 7 },
-      { code: '18', name: '福井県',   col: 4, row: 8 },
-      { code: '19', name: '山梨県',   col: 6, row: 8 },
-      { code: '20', name: '長野県',   col: 6, row: 7 },
-      { code: '21', name: '岐阜県',   col: 5, row: 8 },
-      { code: '22', name: '静岡県',   col: 6, row: 9 },
-      { code: '23', name: '愛知県',   col: 5, row: 9 },
-      { code: '24', name: '三重県',   col: 5, row: 10 },
-      { code: '25', name: '滋賀県',   col: 4, row: 9 },
-      { code: '26', name: '京都府',   col: 4, row: 10 },
-      { code: '27', name: '大阪府',   col: 4, row: 11 },
-      { code: '28', name: '兵庫県',   col: 3, row: 10 },
-      { code: '29', name: '奈良県',   col: 5, row: 11 },
-      { code: '30', name: '和歌山県', col: 4, row: 12 },
-      { code: '31', name: '鳥取県',   col: 3, row: 11 },
-      { code: '32', name: '島根県',   col: 2, row: 11 },
-      { code: '33', name: '岡山県',   col: 3, row: 12 },
-      { code: '34', name: '広島県',   col: 2, row: 12 },
-      { code: '35', name: '山口県',   col: 1, row: 12 },
-      { code: '36', name: '徳島県',   col: 4, row: 13 },
-      { code: '37', name: '香川県',   col: 3, row: 13 },
-      { code: '38', name: '愛媛県',   col: 2, row: 13 },
-      { code: '39', name: '高知県',   col: 3, row: 14 },
-      { code: '40', name: '福岡県',   col: 1, row: 14 },
-      { code: '41', name: '佐賀県',   col: 0, row: 14 },
-      { code: '42', name: '長崎県',   col: 0, row: 15 },
-      { code: '43', name: '熊本県',   col: 1, row: 15 },
-      { code: '44', name: '大分県',   col: 2, row: 14 },
-      { code: '45', name: '宮崎県',   col: 2, row: 15 },
-      { code: '46', name: '鹿児島県', col: 1, row: 16 },
-      { code: '47', name: '沖縄県',   col: 0, row: 18 },
-    ];
+<!-- ════════════════════════════════════════════════
+     BATTLE SCREEN OVERLAY
+     ════════════════════════════════════════════════ -->
+<div class="battle-screen" id="battleScreen">
+  <div class="battle-field">
+    <div class="battle-vs">VS</div>
+    <!-- Player side -->
+    <div class="battle-entity" id="battlePlayer">
+      <img class="battle-entity-img" id="battlePlayerImg" src="" alt="" onerror="this.style.display='none'">
+      <div class="battle-entity-name" id="battlePlayerName">-</div>
+      <div id="battlePlayerElement"></div>
+      <div class="battle-hp-wrap">
+        <div class="battle-hp-label"><span>HP</span><span id="battlePlayerHpText">-</span></div>
+        <div class="battle-hp-bar"><div class="battle-hp-fill battle-hp-player" id="battlePlayerHpBar" style="width:100%"></div></div>
+      </div>
+      <div class="battle-sp-wrap">
+        <div class="battle-sp-label">SP: <span id="battlePlayerSpText">0/3</span></div>
+        <div class="battle-sp-bar"><div class="battle-sp-fill" id="battlePlayerSpBar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <!-- Enemy side -->
+    <div class="battle-entity" id="battleEnemy">
+      <div class="battle-amoeba-blob" id="battleEnemyBlob"></div>
+      <div class="battle-entity-name" id="battleEnemyName">-</div>
+      <div id="battleEnemyElement"></div>
+      <div class="battle-hp-wrap">
+        <div class="battle-hp-label"><span>HP</span><span id="battleEnemyHpText">-</span></div>
+        <div class="battle-hp-bar"><div class="battle-hp-fill battle-hp-enemy" id="battleEnemyHpBar" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="battle-controls">
+    <div class="battle-cmd-row">
+      <button class="battle-cmd cmd-attack" onclick="battleAction('attack')">攻撃</button>
+      <button class="battle-cmd cmd-skill" id="battleSkillBtn" onclick="battleAction('skill')" disabled>特技 (SP3)</button>
+      <button class="battle-cmd cmd-defend" onclick="battleAction('defend')">防御</button>
+      <button class="battle-cmd cmd-switch" id="battleSwitchBtn" onclick="openSwitchModal()">交代</button>
+    </div>
+    <div class="battle-log" id="battleLog"></div>
+  </div>
+</div>
 
-    // Short name for map labels (remove 県/都/府/道)
-    function shortName(name) {
-      return name.replace(/[県都府道]$/, '');
+<!-- Battle Result Overlay -->
+<div class="battle-result-overlay" id="battleResultOverlay">
+  <div class="battle-result-title" id="battleResultTitle"></div>
+  <div class="battle-result-details" id="battleResultDetails"></div>
+  <button class="battle-result-btn" onclick="closeBattleResult()">閉じる</button>
+</div>
+
+<!-- Character detail modal -->
+<div class="modal-overlay" id="charDetailModal">
+  <div class="modal-card" id="charDetailContent">
+    <button class="modal-close" onclick="closeCharDetail()">&times;</button>
+  </div>
+</div>
+
+<!-- Character picker modal (for team) -->
+<div class="modal-overlay" id="pickerModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closePickerModal()">&times;</button>
+    <div style="font-size:1.05rem;font-weight:700;margin-bottom:12px;">キャラクターを選択</div>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <button class="lp-btn lp-btn-primary" id="pickerConfirmBtn" style="width:100%;margin-top:16px;padding:12px;" onclick="confirmPicker()">選択</button>
+  </div>
+</div>
+
+<!-- Switch modal (for battle) -->
+<div class="modal-overlay" id="switchModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeSwitchModal()">&times;</button>
+    <div style="font-size:1.05rem;font-weight:700;margin-bottom:12px;">交代先を選択</div>
+    <div id="switchList"></div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CONSTANTS & STATE
+   ═══════════════════════════════════════════════════════ */
+const API_BASE = '';
+const IMG_BASE = 'https://img.mascodex.com';
+
+let authToken = null;
+let playerData = null;
+let districtData = null;
+let gameState = null;
+let collectionData = null;
+let teamData = null;
+let amoebasData = null;
+let currentBattle = null;
+let zipTreeData = null;
+let searchedPostal = null; // last searched postal code for "start" flow
+let pickerSlot = null; // which slot we're picking for
+
+const ELEMENT_ICONS = {
+  fire: '\uD83D\uDD25', water: '\uD83D\uDCA7', wood: '\uD83C\uDF3F',
+  earth: '\uD83E\uDEA8', thunder: '\u26A1'
+};
+const ELEMENT_NAMES = {
+  fire: '炎', water: '水', wood: '木', earth: '地', thunder: '雷'
+};
+const ELEMENT_BLOB_COLORS = {
+  fire: 'rgba(255,87,34,0.3)', water: 'rgba(33,150,243,0.3)',
+  wood: 'rgba(76,175,80,0.3)', earth: 'rgba(121,85,72,0.3)',
+  thunder: 'rgba(255,235,59,0.3)'
+};
+const AMOEBA_EMOJIS = {
+  fire: '\uD83D\uDD25', water: '\uD83C\uDF0A', wood: '\uD83C\uDF32',
+  earth: '\uD83C\uDF0B', thunder: '\u26C8\uFE0F'
+};
+
+// Prefecture data
+const PREFECTURES = [
+  {code:'01',name:'北海道',col:8,row:0},{code:'02',name:'青森県',col:7,row:2},
+  {code:'03',name:'岩手県',col:8,row:3},{code:'04',name:'宮城県',col:8,row:4},
+  {code:'05',name:'秋田県',col:7,row:3},{code:'06',name:'山形県',col:7,row:4},
+  {code:'07',name:'福島県',col:7,row:5},{code:'08',name:'茨城県',col:8,row:6},
+  {code:'09',name:'栃木県',col:7,row:6},{code:'10',name:'群馬県',col:6,row:6},
+  {code:'11',name:'埼玉県',col:7,row:7},{code:'12',name:'千葉県',col:8,row:7},
+  {code:'13',name:'東京都',col:7,row:8},{code:'14',name:'神奈川県',col:7,row:9},
+  {code:'15',name:'新潟県',col:6,row:5},{code:'16',name:'富山県',col:5,row:6},
+  {code:'17',name:'石川県',col:5,row:7},{code:'18',name:'福井県',col:4,row:8},
+  {code:'19',name:'山梨県',col:6,row:8},{code:'20',name:'長野県',col:6,row:7},
+  {code:'21',name:'岐阜県',col:5,row:8},{code:'22',name:'静岡県',col:6,row:9},
+  {code:'23',name:'愛知県',col:5,row:9},{code:'24',name:'三重県',col:5,row:10},
+  {code:'25',name:'滋賀県',col:4,row:9},{code:'26',name:'京都府',col:4,row:10},
+  {code:'27',name:'大阪府',col:4,row:11},{code:'28',name:'兵庫県',col:3,row:10},
+  {code:'29',name:'奈良県',col:5,row:11},{code:'30',name:'和歌山県',col:4,row:12},
+  {code:'31',name:'鳥取県',col:3,row:11},{code:'32',name:'島根県',col:2,row:11},
+  {code:'33',name:'岡山県',col:3,row:12},{code:'34',name:'広島県',col:2,row:12},
+  {code:'35',name:'山口県',col:1,row:12},{code:'36',name:'徳島県',col:4,row:13},
+  {code:'37',name:'香川県',col:3,row:13},{code:'38',name:'愛媛県',col:2,row:13},
+  {code:'39',name:'高知県',col:3,row:14},{code:'40',name:'福岡県',col:1,row:14},
+  {code:'41',name:'佐賀県',col:0,row:14},{code:'42',name:'長崎県',col:0,row:15},
+  {code:'43',name:'熊本県',col:1,row:15},{code:'44',name:'大分県',col:2,row:14},
+  {code:'45',name:'宮崎県',col:2,row:15},{code:'46',name:'鹿児島県',col:1,row:16},
+  {code:'47',name:'沖縄県',col:0,row:18}
+];
+
+const PREF_CODE_TO_NAME = {};
+const PREF_NAME_TO_CODE = {};
+PREFECTURES.forEach(p => { PREF_CODE_TO_NAME[p.code] = p.name; PREF_NAME_TO_CODE[p.name] = p.code; });
+function shortName(name) { return name.replace(/[県都府道]$/,''); }
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY FUNCTIONS
+   ═══════════════════════════════════════════════════════ */
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 3000);
+}
+
+async function apiFetch(path, opts={}) {
+  const headers = {'Content-Type':'application/json'};
+  if (!opts.noAuth && authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  const res = await fetch(API_BASE + path, {
+    method: opts.method || 'GET', headers, body: opts.body || undefined
+  });
+  if (res.status === 401) {
+    localStorage.removeItem('mascodex_token');
+    localStorage.removeItem('userToken');
+    authToken = null;
+    showLanding();
+    throw new Error('Unauthorized');
+  }
+  return res.json();
+}
+
+function hpToColor(hp) {
+  if (hp >= 75) return '#4caf50';
+  if (hp >= 50) return '#ff9800';
+  if (hp >= 25) return '#f44336';
+  return '#880e4f';
+}
+
+function elementBadgeHTML(element) {
+  const icon = ELEMENT_ICONS[element] || '';
+  const name = ELEMENT_NAMES[element] || element;
+  return '<span class="element-badge element-' + element + '">' + icon + ' ' + name + '</span>';
+}
+
+function rarityTagHTML(rarity) {
+  const labels = {normal:'NORMAL', rare:'RARE', super_rare:'SUPER RARE', legend:'LEGEND'};
+  return '<span class="rarity-tag rarity-tag-' + rarity + '">' + (labels[rarity]||rarity) + '</span>';
+}
+
+function statsHTML(stats) {
+  const maxStat = 200;
+  const rows = [
+    {key:'hp',label:'HP',val:stats.hp},
+    {key:'atk',label:'ATK',val:stats.atk},
+    {key:'def',label:'DEF',val:stats.def},
+    {key:'spd',label:'SPD',val:stats.spd},
+    {key:'sp',label:'SP',val:stats.sp}
+  ];
+  return '<div class="stats-grid">' + rows.map(r =>
+    '<div class="stat-row stat-' + r.key + '">' +
+    '<span class="stat-label">' + r.label + '</span>' +
+    '<div class="stat-bar-bg"><div class="stat-bar-fill" style="width:' + Math.min(100, r.val/maxStat*100) + '%"></div></div>' +
+    '<span class="stat-value">' + r.val + '</span></div>'
+  ).join('') + '</div>';
+}
+
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INITIALIZATION
+   ═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  authToken = localStorage.getItem('mascodex_token') || localStorage.getItem('userToken');
+  setupTabs();
+  setupSearch();
+
+  if (authToken) {
+    try {
+      const res = await apiFetch('/api/game/player/me');
+      if (res.success && res.registered) {
+        playerData = res.player;
+        districtData = res.district;
+        showGame(res);
+        return;
+      }
+      // Logged in but not registered
+      updateGateForRegistration();
+    } catch (e) {
+      console.error('Init check failed:', e);
+    }
+  }
+  showLanding();
+}
+
+function showLanding() {
+  document.getElementById('landingPage').classList.remove('hidden');
+  document.getElementById('gameUI').classList.remove('visible');
+
+  // Determine which gate to show
+  if (authToken) {
+    updateGateForRegistration();
+  } else {
+    document.getElementById('lpLoginGate').style.display = '';
+    document.getElementById('lpRegisterGate').style.display = 'none';
+  }
+}
+
+function updateGateForRegistration() {
+  document.getElementById('lpLoginGate').style.display = 'none';
+  document.getElementById('lpRegisterGate').style.display = '';
+  // Pre-fill with last searched postal
+  if (searchedPostal) {
+    document.getElementById('lpRegPostal').value = searchedPostal;
+  }
+}
+
+async function showGame(profileRes) {
+  document.getElementById('landingPage').classList.add('hidden');
+  document.getElementById('gameUI').classList.add('visible');
+
+  renderJapanMap();
+  updateMapPlayerCard(profileRes);
+
+  // Load data in parallel
+  await Promise.all([loadGameState(), loadCollection(), loadTeam(), loadAmoebas()]);
+}
+
+function logout() {
+  localStorage.removeItem('mascodex_token');
+  localStorage.removeItem('userToken');
+  authToken = null;
+  playerData = null;
+  document.getElementById('gameUI').classList.remove('visible');
+  showLanding();
+  document.getElementById('lpLoginGate').style.display = '';
+  document.getElementById('lpRegisterGate').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════════════════
+   TAB NAVIGATION
+   ═══════════════════════════════════════════════════════ */
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = document.getElementById('tab-' + btn.dataset.tab);
+      if (tab) tab.classList.add('active');
+
+      // Lazy load data on tab switch
+      if (btn.dataset.tab === 'collection' && !collectionData) loadCollection();
+      if (btn.dataset.tab === 'team' && !teamData) loadTeam();
+      if (btn.dataset.tab === 'battle') loadAmoebas();
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHARACTER SEARCH (LANDING PAGE)
+   ═══════════════════════════════════════════════════════ */
+function setupSearch() {
+  const zipInput = document.getElementById('lpZipInput');
+  const zipBtn = document.getElementById('lpZipBtn');
+  const addrBtn = document.getElementById('lpAddrBtn');
+  const msg = document.getElementById('lpSearchMsg');
+
+  zipBtn.addEventListener('click', () => {
+    const zip = zipInput.value.trim().replace(/[^0-9]/g, '');
+    if (!/^\d{7}$/.test(zip)) { msg.textContent = '7桁の郵便番号を入力してください'; return; }
+    msg.textContent = '';
+    searchCharacter(zip);
+  });
+  zipInput.addEventListener('keypress', e => { if (e.key === 'Enter') zipBtn.click(); });
+
+  addrBtn.addEventListener('click', () => {
+    if (!zipTreeData) { msg.textContent = 'データ読み込み中...'; return; }
+    const ken = document.getElementById('lpKen').value;
+    const shi = document.getElementById('lpShi').value;
+    const cho = document.getElementById('lpCho').value;
+    const zip = ((zipTreeData[ken]||{})[shi]||{})[cho];
+    if (zip) { msg.textContent = ''; searchCharacter(zip); }
+    else msg.textContent = '該当する住所が見つかりませんでした';
+  });
+
+  // Load zip-tree.json
+  fetch('./js/zip-tree.json').then(r => r.json()).then(data => {
+    zipTreeData = data;
+    const kenSel = document.getElementById('lpKen');
+    const shiSel = document.getElementById('lpShi');
+    const choSel = document.getElementById('lpCho');
+
+    Object.keys(data).forEach(ken => {
+      const o = document.createElement('option'); o.value = o.text = ken; kenSel.appendChild(o);
+    });
+    kenSel.onchange = () => {
+      shiSel.innerHTML = '<option>市区町村</option>';
+      choSel.innerHTML = '<option>町域</option>';
+      Object.keys(data[kenSel.value]||{}).forEach(shi => {
+        const o = document.createElement('option'); o.value = o.text = shi; shiSel.appendChild(o);
+      });
+    };
+    shiSel.onchange = () => {
+      choSel.innerHTML = '<option>町域</option>';
+      Object.keys((data[kenSel.value]||{})[shiSel.value]||{}).forEach(cho => {
+        const o = document.createElement('option'); o.value = o.text = cho; choSel.appendChild(o);
+      });
+    };
+  }).catch(e => {
+    console.error('zip-tree load error:', e);
+    document.getElementById('lpSearchMsg').textContent = '住所データの読み込みに失敗しました';
+  });
+
+  // "Start adventure" button
+  document.getElementById('lpStartBtn').addEventListener('click', () => {
+    if (!authToken) {
+      showToast('まずログインしてください', 'info');
+      document.getElementById('lpGateSection').scrollIntoView({behavior:'smooth'});
+      return;
+    }
+    // Has token → try register with the searched postal code
+    if (searchedPostal) {
+      document.getElementById('lpRegPostal').value = searchedPostal;
+    }
+    updateGateForRegistration();
+    document.getElementById('lpGateSection').scrollIntoView({behavior:'smooth'});
+  });
+
+  // Register button
+  document.getElementById('lpRegBtn').addEventListener('click', registerPlayer);
+  document.getElementById('lpRegPostal').addEventListener('keypress', e => {
+    if (e.key === 'Enter') registerPlayer();
+  });
+}
+
+async function searchCharacter(postalCode) {
+  const msg = document.getElementById('lpSearchMsg');
+  msg.textContent = '検索中...';
+  searchedPostal = postalCode;
+
+  try {
+    const res = await fetch(API_BASE + '/api/game/character/' + postalCode);
+    const data = await res.json();
+    if (!data.success) { msg.textContent = data.error || 'キャラが見つかりませんでした'; return; }
+    msg.textContent = '';
+    displaySearchResult(data.character);
+  } catch (e) {
+    console.error('Search error:', e);
+    msg.textContent = '通信エラーが発生しました';
+  }
+}
+
+function displaySearchResult(char) {
+  const area = document.getElementById('lpResultArea');
+  const card = document.getElementById('lpResultCard');
+
+  // Images
+  const imgsEl = document.getElementById('lpResultImages');
+  imgsEl.innerHTML = [
+    {src: char.images.base, label: '基本'},
+    {src: char.images.evo1, label: '進化1'},
+    {src: char.images.evo2, label: '進化2'}
+  ].map((img, i) =>
+    '<img class="char-result-img rarity-' + char.rarity + (i===0?' active-img':'') + '" src="' + img.src + '" alt="' + img.label + '" onerror="this.style.opacity=\'0.3\'">'
+  ).join('');
+
+  // Name & code
+  document.getElementById('lpCharName').textContent = char.postalCode + ' のゆるキャラ';
+  document.getElementById('lpCharCode').textContent = '〒' + char.postalCode;
+
+  // Element
+  document.getElementById('lpCharElement').innerHTML = elementBadgeHTML(char.element);
+
+  // Rarity
+  document.getElementById('lpCharRarity').innerHTML = rarityTagHTML(char.rarity);
+
+  // Stats
+  document.getElementById('lpCharStats').innerHTML = statsHTML(char.stats);
+
+  // Skill
+  const skillEl = document.getElementById('lpCharSkill');
+  skillEl.innerHTML = '<div class="char-result-skill-name">' + ELEMENT_ICONS[char.skill.element] + ' ' + char.skill.name + ' (威力: ' + char.skill.power + ')</div>' +
+    '<div class="char-result-skill-desc">' + char.skill.desc + '</div>';
+
+  // Apply rarity to card border
+  card.className = 'char-result-card';
+  if (char.rarity === 'rare') card.style.borderColor = 'rgba(255,215,0,0.4)';
+  else if (char.rarity === 'super_rare') card.style.borderColor = 'rgba(156,39,176,0.4)';
+  else if (char.rarity === 'legend') card.style.borderImage = 'linear-gradient(135deg,#ff0000,#ff8800,#ffff00,#00ff00,#0088ff,#8800ff) 1';
+  else card.style.borderColor = 'rgba(255,255,255,0.1)';
+
+  area.classList.add('visible');
+  area.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+async function registerPlayer() {
+  const input = document.getElementById('lpRegPostal');
+  const errEl = document.getElementById('lpRegError');
+  const btn = document.getElementById('lpRegBtn');
+  const raw = input.value.replace(/[^0-9]/g,'');
+
+  if (raw.length !== 7) { errEl.textContent = '7桁の郵便番号を入力してください'; return; }
+
+  btn.disabled = true; btn.textContent = '登録中...'; errEl.textContent = '';
+
+  try {
+    const res = await apiFetch('/api/game/register', {
+      method: 'POST', body: JSON.stringify({postalCode: raw})
+    });
+    if (res.success) {
+      playerData = res.player;
+      districtData = res.district;
+      showToast('参戦完了！あなたの街を守ろう！', 'success');
+      showGame({
+        player: res.player, district: res.district,
+        element: res.element, region: res.region,
+        characterImage: IMG_BASE + '/' + raw + '_01.png'
+      });
+    } else {
+      errEl.textContent = res.error || '登録に失敗しました';
+    }
+  } catch (e) {
+    console.error('Register error:', e);
+    errEl.textContent = 'サーバーエラーが発生しました';
+  } finally {
+    btn.disabled = false; btn.textContent = '参戦する';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   JAPAN MAP RENDERING
+   ═══════════════════════════════════════════════════════ */
+function renderJapanMap() {
+  const svg = document.getElementById('japanMap');
+  svg.innerHTML = '';
+  const cellW = 40, cellH = 35, padX = 10, padY = 10;
+
+  PREFECTURES.forEach(pref => {
+    const x = padX + pref.col * cellW;
+    const y = padY + pref.row * cellH;
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('id','pref-'+pref.code);
+    rect.setAttribute('class','pref-rect');
+    rect.setAttribute('x',x); rect.setAttribute('y',y);
+    rect.setAttribute('width',cellW-2); rect.setAttribute('height',cellH-2);
+    rect.setAttribute('rx','3'); rect.setAttribute('fill','#4caf50');
+    rect.setAttribute('data-code',pref.code);
+    rect.addEventListener('click', () => onPrefClick(pref));
+    svg.appendChild(rect);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('class','pref-label');
+    text.setAttribute('x', x + (cellW-2)/2);
+    text.setAttribute('y', y + (cellH-2)/2);
+    text.textContent = shortName(pref.name);
+    svg.appendChild(text);
+  });
+}
+
+function onPrefClick(pref) {
+  document.querySelectorAll('.pref-rect.selected').forEach(el => el.classList.remove('selected'));
+  const rect = document.getElementById('pref-'+pref.code);
+  if (rect) rect.classList.add('selected');
+
+  const panel = document.getElementById('mapPrefDetail');
+  const ps = gameState?.prefectures?.find(p => p.prefecture === pref.name);
+
+  document.getElementById('mapPrefName').textContent = pref.name;
+
+  if (ps) {
+    const hpPct = Math.min(100, Math.max(0, ps.avgHp));
+    document.getElementById('mapPrefHp').textContent = ps.avgHp + '%';
+    document.getElementById('mapPrefInfection').textContent = Math.round(ps.infectionRate * 100) + '%';
+    document.getElementById('mapPrefPlayers').textContent = ps.players + '人';
+    document.getElementById('mapPrefInfected').textContent = ps.infected + '/' + ps.totalDistricts;
+    document.getElementById('mapPrefHpBar').style.width = hpPct + '%';
+    document.getElementById('mapPrefHpBar').style.backgroundColor = hpToColor(ps.avgHp);
+  } else {
+    ['mapPrefHp','mapPrefInfection','mapPrefPlayers','mapPrefInfected'].forEach(id =>
+      document.getElementById(id).textContent = '-');
+    document.getElementById('mapPrefHpBar').style.width = '0%';
+  }
+  panel.classList.add('visible');
+}
+
+function closePrefDetail() {
+  document.getElementById('mapPrefDetail').classList.remove('visible');
+  document.querySelectorAll('.pref-rect.selected').forEach(el => el.classList.remove('selected'));
+}
+
+function updateMapColors(prefectures) {
+  if (!prefectures) return;
+  prefectures.forEach(p => {
+    const code = PREF_NAME_TO_CODE[p.prefecture];
+    if (!code) return;
+    const rect = document.getElementById('pref-'+code);
+    if (rect) rect.setAttribute('fill', hpToColor(p.avgHp));
+  });
+}
+
+function renderAmoebasOnMap(amoebas) {
+  document.querySelectorAll('.amoeba-dot').forEach(el => el.remove());
+  const svg = document.getElementById('japanMap');
+  const cellW = 40, cellH = 35, padX = 10, padY = 10;
+  const typeColors = {fire:'#ff5722',water:'#2196f3',wood:'#4caf50',earth:'#795548',thunder:'#ffeb3b'};
+
+  (amoebas || []).forEach(a => {
+    const h = hashString(a.id || a.name);
+    const pref = PREFECTURES[h % PREFECTURES.length];
+    const cx = padX + pref.col * cellW + (cellW-2)/2;
+    const cy = padY + pref.row * cellH + (cellH-2)/2;
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('class','amoeba-dot');
+    circle.setAttribute('cx',cx); circle.setAttribute('cy',cy);
+    circle.setAttribute('r','5');
+    circle.setAttribute('fill', typeColors[a.element] || '#e94560');
+    circle.setAttribute('opacity','0.8');
+    svg.appendChild(circle);
+  });
+}
+
+function updateMapPlayerCard(profileRes) {
+  if (!profileRes) return;
+  const p = profileRes.player;
+  const img = document.getElementById('mapCharImg');
+
+  if (profileRes.characterImage) { img.src = profileRes.characterImage; img.style.display = ''; }
+  else if (p?.postal_code) { img.src = IMG_BASE + '/' + p.postal_code + '_01.png'; img.style.display = ''; }
+
+  document.getElementById('mapCharName').textContent = (profileRes.element ? ELEMENT_ICONS[profileRes.element]+' ' : '') + (p?.postal_code || 'キャラ');
+  document.getElementById('mapCharLevel').textContent = 'Lv.' + (p?.level || 1);
+  document.getElementById('mapCharElement').innerHTML = elementBadgeHTML(profileRes.element || 'earth');
+
+  if (p?.currentXp !== undefined && p?.nextLevelXp) {
+    document.getElementById('mapXpFill').style.width = Math.round((p.currentXp / p.nextLevelXp) * 100) + '%';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   DATA LOADING
+   ═══════════════════════════════════════════════════════ */
+async function loadGameState() {
+  try {
+    const res = await apiFetch('/api/game/state', {method:'GET', noAuth:true});
+    if (!res.success) return;
+    gameState = res;
+    updateMapColors(res.prefectures);
+    if (amoebasData) renderAmoebasOnMap(amoebasData);
+  } catch (e) { console.error('Game state error:', e); }
+}
+
+async function loadCollection() {
+  try {
+    const res = await apiFetch('/api/game/collection');
+    if (!res.success) return;
+    collectionData = res.collected;
+    renderCollection(res.collected, res.totalCollected);
+  } catch (e) { console.error('Collection error:', e); }
+}
+
+async function loadTeam() {
+  try {
+    const res = await apiFetch('/api/game/team');
+    if (!res.success) return;
+    teamData = res.team;
+    renderTeam(res.team);
+  } catch (e) { console.error('Team error:', e); }
+}
+
+async function loadAmoebas() {
+  try {
+    const res = await apiFetch('/api/game/amoebas', {method:'GET', noAuth:true});
+    if (!res.success) return;
+    amoebasData = res.amoebas;
+    renderAmoebas(res.amoebas);
+    renderAmoebasOnMap(res.amoebas);
+  } catch (e) { console.error('Amoebas error:', e); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   COLLECTION TAB
+   ═══════════════════════════════════════════════════════ */
+function renderCollection(collected, total) {
+  document.getElementById('collectionHeader').textContent = '図鑑 ' + (total||0) + '体 収集済み';
+  const grid = document.getElementById('collectionGrid');
+
+  if (!collected || collected.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:rgba(255,255,255,0.3);">まだキャラを集めていません。探索してキャラを見つけよう！</div>';
+    return;
+  }
+
+  grid.innerHTML = collected.map(c => {
+    const rarityClass = 'rarity-' + c.rarity;
+    return '<div class="collection-card ' + rarityClass + '" onclick="openCharDetail(\'' + c.postalCode + '\',' + c.level + ',' + c.evolved + ')">' +
+      '<img src="' + c.image + '" alt="' + c.postalCode + '" onerror="this.style.opacity=\'0.3\'">' +
+      '<div class="collection-card-info">' +
+      '<div class="collection-card-name">' + c.postalCode + '</div>' +
+      '<div class="collection-card-level">Lv.' + c.level + ' ' + ELEMENT_ICONS[c.element] + '</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function openCharDetail(postalCode, level, evolved) {
+  const modal = document.getElementById('charDetailModal');
+  const content = document.getElementById('charDetailContent');
+
+  // Fetch fresh profile
+  fetch(API_BASE + '/api/game/character/' + postalCode).then(r => r.json()).then(data => {
+    if (!data.success) { showToast('キャラ情報を取得できませんでした', 'error'); return; }
+    const c = data.character;
+
+    content.innerHTML = '<button class="modal-close" onclick="closeCharDetail()">&times;</button>' +
+      '<div style="text-align:center;margin-bottom:16px;">' +
+      '<img src="' + c.image + '" style="width:120px;height:120px;border-radius:16px;object-fit:cover;border:2px solid rgba(255,255,255,0.12);" onerror="this.style.opacity=\'0.3\'">' +
+      '</div>' +
+      '<div style="text-align:center;margin-bottom:8px;">' +
+      '<div style="font-size:1.1rem;font-weight:700;">' + c.postalCode + ' のゆるキャラ</div>' +
+      '<div style="font-size:0.82rem;color:rgba(255,255,255,0.5);">Lv.' + (level||c.level) + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">' +
+      elementBadgeHTML(c.element) + ' ' + rarityTagHTML(c.rarity) +
+      '</div>' +
+      statsHTML(c.stats) +
+      '<div class="char-result-skill" style="margin-top:12px;">' +
+      '<div class="char-result-skill-name">' + ELEMENT_ICONS[c.skill.element] + ' ' + c.skill.name + ' (威力: ' + c.skill.power + ')</div>' +
+      '<div class="char-result-skill-desc">' + c.skill.desc + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:center;margin-top:16px;">' +
+      '<img src="' + c.images.base + '" style="width:60px;height:60px;border-radius:10px;object-fit:cover;opacity:' + (c.evolved >= 0 ? '1':'0.3') + ';" onerror="this.style.opacity=\'0.2\'">' +
+      '<img src="' + c.images.evo1 + '" style="width:60px;height:60px;border-radius:10px;object-fit:cover;opacity:' + ((level||c.level) >= 10 ? '1':'0.3') + ';" onerror="this.style.opacity=\'0.2\'">' +
+      '<img src="' + c.images.evo2 + '" style="width:60px;height:60px;border-radius:10px;object-fit:cover;opacity:' + ((level||c.level) >= 25 ? '1':'0.3') + ';" onerror="this.style.opacity=\'0.2\'">' +
+      '</div>' +
+      '<div style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:6px;">基本 → Lv.10 進化1 → Lv.25 進化2</div>';
+
+    modal.classList.add('visible');
+  }).catch(e => { console.error('Char detail error:', e); showToast('通信エラー', 'error'); });
+}
+
+function closeCharDetail() {
+  document.getElementById('charDetailModal').classList.remove('visible');
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEAM TAB
+   ═══════════════════════════════════════════════════════ */
+function renderTeam(team) {
+  const container = document.getElementById('teamSlots');
+  let html = '';
+
+  for (let slot = 1; slot <= 3; slot++) {
+    const member = (team || []).find(m => m.slot === slot);
+    if (member) {
+      html += '<div class="team-slot">' +
+        '<div class="team-slot-num">SLOT ' + slot + '</div>' +
+        '<img class="team-slot-img rarity-' + member.rarity + '" src="' + member.image + '" alt="' + member.postalCode + '" onerror="this.style.opacity=\'0.3\'">' +
+        '<div class="team-slot-info">' +
+        '<div class="team-slot-name">' + member.postalCode + '</div>' +
+        '<div class="team-slot-detail">Lv.' + member.level + ' ' + elementBadgeHTML(member.element) + '</div>' +
+        '</div>' +
+        '<button class="team-slot-btn" onclick="openPicker(' + slot + ')">変更</button>' +
+        '</div>';
+    } else {
+      html += '<div class="team-slot">' +
+        '<div class="team-slot-num">SLOT ' + slot + '</div>' +
+        '<div class="team-slot-empty">+</div>' +
+        '<div class="team-slot-info">' +
+        '<div class="team-slot-name" style="color:rgba(255,255,255,0.3);">空きスロット</div>' +
+        '<div class="team-slot-detail" style="color:rgba(255,255,255,0.2);">キャラを配置しよう</div>' +
+        '</div>' +
+        '<button class="team-slot-btn" onclick="openPicker(' + slot + ')">編成する</button>' +
+        '</div>';
+    }
+  }
+  container.innerHTML = html;
+}
+
+function openPicker(slot) {
+  pickerSlot = slot;
+  const modal = document.getElementById('pickerModal');
+  const grid = document.getElementById('pickerGrid');
+
+  if (!collectionData || collectionData.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);">キャラがありません</div>';
+    modal.classList.add('visible');
+    return;
+  }
+
+  grid.innerHTML = collectionData.map(c =>
+    '<div class="picker-item" data-code="' + c.postalCode + '" onclick="togglePickerItem(this)">' +
+    '<img src="' + c.image + '" alt="' + c.postalCode + '" onerror="this.style.opacity=\'0.3\'">' +
+    '<div class="picker-item-name">' + c.postalCode + '</div>' +
+    '</div>'
+  ).join('');
+
+  modal.classList.add('visible');
+}
+
+function togglePickerItem(el) {
+  document.querySelectorAll('.picker-item.selected').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function confirmPicker() {
+  const selected = document.querySelector('.picker-item.selected');
+  if (!selected) { showToast('キャラを選択してください', 'info'); return; }
+
+  const code = selected.dataset.code;
+  const currentTeam = teamData || [];
+
+  // Build new slots array: replace this slot, keep others
+  const slots = [];
+  for (let s = 1; s <= 3; s++) {
+    if (s === pickerSlot) {
+      slots.push({slot: s, postalCode: code});
+    } else {
+      const existing = currentTeam.find(m => m.slot === s);
+      if (existing) slots.push({slot: s, postalCode: existing.postalCode});
+    }
+  }
+
+  try {
+    const res = await apiFetch('/api/game/team', {
+      method: 'POST', body: JSON.stringify({slots})
+    });
+    if (res.success) {
+      teamData = res.team;
+      renderTeam(res.team);
+      showToast('チームを更新しました', 'success');
+    } else {
+      showToast(res.error || 'チーム更新に失敗しました', 'error');
+    }
+  } catch (e) {
+    console.error('Team update error:', e);
+    showToast('通信エラー', 'error');
+  }
+  closePickerModal();
+}
+
+function closePickerModal() {
+  document.getElementById('pickerModal').classList.remove('visible');
+  pickerSlot = null;
+}
+
+/* ═══════════════════════════════════════════════════════
+   EXPLORE
+   ═══════════════════════════════════════════════════════ */
+async function doExplore() {
+  const btn = document.getElementById('exploreBtn');
+  const resultEl = document.getElementById('exploreResult');
+  btn.disabled = true;
+  btn.textContent = '探索中...';
+  resultEl.classList.remove('visible');
+
+  try {
+    const res = await apiFetch('/api/game/explore', {method:'POST'});
+
+    if (!res.success) {
+      showToast(res.error || '探索に失敗しました', 'error');
+      if (res.remaining !== undefined) {
+        document.getElementById('exploreRemaining').textContent = '残り ' + res.remaining + ' 回';
+      }
+      return;
     }
 
-    // Prefecture code → name mapping
-    const PREF_CODE_TO_NAME = {};
-    const PREF_NAME_TO_CODE = {};
-    PREFECTURES.forEach(p => {
-      PREF_CODE_TO_NAME[p.code] = p.name;
-      PREF_NAME_TO_CODE[p.name] = p.code;
+    document.getElementById('exploreRemaining').textContent = '残り ' + res.remaining + ' 回';
+
+    let html = '<div style="text-align:center;">';
+    if (res.encounter && res.character) {
+      const c = res.character;
+      html += '<div style="font-size:1.1rem;font-weight:700;margin-bottom:12px;">' +
+        (res.duplicate ? '再会！' : '新キャラ発見！') + '</div>' +
+        '<img src="' + c.image + '" style="width:80px;height:80px;border-radius:14px;object-fit:cover;border:2px solid rgba(255,255,255,0.12);margin-bottom:8px;" onerror="this.style.opacity=\'0.3\'">' +
+        '<div style="font-weight:600;">' + c.postalCode + '</div>' +
+        '<div style="font-size:0.82rem;color:rgba(255,255,255,0.5);">' + elementBadgeHTML(c.element) + ' ' + rarityTagHTML(c.rarity) + '</div>';
+    } else {
+      html += '<div style="font-size:1.1rem;color:rgba(255,255,255,0.5);">何も見つからなかった...</div>';
+    }
+    html += '<div style="font-size:0.82rem;margin-top:8px;color:rgba(255,255,255,0.5);">' + (res.message||'') + '</div></div>';
+
+    resultEl.innerHTML = html;
+    resultEl.classList.add('visible');
+
+    // Refresh collection if new encounter
+    if (res.encounter) loadCollection();
+
+  } catch (e) {
+    console.error('Explore error:', e);
+    showToast('通信エラー', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '探索する';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   BATTLE TAB - AMOEBA LIST
+   ═══════════════════════════════════════════════════════ */
+function renderAmoebas(amoebas) {
+  const list = document.getElementById('amoebaList');
+  if (!amoebas || amoebas.length === 0) {
+    list.innerHTML = '<div class="no-amoebas">現在出現中のアメーバはいません</div>';
+    return;
+  }
+
+  list.innerHTML = amoebas.map(a => {
+    const hpPct = a.maxHp > 0 ? Math.round((a.hp / a.maxHp) * 100) : 100;
+    const emoji = AMOEBA_EMOJIS[a.element] || '\uD83E\uDDA0';
+    let bossHTML = '';
+    if (a.bossType === 'weekly') bossHTML = '<span class="boss-badge boss-weekly">WEEKLY BOSS</span>';
+    if (a.bossType === 'monthly') bossHTML = '<span class="boss-badge boss-monthly">MONTHLY BOSS</span>';
+
+    return '<div class="amoeba-card">' +
+      '<div class="amoeba-icon amoeba-icon-' + a.element + '">' + emoji + '</div>' +
+      '<div class="amoeba-info">' +
+      '<div class="amoeba-name">' + a.name + ' ' + bossHTML + '</div>' +
+      '<div class="amoeba-detail">Lv.' + a.level + ' ' + elementBadgeHTML(a.element) + '</div>' +
+      '<div class="amoeba-hp-bar"><div class="amoeba-hp-fill" style="width:' + hpPct + '%"></div></div>' +
+      '<div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:2px;">HP ' + a.hp + '/' + a.maxHp + '</div>' +
+      '</div>' +
+      '<button class="amoeba-fight-btn" onclick="startBattle(\'' + a.id + '\')">バトル開始</button>' +
+      '</div>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   BATTLE SYSTEM
+   ═══════════════════════════════════════════════════════ */
+async function startBattle(amoebaId) {
+  if (!teamData || teamData.length === 0) {
+    showToast('チームを編成してからバトルに挑戦してください', 'error');
+    return;
+  }
+
+  try {
+    showToast('バトル準備中...', 'info');
+    const res = await apiFetch('/api/game/battle/start', {
+      method: 'POST', body: JSON.stringify({amoebaId})
+    });
+    if (!res.success) {
+      showToast(res.error || 'バトル開始に失敗しました', 'error');
+      return;
+    }
+    currentBattle = res.battle;
+    openBattleScreen();
+  } catch (e) {
+    console.error('Battle start error:', e);
+    showToast('通信エラー', 'error');
+  }
+}
+
+function openBattleScreen() {
+  if (!currentBattle) return;
+  const screen = document.getElementById('battleScreen');
+  screen.classList.add('visible');
+  updateBattleUI();
+}
+
+function updateBattleUI() {
+  const b = currentBattle;
+  if (!b) return;
+
+  const active = b.team.find(m => m.slot === b.activeSlot);
+  const amoeba = b.amoeba;
+
+  // Player side
+  if (active) {
+    const pImg = document.getElementById('battlePlayerImg');
+    pImg.src = active.image || (IMG_BASE + '/' + active.postalCode + '_01.png');
+    pImg.style.display = '';
+    document.getElementById('battlePlayerName').textContent = active.postalCode;
+    document.getElementById('battlePlayerElement').innerHTML = elementBadgeHTML(active.element);
+    document.getElementById('battlePlayerHpText').textContent = active.hp + '/' + active.maxHp;
+    document.getElementById('battlePlayerHpBar').style.width = Math.max(0, (active.hp/active.maxHp)*100) + '%';
+    document.getElementById('battlePlayerSpText').textContent = active.spGauge + '/3';
+    document.getElementById('battlePlayerSpBar').style.width = Math.min(100, (active.spGauge/3)*100) + '%';
+
+    // Enable/disable skill button
+    document.getElementById('battleSkillBtn').disabled = active.spGauge < 3;
+  }
+
+  // Enemy side
+  if (amoeba) {
+    document.getElementById('battleEnemyName').textContent = amoeba.name;
+    document.getElementById('battleEnemyElement').innerHTML = elementBadgeHTML(amoeba.element);
+    document.getElementById('battleEnemyHpText').textContent = amoeba.hp + '/' + amoeba.maxHp;
+    document.getElementById('battleEnemyHpBar').style.width = Math.max(0, (amoeba.hp/amoeba.maxHp)*100) + '%';
+
+    const blob = document.getElementById('battleEnemyBlob');
+    blob.style.background = ELEMENT_BLOB_COLORS[amoeba.element] || 'rgba(233,69,96,0.3)';
+    blob.textContent = AMOEBA_EMOJIS[amoeba.element] || '\uD83E\uDDA0';
+  }
+
+  // Switch button: enabled only if there are other alive members
+  const otherAlive = b.team.filter(m => m.alive && m.slot !== b.activeSlot);
+  document.getElementById('battleSwitchBtn').disabled = otherAlive.length === 0;
+
+  // Battle log
+  renderBattleLog(b.log);
+}
+
+function renderBattleLog(logs) {
+  const el = document.getElementById('battleLog');
+  el.innerHTML = (logs || []).map(line => {
+    let cls = 'battle-log-line';
+    if (line.includes('効果抜群') || line.includes('勝利')) cls += ' effective';
+    else if (line.includes('いまひとつ') || line.includes('倒れた') || line.includes('敗北')) cls += ' ineffective';
+    else if (line.includes('バトル開始') || line.includes('交代') || line.includes('シャード')) cls += ' system';
+    return '<div class="' + cls + '">' + line + '</div>';
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function battleAction(action) {
+  if (!currentBattle || currentBattle.status !== 'active') return;
+
+  // Disable buttons during action
+  document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = true);
+
+  try {
+    const res = await apiFetch('/api/game/battle/action', {
+      method: 'POST', body: JSON.stringify({action})
     });
 
-    /* ═════════════════════════════════════════════════
-       Initialization
-       ═════════════════════════════════════════════════ */
-    document.addEventListener('DOMContentLoaded', init);
-
-    async function init() {
-      // Check both possible token keys for compatibility
-      authToken = localStorage.getItem('mascodex_token') || localStorage.getItem('userToken');
-
-      if (!authToken) {
-        showLoginGate();
-        return;
-      }
-
-      hideLoginGate();
-      await checkPlayerRegistration();
+    if (!res.success && !res.battle) {
+      showToast(res.error || 'バトルアクションに失敗', 'error');
+      document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = false);
+      return;
     }
 
-    function showLoginGate() {
-      document.getElementById('loginGate').classList.remove('hidden');
-      document.getElementById('registerGate').classList.add('hidden');
-      document.getElementById('gameUI').style.display = 'none';
+    currentBattle = res.battle;
+    updateBattleUI();
+
+    // Check win/lose
+    if (res.battle.status === 'win') {
+      setTimeout(() => showBattleResult('win', res.rewards), 600);
+    } else if (res.battle.status === 'lose') {
+      setTimeout(() => showBattleResult('lose', null), 600);
+    } else {
+      // Re-enable buttons
+      document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = false);
+      // Re-check skill button
+      const active = res.battle.team.find(m => m.slot === res.battle.activeSlot);
+      if (active) document.getElementById('battleSkillBtn').disabled = active.spGauge < 3;
+      const otherAlive = res.battle.team.filter(m => m.alive && m.slot !== res.battle.activeSlot);
+      document.getElementById('battleSwitchBtn').disabled = otherAlive.length === 0;
     }
-
-    function hideLoginGate() {
-      document.getElementById('loginGate').classList.add('hidden');
-    }
-
-    async function checkPlayerRegistration() {
-      try {
-        const res = await apiFetch('/api/game/player/me');
-        if (res.success && res.registered) {
-          playerData = res.player;
-          districtData = res.district;
-          hideLoginGate();
-          document.getElementById('registerGate').classList.add('hidden');
-          showGameUI(res);
-        } else {
-          // Not registered yet, show postal code input
-          hideLoginGate();
-          document.getElementById('registerGate').classList.remove('hidden');
-          document.getElementById('gameUI').style.display = 'none';
-        }
-      } catch (err) {
-        console.error('Failed to check player:', err);
-        // If 401, token is invalid
-        showLoginGate();
-      }
-    }
-
-    async function registerPlayer() {
-      const input = document.getElementById('postalCodeInput');
-      const errEl = document.getElementById('registerError');
-      const btn = document.getElementById('registerBtn');
-      const raw = input.value.replace(/[^0-9]/g, '');
-
-      if (raw.length !== 7) {
-        errEl.textContent = '7桁の郵便番号を入力してください';
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = '登録中...';
-      errEl.textContent = '';
-
-      try {
-        const res = await apiFetch('/api/game/register', {
-          method: 'POST',
-          body: JSON.stringify({ postalCode: raw }),
-        });
-
-        if (res.success) {
-          playerData = res.player;
-          districtData = res.district;
-          document.getElementById('registerGate').classList.add('hidden');
-          showGameUI({
-            player: res.player,
-            district: res.district,
-            element: res.element,
-            region: res.region,
-            characterImage: `https://img.mascodex.com/${raw}_01.png`,
-          });
-          showToast('参戦完了！あなたの街を守ろう！', 'success');
-        } else {
-          errEl.textContent = res.error || '登録に失敗しました';
-        }
-      } catch (err) {
-        console.error('Registration error:', err);
-        errEl.textContent = 'サーバーエラーが発生しました';
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '参戦する';
-      }
-    }
-
-    /* ═════════════════════════════════════════════════
-       Show Game UI
-       ═════════════════════════════════════════════════ */
-    async function showGameUI(profileRes) {
-      document.getElementById('gameUI').style.display = '';
-
-      // Render Japan map SVG
-      renderJapanMap();
-
-      // Update character display
-      updateCharacterDisplay(profileRes);
-
-      // Load data in parallel
-      await Promise.all([
-        loadGameState(),
-        loadRankings(),
-        loadAmoebas(),
-      ]);
-
-      // Start auto-refresh
-      if (refreshInterval) clearInterval(refreshInterval);
-      refreshInterval = setInterval(async () => {
-        await Promise.all([loadGameState(), loadRankings(), loadAmoebas()]);
-      }, 60000);
-    }
-
-    /* ═════════════════════════════════════════════════
-       Japan SVG Map Rendering
-       ═════════════════════════════════════════════════ */
-    function renderJapanMap() {
-      const svg = document.getElementById('japanMap');
-      svg.innerHTML = '';  // clear
-
-      const cellW = 40;
-      const cellH = 35;
-      const padX = 10;
-      const padY = 10;
-
-      PREFECTURES.forEach(pref => {
-        const x = padX + pref.col * cellW;
-        const y = padY + pref.row * cellH;
-
-        // Rectangle for prefecture
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('id', `pref-${pref.code}`);
-        rect.setAttribute('class', 'pref-rect');
-        rect.setAttribute('x', x);
-        rect.setAttribute('y', y);
-        rect.setAttribute('width', cellW - 2);
-        rect.setAttribute('height', cellH - 2);
-        rect.setAttribute('rx', '3');
-        rect.setAttribute('fill', '#4caf50');
-        rect.setAttribute('data-code', pref.code);
-        rect.setAttribute('data-name', pref.name);
-        rect.addEventListener('click', () => onPrefClick(pref));
-        svg.appendChild(rect);
-
-        // Text label
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('class', 'pref-label');
-        text.setAttribute('x', x + (cellW - 2) / 2);
-        text.setAttribute('y', y + (cellH - 2) / 2);
-        text.textContent = shortName(pref.name);
-        svg.appendChild(text);
-      });
-    }
-
-    /* ═════════════════════════════════════════════════
-       Data Loading
-       ═════════════════════════════════════════════════ */
-    async function loadGameState() {
-      try {
-        const res = await apiFetch('/api/game/state', { method: 'GET', noAuth: true });
-        if (!res.success) return;
-        gameState = res;
-        updateMapColors(res.prefectures);
-        document.getElementById('amoebaCountText').textContent = `アメーバ: ${res.activeAmoebas}体`;
-      } catch (err) {
-        console.error('Failed to load game state:', err);
-      }
-    }
-
-    async function loadRankings() {
-      try {
-        const res = await apiFetch('/api/game/ranking/prefectures', { method: 'GET', noAuth: true });
-        if (!res.success) return;
-        rankingsData = res.rankings;
-        renderRankings(res.rankings);
-      } catch (err) {
-        console.error('Failed to load rankings:', err);
-      }
-    }
-
-    async function loadAmoebas() {
-      try {
-        const res = await apiFetch('/api/game/amoebas', { method: 'GET', noAuth: true });
-        if (!res.success) return;
-        amoebasData = res.amoebas;
-        renderAmoebasOnMap(res.amoebas);
-      } catch (err) {
-        console.error('Failed to load amoebas:', err);
-      }
-    }
-
-    /* ═════════════════════════════════════════════════
-       Map Color Update
-       ═════════════════════════════════════════════════ */
-    function hpToColor(avgHp) {
-      // avgHp is 0-100
-      if (avgHp >= 75) return '#4caf50';   // green - safe
-      if (avgHp >= 50) return '#ff9800';   // orange - caution
-      if (avgHp >= 25) return '#f44336';   // red - danger
-      return '#880e4f';                     // dark red - critical
-    }
-
-    function updateMapColors(prefectures) {
-      if (!prefectures) return;
-      prefectures.forEach(p => {
-        const code = PREF_NAME_TO_CODE[p.prefecture];
-        if (!code) return;
-        const rect = document.getElementById(`pref-${code}`);
-        if (rect) {
-          rect.setAttribute('fill', hpToColor(p.avgHp));
-        }
-      });
-    }
-
-    /* ═════════════════════════════════════════════════
-       Amoeba Visualization on Map
-       ═════════════════════════════════════════════════ */
-    function renderAmoebasOnMap(amoebas) {
-      // Remove existing amoeba dots
-      document.querySelectorAll('.amoeba-dot').forEach(el => el.remove());
-
-      const svg = document.getElementById('japanMap');
-      const cellW = 40;
-      const cellH = 35;
-      const padX = 10;
-      const padY = 10;
-
-      // Build a map from district prefix to affected prefectures
-      amoebas.forEach(amoeba => {
-        // Amoeba has currentDistricts: array of 3-digit codes
-        // We need to map these to prefectures on the map
-        // For simplicity, place a pulsing dot on the origin district's prefecture
-        const originCode = amoeba.originDistrict;
-        // Find which prefecture this district belongs to by checking gameState
-        let prefCode = null;
-        if (gameState && gameState.prefectures) {
-          // We can't directly map district to prefecture from client side easily,
-          // but we know the first digit(s) roughly map to prefecture codes.
-          // Instead, let's put dots on affected districts by looking at the map more broadly.
-          // For a visual approximation, we'll scatter amoeba dots across the map.
-        }
-
-        // Place a dot at a random position within the map area for each active amoeba
-        // as a visual indicator. More precisely, if we knew the prefecture, we'd place it there.
-        // For now, use a pseudo-random but deterministic position based on amoeba id
-        const hash = hashString(amoeba.id || amoeba.name);
-        const prefIdx = hash % PREFECTURES.length;
-        const pref = PREFECTURES[prefIdx];
-        const cx = padX + pref.col * cellW + (cellW - 2) / 2;
-        const cy = padY + pref.row * cellH + (cellH - 2) / 2;
-
-        const typeColors = {
-          fire: '#ff5722',
-          ice: '#03a9f4',
-          poison: '#9c27b0',
-          water: '#2196f3',
-          thunder: '#ffeb3b',
-        };
-
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('class', 'amoeba-dot');
-        circle.setAttribute('cx', cx);
-        circle.setAttribute('cy', cy);
-        circle.setAttribute('r', '5');
-        circle.setAttribute('fill', typeColors[amoeba.type] || '#e94560');
-        circle.setAttribute('opacity', '0.8');
-        svg.appendChild(circle);
-      });
-    }
-
-    function hashString(str) {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-      }
-      return Math.abs(hash);
-    }
-
-    /* ═════════════════════════════════════════════════
-       Rankings Rendering
-       ═════════════════════════════════════════════════ */
-    function renderRankings(rankings) {
-      const list = document.getElementById('rankingsList');
-      if (!rankings || rankings.length === 0) {
-        list.innerHTML = '<div style="padding:16px;color:rgba(255,255,255,0.4);font-size:0.85rem;">ランキングデータなし</div>';
-        return;
-      }
-
-      list.innerHTML = rankings.map(r => {
-        let changeStr = '';
-        let changeClass = 'same';
-        if (r.rankChange > 0) {
-          changeStr = `&#9650;${r.rankChange}`;
-          changeClass = 'up';
-        } else if (r.rankChange < 0) {
-          changeStr = `&#9660;${Math.abs(r.rankChange)}`;
-          changeClass = 'down';
-        } else {
-          changeStr = '-';
-        }
-
-        const isMyPref = playerData && playerData.prefecture === r.prefecture;
-
-        return `
-          <div class="rank-item${isMyPref ? ' active' : ''}" onclick="onRankingClick('${r.prefecture}')">
-            <span class="rank-num">${r.rank}</span>
-            <span class="rank-name">${shortName(r.prefecture)}</span>
-            <span class="rank-change ${changeClass}">${changeStr}</span>
-            <span class="rank-score">${Math.round(r.totalScore)}</span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function onRankingClick(prefName) {
-      const code = PREF_NAME_TO_CODE[prefName];
-      if (!code) return;
-      const pref = PREFECTURES.find(p => p.code === code);
-      if (pref) onPrefClick(pref);
-    }
-
-    /* ═════════════════════════════════════════════════
-       Prefecture Click → Detail Panel
-       ═════════════════════════════════════════════════ */
-    function onPrefClick(pref) {
-      // Highlight on map
-      document.querySelectorAll('.pref-rect.selected').forEach(el => el.classList.remove('selected'));
-      const rect = document.getElementById(`pref-${pref.code}`);
-      if (rect) rect.classList.add('selected');
-
-      // Fill detail panel with state data
-      const panel = document.getElementById('prefDetailPanel');
-      const prefState = gameState?.prefectures?.find(p => p.prefecture === pref.name);
-
-      document.getElementById('prefDetailTitle').textContent = pref.name;
-
-      if (prefState) {
-        const avgHp = prefState.avgHp;
-        const hpPct = Math.min(100, Math.max(0, avgHp));
-        document.getElementById('prefDetailHp').textContent = `${avgHp}%`;
-        document.getElementById('prefDetailInfection').textContent = `${Math.round(prefState.infectionRate * 100)}%`;
-        document.getElementById('prefDetailPlayers').textContent = `${prefState.players}人`;
-        document.getElementById('prefDetailInfected').textContent = `${prefState.infected}/${prefState.totalDistricts}`;
-
-        const hpBar = document.getElementById('prefDetailHpBar');
-        hpBar.style.width = hpPct + '%';
-        hpBar.style.backgroundColor = hpToColor(avgHp);
-      } else {
-        document.getElementById('prefDetailHp').textContent = '-';
-        document.getElementById('prefDetailInfection').textContent = '-';
-        document.getElementById('prefDetailPlayers').textContent = '-';
-        document.getElementById('prefDetailInfected').textContent = '-';
-        document.getElementById('prefDetailHpBar').style.width = '0%';
-      }
-
-      panel.classList.add('visible');
-    }
-
-    function closePrefDetail() {
-      document.getElementById('prefDetailPanel').classList.remove('visible');
-      document.querySelectorAll('.pref-rect.selected').forEach(el => el.classList.remove('selected'));
-    }
-
-    /* ═════════════════════════════════════════════════
-       Character Display
-       ═════════════════════════════════════════════════ */
-    function updateCharacterDisplay(profileRes) {
-      if (!profileRes) return;
-
-      const p = profileRes.player;
-      const d = profileRes.district;
-      const charImg = document.getElementById('characterImg');
-      const imgWrap = document.getElementById('characterImgWrap');
-
-      // Character image
-      if (profileRes.characterImage) {
-        charImg.src = profileRes.characterImage;
-        charImg.style.display = '';
-      }
-
-      // Character state CSS class
-      const status = d ? d.status : 'healthy';
-      imgWrap.className = 'character-img-wrap char-' + status;
-
-      // Character info
-      document.getElementById('charName').textContent = profileRes.element
-        ? `${profileRes.element}属性のキャラ`
-        : 'キャラクター';
-      document.getElementById('charLevel').textContent = `Lv.${p.level || 1}`;
-
-      // XP bar
-      if (p.currentXp !== undefined && p.nextLevelXp) {
-        const xpPct = Math.round((p.currentXp / p.nextLevelXp) * 100);
-        document.getElementById('charXpFill').style.width = xpPct + '%';
-      }
-
-      // District info
-      if (d) {
-        document.getElementById('charDistrict').textContent = `${d.name || d.code} (${p.prefecture || ''})`;
-        const hpPct = Math.round((d.hp / d.maxHp) * 100);
-        document.getElementById('districtHpFill').style.width = hpPct + '%';
-        document.getElementById('districtHpFill').style.backgroundColor = hpToColor(hpPct);
-        document.getElementById('districtHpText').textContent = `${d.hp}/${d.maxHp}`;
-      }
-    }
-
-    /* ═════════════════════════════════════════════════
-       Login Bonus
-       ═════════════════════════════════════════════════ */
-    async function claimLoginBonus() {
-      const btn = document.getElementById('loginBonusBtn');
-      btn.disabled = true;
-
-      try {
-        const res = await apiFetch('/api/game/action/login', { method: 'POST' });
-        if (res.success) {
-          showToast(`ログインボーナス獲得！ HP+${res.hpGiven} XP+${res.xpEarned} (${res.consecutiveDays}日連続)`, 'success');
-          // Update district HP display
-          if (res.district) {
-            districtData = res.district;
-            const hpPct = Math.round((res.district.hp / res.district.maxHp) * 100);
-            document.getElementById('districtHpFill').style.width = hpPct + '%';
-            document.getElementById('districtHpFill').style.backgroundColor = hpToColor(hpPct);
-            document.getElementById('districtHpText').textContent = `${res.district.hp}/${res.district.maxHp}`;
-          }
-          // Refresh player data
-          await refreshPlayerData();
-        } else {
-          if (res.alreadyClaimed) {
-            showToast('今日のログインボーナスはもう受け取りました', 'info');
-          } else {
-            showToast(res.error || 'エラーが発生しました', 'error');
-          }
-        }
-      } catch (err) {
-        console.error('Login bonus error:', err);
-        showToast('通信エラーが発生しました', 'error');
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    /* ═════════════════════════════════════════════════
-       Quiz
-       ═════════════════════════════════════════════════ */
-    async function openQuiz() {
-      const modal = document.getElementById('quizModal');
-      const optionsEl = document.getElementById('quizOptions');
-      const resultEl = document.getElementById('quizResult');
-
-      // Reset
-      optionsEl.innerHTML = '<div style="text-align:center;padding:20px;"><div class="loading-spinner"></div></div>';
-      resultEl.classList.remove('visible');
-      document.getElementById('quizQuestion').textContent = '読み込み中...';
-      modal.classList.add('visible');
-
-      try {
-        const res = await apiFetch('/api/game/action/quiz', {
-          method: 'POST',
-          body: JSON.stringify({ action: 'get' }),
-        });
-
-        if (!res.success) {
-          document.getElementById('quizQuestion').textContent = res.error || 'クイズを取得できませんでした';
-          optionsEl.innerHTML = '';
-          return;
-        }
-
-        currentQuizId = res.quizId;
-        document.getElementById('quizModalTitle').textContent = `ご当地クイズ (残り${res.remaining}回)`;
-        document.getElementById('quizQuestion').textContent = res.question;
-
-        optionsEl.innerHTML = res.options.map((opt, i) => `
-          <button class="quiz-option-btn" onclick="answerQuiz(${i})" data-index="${i}">${opt}</button>
-        `).join('');
-
-      } catch (err) {
-        console.error('Quiz load error:', err);
-        document.getElementById('quizQuestion').textContent = '通信エラーが発生しました';
-        optionsEl.innerHTML = '';
-      }
-    }
-
-    async function answerQuiz(answerIndex) {
-      if (!currentQuizId) return;
-
-      // Disable all buttons
-      document.querySelectorAll('.quiz-option-btn').forEach(btn => btn.disabled = true);
-
-      try {
-        const res = await apiFetch('/api/game/action/quiz', {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'answer',
-            quizId: currentQuizId,
-            answer: answerIndex,
-          }),
-        });
-
-        if (!res.success) {
-          showToast(res.error || 'エラーが発生しました', 'error');
-          return;
-        }
-
-        // Highlight correct/wrong
-        const buttons = document.querySelectorAll('.quiz-option-btn');
-        buttons.forEach((btn, i) => {
-          if (i === res.correctAnswer) btn.classList.add('correct');
-          if (i === answerIndex && !res.correct) btn.classList.add('wrong');
-        });
-
-        // Show result
-        const resultEl = document.getElementById('quizResult');
-        const iconEl = document.getElementById('quizResultIcon');
-        const textEl = document.getElementById('quizResultText');
-        const hpEl = document.getElementById('quizResultHp');
-
-        if (res.correct) {
-          iconEl.textContent = '\u2B50';
-          textEl.textContent = '正解！';
-          let bonusText = '';
-          if (res.bonusMultiplier > 1) bonusText = ` (属性ボーナス x${res.bonusMultiplier})`;
-          hpEl.textContent = `HP +${res.hpGiven}  XP +${res.xpEarned}${bonusText}`;
-        } else {
-          iconEl.textContent = '\u274C';
-          textEl.textContent = '不正解...';
-          hpEl.textContent = '次は正解しよう！';
-        }
-
-        resultEl.classList.add('visible');
-        currentQuizId = null;
-
-        // Update district HP if provided
-        if (res.district) {
-          districtData = res.district;
-          const hpPct = Math.round((res.district.hp / res.district.maxHp) * 100);
-          document.getElementById('districtHpFill').style.width = hpPct + '%';
-          document.getElementById('districtHpFill').style.backgroundColor = hpToColor(hpPct);
-          document.getElementById('districtHpText').textContent = `${res.district.hp}/${res.district.maxHp}`;
-        }
-
-        // Auto close after 2.5 seconds
-        setTimeout(() => {
-          closeQuiz();
-          refreshPlayerData();
-        }, 2500);
-
-      } catch (err) {
-        console.error('Quiz answer error:', err);
-        showToast('通信エラーが発生しました', 'error');
-      }
-    }
-
-    function closeQuiz() {
-      document.getElementById('quizModal').classList.remove('visible');
-      currentQuizId = null;
-    }
-
-    /* ═════════════════════════════════════════════════
-       Share
-       ═════════════════════════════════════════════════ */
-    function openSharePanel() {
-      document.getElementById('sharePanel').classList.add('visible');
-    }
-
-    function closeSharePanel() {
-      document.getElementById('sharePanel').classList.remove('visible');
-    }
-
-    function getShareText() {
-      const pref = playerData?.prefecture || '日本';
-      let infectionRate = '??';
-      if (gameState?.prefectures) {
-        const prefState = gameState.prefectures.find(p => p.prefecture === pref);
-        if (prefState) infectionRate = Math.round(prefState.infectionRate * 100);
-      }
-      return `「${pref}が${infectionRate}%侵食されてる！助けて！ #アメーバシティ #mascodex」`;
-    }
-
-    function shareTwitter() {
-      const text = encodeURIComponent(getShareText());
-      const url = encodeURIComponent('https://mascodex.com/game.html');
-      window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-      recordShareAction();
-    }
-
-    function shareLine() {
-      const text = encodeURIComponent(getShareText());
-      const url = encodeURIComponent('https://mascodex.com/game.html');
-      window.open(`https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`, '_blank');
-      recordShareAction();
-    }
-
-    async function recordShareAction() {
-      closeSharePanel();
-      try {
-        const res = await apiFetch('/api/game/action/share', { method: 'POST' });
-        if (res.success) {
-          showToast(`シェアボーナス獲得！ HP+${res.hpGiven} XP+${res.xpEarned} (残り${res.remaining}回)`, 'success');
-          if (res.district) {
-            districtData = res.district;
-            const hpPct = Math.round((res.district.hp / res.district.maxHp) * 100);
-            document.getElementById('districtHpFill').style.width = hpPct + '%';
-            document.getElementById('districtHpFill').style.backgroundColor = hpToColor(hpPct);
-            document.getElementById('districtHpText').textContent = `${res.district.hp}/${res.district.maxHp}`;
-          }
-          await refreshPlayerData();
-        } else {
-          if (res.remaining === 0) {
-            showToast('今日のシェア上限に達しました', 'info');
-          } else {
-            showToast(res.error || 'エラーが発生しました', 'error');
-          }
-        }
-      } catch (err) {
-        console.error('Share action error:', err);
-      }
-    }
-
-    /* ═════════════════════════════════════════════════
-       Refresh Player Data
-       ═════════════════════════════════════════════════ */
-    async function refreshPlayerData() {
-      try {
-        const res = await apiFetch('/api/game/player/me');
-        if (res.success && res.registered) {
-          playerData = res.player;
-          districtData = res.district;
-          updateCharacterDisplay(res);
-        }
-      } catch (err) {
-        console.error('Failed to refresh player:', err);
-      }
-    }
-
-    /* ═════════════════════════════════════════════════
-       API Fetch Helper
-       ═════════════════════════════════════════════════ */
-    async function apiFetch(path, options = {}) {
-      const headers = { 'Content-Type': 'application/json' };
-      if (!options.noAuth && authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
-      }
-
-      const res = await fetch(API_BASE + path, {
-        method: options.method || 'GET',
-        headers,
-        body: options.body || undefined,
-      });
-
-      if (res.status === 401) {
-        // Token expired or invalid
-        localStorage.removeItem('mascodex_token');
-        localStorage.removeItem('userToken');
-        showLoginGate();
-        throw new Error('Unauthorized');
-      }
-
-      return res.json();
-    }
-
-    /* ═════════════════════════════════════════════════
-       Toast Notifications
-       ═════════════════════════════════════════════════ */
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-
-      // Remove after animation
-      setTimeout(() => {
-        if (toast.parentNode) toast.parentNode.removeChild(toast);
-      }, 3000);
-    }
-
-    /* ═════════════════════════════════════════════════
-       Enter key on postal code input
-       ═════════════════════════════════════════════════ */
-    document.getElementById('postalCodeInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') registerPlayer();
+  } catch (e) {
+    console.error('Battle action error:', e);
+    showToast('通信エラー', 'error');
+    document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = false);
+  }
+}
+
+function openSwitchModal() {
+  if (!currentBattle) return;
+  const modal = document.getElementById('switchModal');
+  const list = document.getElementById('switchList');
+
+  const otherAlive = currentBattle.team.filter(m => m.alive && m.slot !== currentBattle.activeSlot);
+  if (otherAlive.length === 0) { showToast('交代できるメンバーがいません', 'info'); return; }
+
+  list.innerHTML = otherAlive.map(m =>
+    '<div style="display:flex;gap:12px;align-items:center;padding:10px;cursor:pointer;border-radius:10px;border:1px solid rgba(255,255,255,0.08);margin-bottom:8px;transition:background 0.15s;" ' +
+    'onmouseover="this.style.background=\'rgba(255,255,255,0.06)\'" onmouseout="this.style.background=\'none\'" ' +
+    'onclick="doSwitch(' + m.slot + ')">' +
+    '<img src="' + (m.image || IMG_BASE + '/' + m.postalCode + '_01.png') + '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;" onerror="this.style.opacity=\'0.3\'">' +
+    '<div>' +
+    '<div style="font-weight:600;">' + m.postalCode + '</div>' +
+    '<div style="font-size:0.78rem;color:rgba(255,255,255,0.5);">HP ' + m.hp + '/' + m.maxHp + ' ' + elementBadgeHTML(m.element) + '</div>' +
+    '</div></div>'
+  ).join('');
+
+  modal.classList.add('visible');
+}
+
+async function doSwitch(targetSlot) {
+  closeSwitchModal();
+  if (!currentBattle) return;
+
+  document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = true);
+
+  try {
+    const res = await apiFetch('/api/game/battle/action', {
+      method: 'POST', body: JSON.stringify({action:'switch', targetSlot})
     });
-  </script>
+    if (res.battle) {
+      currentBattle = res.battle;
+      updateBattleUI();
+    }
+    if (res.battle?.status === 'win') setTimeout(() => showBattleResult('win', res.rewards), 600);
+    else if (res.battle?.status === 'lose') setTimeout(() => showBattleResult('lose', null), 600);
+    else document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = false);
+  } catch (e) {
+    console.error('Switch error:', e);
+    document.querySelectorAll('.battle-cmd').forEach(b => b.disabled = false);
+  }
+}
+
+function closeSwitchModal() {
+  document.getElementById('switchModal').classList.remove('visible');
+}
+
+function showBattleResult(result, rewards) {
+  const overlay = document.getElementById('battleResultOverlay');
+  const titleEl = document.getElementById('battleResultTitle');
+  const detailsEl = document.getElementById('battleResultDetails');
+
+  if (result === 'win') {
+    titleEl.textContent = '勝利！';
+    titleEl.className = 'battle-result-title battle-result-win';
+    let details = 'アメーバを倒した！';
+    if (rewards) {
+      details += '\nXP +' + (rewards.xpGained || 0);
+      if (rewards.shardDrop) {
+        details += '\nシャード獲得: ' + rewards.shardDrop.postalCode + ' (' + rewards.shardDrop.count + '/10)';
+        if (rewards.shardDrop.unlocked) details += '\n新キャラ解放！';
+      }
+    }
+    detailsEl.textContent = details;
+  } else {
+    titleEl.textContent = '全滅...';
+    titleEl.className = 'battle-result-title battle-result-lose';
+    detailsEl.textContent = '次はきっと勝てる！\nチームを強化して再挑戦しよう';
+  }
+
+  overlay.classList.add('visible');
+}
+
+function closeBattleResult() {
+  document.getElementById('battleResultOverlay').classList.remove('visible');
+  document.getElementById('battleScreen').classList.remove('visible');
+  currentBattle = null;
+
+  // Refresh data
+  loadAmoebas();
+  loadCollection();
+  loadTeam();
+}
+
+/* ═══════════════════════════════════════════════════════
+   END
+   ═══════════════════════════════════════════════════════ */
+</script>
 </body>
 </html>
