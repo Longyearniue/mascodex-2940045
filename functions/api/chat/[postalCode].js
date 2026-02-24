@@ -39,8 +39,7 @@ function getSubdomain(postalCode) {
  */
 async function fetchCharacterFromSite(postalCode) {
   const subdomain = getSubdomain(postalCode);
-  const formatted = postalCode.slice(0, 3) + '-' + postalCode.slice(3);
-  const url = `https://${subdomain}.mascodex.com/jp/${formatted}/`;
+  const url = `https://${subdomain}.mascodex.com/jp/${postalCode}/`;
 
   const res = await fetch(url, {
     headers: { 'User-Agent': 'MascodexChat/1.0' },
@@ -60,17 +59,16 @@ async function fetchCharacterFromSite(postalCode) {
   const areaMatch = html.match(/〒\d{7}｜([^<\n]+)/);
   const area = areaMatch ? areaMatch[1].trim() : '不明な地域';
 
-  // Extract intro paragraph — first <p> after the name heading area
-  const introMatch = html.match(/<p[^>]*class="[^"]*intro[^"]*"[^>]*>([\s\S]*?)<\/p>/);
-  const intro = introMatch
-    ? introMatch[1].replace(/<[^>]+>/g, '').trim()
+  // Extract intro: everything between 紹介 heading and end of its section
+  const introSectionMatch = html.match(/<h2>紹介<\/h2>([\s\S]*?)<\/div>/);
+  const intro = introSectionMatch
+    ? introSectionMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
     : '';
 
-  // Extract story from the story section
-  // Look for a section/heading with ストーリー followed by content
-  const storyMatch = html.match(/ストーリー[\s\S]*?<(?:p|div)[^>]*>([\s\S]*?)<\/(?:p|div)>/);
-  const story = storyMatch
-    ? storyMatch[1].replace(/<[^>]+>/g, '').trim()
+  // Extract story: everything between ストーリー heading and end of its section
+  const storySectionMatch = html.match(/<h2>ストーリー<\/h2>([\s\S]*?)(?:<\/div>|<script)/);
+  const story = storySectionMatch
+    ? storySectionMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
     : '';
 
   return { name, area, intro, story };
