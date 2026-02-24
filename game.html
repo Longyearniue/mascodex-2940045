@@ -811,7 +811,11 @@
     <div class="lp-gate-card" id="lpLoginGate">
       <div class="lp-gate-title">冒険に参加しよう</div>
       <div class="lp-gate-desc">ログインしてゲームに参戦！<br>あなたの街のキャラを育てよう</div>
-      <a href="index.html" class="lp-btn lp-btn-primary" style="display:inline-block;text-decoration:none;padding:14px 40px;">ログインページへ</a>
+      <input type="email" id="lpAuthEmail" class="lp-input" placeholder="メールアドレス" style="margin-bottom:10px;">
+      <input type="password" id="lpAuthPassword" class="lp-input" placeholder="パスワード（6文字以上）" style="margin-bottom:10px;">
+      <div class="lp-gate-error" id="lpAuthError"></div>
+      <button class="lp-btn lp-btn-primary" id="lpLoginBtn" style="width:100%;padding:14px;margin-bottom:8px;">ログイン</button>
+      <button class="lp-btn" id="lpSignupBtn" style="width:100%;padding:14px;background:transparent;border:1px solid #e94560;color:#e94560;">新規登録</button>
     </div>
     <div class="lp-gate-card" id="lpRegisterGate" style="display:none;">
       <div class="lp-gate-title">ゲーム登録</div>
@@ -1211,6 +1215,56 @@ function logout() {
   document.getElementById('lpRegisterGate').style.display = 'none';
 }
 
+async function loginOrRegister(action) {
+  const email = document.getElementById('lpAuthEmail').value.trim();
+  const password = document.getElementById('lpAuthPassword').value;
+  const errEl = document.getElementById('lpAuthError');
+  errEl.textContent = '';
+
+  if (!email || !email.includes('@')) { errEl.textContent = 'メールアドレスを入力してください'; return; }
+  if (!password || password.length < 6) { errEl.textContent = 'パスワードは6文字以上で入力してください'; return; }
+
+  const btn = action === 'login' ? document.getElementById('lpLoginBtn') : document.getElementById('lpSignupBtn');
+  btn.disabled = true;
+  btn.textContent = action === 'login' ? 'ログイン中...' : '登録中...';
+
+  try {
+    const res = await fetch(API_BASE + '/api/auth', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password, action })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      errEl.textContent = data.error || (action === 'login' ? 'ログインに失敗しました' : '登録に失敗しました');
+      return;
+    }
+    // Save token
+    authToken = data.token;
+    localStorage.setItem('mascodex_token', data.token);
+    showToast(action === 'login' ? 'ログインしました！' : 'アカウントを作成しました！', 'success');
+
+    // Check if player is registered in game
+    try {
+      const meRes = await apiFetch('/api/game/player/me');
+      if (meRes.success && meRes.registered) {
+        playerData = meRes.player;
+        districtData = meRes.district;
+        showGame(meRes);
+        return;
+      }
+    } catch (e) { /* not registered yet */ }
+    // Show registration gate
+    updateGateForRegistration();
+  } catch (e) {
+    errEl.textContent = '通信エラーが発生しました';
+    console.error('Auth error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = action === 'login' ? 'ログイン' : '新規登録';
+  }
+}
+
 /* ═══════════════════════════════════════════════════════
    TAB NAVIGATION
    ═══════════════════════════════════════════════════════ */
@@ -1299,6 +1353,13 @@ function setupSearch() {
     }
     updateGateForRegistration();
     document.getElementById('lpGateSection').scrollIntoView({behavior:'smooth'});
+  });
+
+  // Auth buttons
+  document.getElementById('lpLoginBtn').addEventListener('click', () => loginOrRegister('login'));
+  document.getElementById('lpSignupBtn').addEventListener('click', () => loginOrRegister('register'));
+  document.getElementById('lpAuthPassword').addEventListener('keypress', e => {
+    if (e.key === 'Enter') loginOrRegister('login');
   });
 
   // Register button
