@@ -45,16 +45,20 @@ function generateCharacterHTML(char) {
     .header a:hover{color:#fff;}
     .logo{font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
-    /* Character Card */
-    .char-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:24px;overflow:hidden;margin-bottom:24px;}
-    .char-images{display:flex;gap:4px;padding:20px 20px 0;}
-    .char-images img{flex:1;aspect-ratio:1;object-fit:cover;border-radius:16px;background:rgba(255,255,255,0.03);cursor:pointer;transition:transform 0.3s;}
-    .char-images img:hover{transform:scale(1.05);}
-    .char-info{padding:20px;}
-    .char-name{font-size:1.8rem;font-weight:800;margin-bottom:4px;}
-    .char-area{color:rgba(255,255,255,0.5);font-size:0.9rem;margin-bottom:4px;}
-    .char-postal{color:rgba(255,255,255,0.3);font-size:0.8rem;margin-bottom:16px;}
-    .char-badge{display:inline-block;background:#ffdd57;color:#000;font-weight:700;font-size:0.75rem;padding:3px 10px;border-radius:20px;margin-bottom:16px;}
+    /* Area Info */
+    .area-info{text-align:center;margin-bottom:20px;}
+    .area-info h1{font-size:1.3rem;font-weight:700;color:rgba(255,255,255,0.9);}
+    .area-info .postal{color:rgba(255,255,255,0.4);font-size:0.85rem;margin-top:4px;}
+    .area-badge{display:inline-block;background:#ffdd57;color:#000;font-weight:700;font-size:0.75rem;padding:3px 10px;border-radius:20px;margin-bottom:10px;}
+
+    /* Character Grid - 3 characters */
+    .char-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+    .char-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;transition:transform 0.3s;}
+    .char-card:hover{transform:translateY(-4px);}
+    .char-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:rgba(255,255,255,0.03);}
+    .char-label{padding:10px;text-align:center;}
+    .char-label .cname{font-weight:700;font-size:0.85rem;margin-bottom:2px;}
+    .char-label .cnum{font-size:0.7rem;color:rgba(255,255,255,0.4);}
 
     /* Story */
     .section-title{font-size:1.1rem;font-weight:700;margin-bottom:10px;padding-left:12px;border-left:3px solid #667eea;}
@@ -85,6 +89,12 @@ function generateCharacterHTML(char) {
 
     /* Footer */
     .footer{text-align:center;padding:40px 0 20px;color:rgba(255,255,255,0.2);font-size:0.75rem;}
+
+    @media(max-width:500px){
+      .char-grid{gap:8px;}
+      .char-label .cname{font-size:0.75rem;}
+      .char-card{border-radius:14px;}
+    }
   </style>
 </head>
 <body>
@@ -96,17 +106,33 @@ function generateCharacterHTML(char) {
       </div>
     </div>
 
-    <div class="char-card">
-      <div class="char-images">
-        <img src="${imgBase}_01.png" alt="${escapedName} 1" loading="eager">
-        <img src="${imgBase}_02.png" alt="${escapedName} 2" loading="lazy">
-        <img src="${imgBase}_03.png" alt="${escapedName} 3" loading="lazy">
+    <div class="area-info">
+      <div class="area-badge">非公式ゆるキャラ</div>
+      <h1>${escapedArea}のゆるキャラたち</h1>
+      <div class="postal">〒${postalCode}</div>
+    </div>
+
+    <div class="char-grid">
+      <div class="char-card">
+        <img src="${imgBase}_01.png" alt="${escapedName}" loading="eager">
+        <div class="char-label">
+          <div class="cname">${escapedName}</div>
+          <div class="cnum">No.1</div>
+        </div>
       </div>
-      <div class="char-info">
-        <div class="char-badge">非公式ゆるキャラ</div>
-        <h1 class="char-name">${escapedName}</h1>
-        <div class="char-area">${escapedArea}</div>
-        <div class="char-postal">〒${postalCode}</div>
+      <div class="char-card">
+        <img src="${imgBase}_02.png" alt="${escapedArea}のゆるキャラ 2" loading="lazy">
+        <div class="char-label">
+          <div class="cname">${escapedArea}のなかま</div>
+          <div class="cnum">No.2</div>
+        </div>
+      </div>
+      <div class="char-card">
+        <img src="${imgBase}_03.png" alt="${escapedArea}のゆるキャラ 3" loading="lazy">
+        <div class="char-label">
+          <div class="cname">${escapedArea}のなかま</div>
+          <div class="cnum">No.3</div>
+        </div>
       </div>
     </div>
 
@@ -129,8 +155,8 @@ function generateCharacterHTML(char) {
     </div>
 
     <div class="links">
-      <a href="https://mascodex.com/game.html" class="link-btn">🎮 ゲームで冒険</a>
-      <a href="https://mascodex.com/shop.html?char=${postalCode}" class="link-btn">🛍️ グッズを見る</a>
+      <a href="https://mascodex.com/game.html" class="link-btn">ゲームで冒険</a>
+      <a href="https://mascodex.com/shop.html?char=${postalCode}" class="link-btn">グッズを見る</a>
     </div>
 
     <div class="footer">&copy; 2025 Mascodex. All characters are AI-generated original designs.</div>
@@ -140,7 +166,7 @@ function generateCharacterHTML(char) {
     var CHAR_NAME = ${JSON.stringify(name)};
     var POSTAL = '${postalCode}';
     var API = '${chatApiBase}';
-    var history = [];
+    var chatHistory = [];
 
     document.getElementById('chatInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) sendChat();
@@ -153,22 +179,19 @@ function generateCharacterHTML(char) {
       input.value = '';
 
       var msgs = document.getElementById('chatMessages');
-      // Add user message
       var userEl = document.createElement('div');
       userEl.className = 'chat-msg user';
       userEl.textContent = msg;
       msgs.appendChild(userEl);
 
-      // Add typing indicator
       var typingEl = document.createElement('div');
       typingEl.className = 'chat-msg bot typing';
       typingEl.textContent = CHAR_NAME + 'が考え中...';
       msgs.appendChild(typingEl);
       msgs.scrollTop = msgs.scrollHeight;
 
-      history.push({ role: 'user', content: msg });
-      // Keep last 5 exchanges
-      if (history.length > 10) history = history.slice(-10);
+      chatHistory.push({ role: 'user', content: msg });
+      if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
 
       var btn = document.getElementById('chatSend');
       btn.disabled = true;
@@ -177,7 +200,7 @@ function generateCharacterHTML(char) {
         var res = await fetch(API + '/' + POSTAL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: msg, history: history })
+          body: JSON.stringify({ message: msg, history: chatHistory })
         });
         var data = await res.json();
         typingEl.remove();
@@ -198,6 +221,8 @@ function generateCharacterHTML(char) {
       btn.disabled = false;
     }
   </script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://mascodex.com/js/lifecall.js" defer></script>
 </body>
 </html>`;
 }
