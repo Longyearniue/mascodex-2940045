@@ -97,11 +97,78 @@ async function getCharacterProfile(postalCode, env) {
 }
 
 /**
+ * Look up city name from postal code via KV prefix mapping.
+ * Returns { prefecture, city } or null.
+ */
+async function lookupCity(postalCode, env) {
+  try {
+    const prefix = postalCode.slice(0, 3);
+    const data = await env.GAME_KV.get(`postal_${prefix}`, { type: 'json' });
+    if (data && data[postalCode]) return data[postalCode];
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+/**
+ * Fetch Wikipedia local data for a city from KV.
+ * Returns wiki object with summary, landmarks, etc. or null.
+ */
+async function getWikiData(cityName, env) {
+  try {
+    const data = await env.GAME_KV.get(`wiki_${cityName}`, { type: 'json' });
+    return data;
+  } catch (e) { /* ignore */ }
+  return null;
+}
+
+/**
+ * Build wiki context string from wiki data for injection into system prompt.
+ */
+function buildWikiContext(wiki) {
+  if (!wiki) return '';
+
+  const parts = [];
+
+  if (wiki.summary) {
+    // Truncate to ~500 chars to save tokens
+    const summary = wiki.summary.length > 500 ? wiki.summary.slice(0, 500) + '…' : wiki.summary;
+    parts.push(`【地域の概要（Wikipedia）】\n${summary}`);
+  }
+
+  if (wiki.landmarks && wiki.landmarks.length > 0) {
+    const landmarks = wiki.landmarks.slice(0, 8).join('、');
+    parts.push(`【名所・観光スポット】\n${landmarks}`);
+  }
+
+  if (wiki.specialties && wiki.specialties.length > 0) {
+    const specialties = wiki.specialties.slice(0, 6).join('、');
+    parts.push(`【特産品・グルメ】\n${specialties}`);
+  }
+
+  if (wiki.events && wiki.events.length > 0) {
+    const events = wiki.events.slice(0, 6).join('、');
+    parts.push(`【祭り・行事】\n${events}`);
+  }
+
+  if (wiki.population) {
+    parts.push(`【人口】${wiki.population}`);
+  }
+
+  if (wiki.area_km2) {
+    parts.push(`【面積】${wiki.area_km2} km²`);
+  }
+
+  return parts.join('\n\n');
+}
+
+/**
  * Build the system prompt injecting character personality and regional info.
  */
-function buildSystemPrompt(postalCode, profile) {
+function buildSystemPrompt(postalCode, profile, wikiContext) {
   const { name, area, intro, story } = profile;
   const formatted = postalCode.slice(0, 3) + '-' + postalCode.slice(3);
+
+  const wikiSection = wikiContext ? `\n\n${wikiContext}\n` : '';
 
   return `あなたは「${name}」という${area}の非公式ゆるキャラです。
 
@@ -114,9 +181,10 @@ ${story}
 【地域情報】
 - 所在地: ${area}
 - 郵便番号: 〒${formatted}
-
+${wikiSection}
 あなたはこの地域を愛し、地元の魅力を知り尽くしています。
 訪問者に地元の名所、グルメ、文化、季節の行事について楽しく教えてください。
+地域のWikipediaデータがある場合は、その知識も活用して具体的な情報を交えて話してください。
 
 キャラクターの性格を反映した口調で話してください。
 返答は2-3文の短い文章で答えてください。
@@ -187,11 +255,28 @@ export async function onRequest(context) {
       );
     }
 
-    // --- Get character profile (cached or fetched) ---
-    const profile = await getCharacterProfile(rawCode, env);
+    // --- Get character profile + wiki data in parallel (error-resilient) ---
+    const [profile, cityInfo] = await Promise.all([
+      getCharacterProfile(rawCode, env).catch(() => null),
+      lookupCity(rawCode, env),
+    ]);
+
+    if (!profile) {
+      return jsonResponse({
+        success: true,
+        response: 'ごめんなさい、キャラクターデータを読み込めませんでした。もう一度お試しください！',
+      });
+    }
+
+    // Fetch wiki data for the city (non-blocking, error-resilient)
+    let wikiContext = '';
+    if (cityInfo && cityInfo.city) {
+      const wiki = await getWikiData(cityInfo.city, env).catch(() => null);
+      wikiContext = buildWikiContext(wiki);
+    }
 
     // --- Build system prompt ---
-    const systemPrompt = buildSystemPrompt(rawCode, profile);
+    const systemPrompt = buildSystemPrompt(rawCode, profile, wikiContext);
 
     // --- Assemble messages: last 10 history items + current message ---
     const messages = [];
@@ -205,32 +290,60 @@ export async function onRequest(context) {
     }
     messages.push({ role: 'user', content: message });
 
-    // --- Call Claude API ---
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        system: systemPrompt,
-        messages,
-      }),
-    });
+    // --- Call Claude API with retry + fallback ---
+    const MODELS = ['claude-haiku-4-5-20251001', 'claude-sonnet-4-5-20250514'];
+    let claudeData = null;
+    let lastError = null;
 
-    if (!claudeRes.ok) {
-      const errBody = await claudeRes.text();
-      console.error('Claude API error:', claudeRes.status, errBody);
-      return jsonResponse(
-        { success: false, error: 'AI service error' },
-        502
-      );
+    for (const model of MODELS) {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          if (attempt > 0) {
+            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+          }
+
+          const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': env.ANTHROPIC_API_KEY,
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: 300,
+              system: systemPrompt,
+              messages,
+            }),
+          });
+
+          if (claudeRes.ok) {
+            claudeData = await claudeRes.json();
+            break;
+          }
+
+          lastError = `${model} attempt ${attempt + 1}: ${claudeRes.status}`;
+          console.error('Claude API error:', lastError);
+
+          // Don't retry on 4xx client errors (except 429 rate limit)
+          if (claudeRes.status >= 400 && claudeRes.status < 500 && claudeRes.status !== 429) {
+            break;
+          }
+        } catch (e) {
+          lastError = `${model} attempt ${attempt + 1}: ${e.message}`;
+          console.error('Claude fetch error:', lastError);
+        }
+      }
+      if (claudeData) break;
     }
 
-    const claudeData = await claudeRes.json();
+    if (!claudeData) {
+      console.error('All Claude API attempts failed:', lastError);
+      return jsonResponse({
+        success: true,
+        response: `わぁ、ちょっと頭がぼーっとしちゃった…ごめんね！もう一度話しかけてくれる？`,
+      });
+    }
 
     // Extract text from Claude response content blocks
     const responseText =

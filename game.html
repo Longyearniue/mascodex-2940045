@@ -874,6 +874,13 @@
             <div class="map-xp-bar"><div class="map-xp-fill" id="mapXpFill" style="width:0%"></div></div>
           </div>
         </div>
+        <div class="explore-section" style="margin-top:16px;">
+          <div class="explore-title">探索</div>
+          <div class="explore-desc">近くの地区を探索して新しいキャラを見つけよう</div>
+          <button class="explore-btn" id="mapExploreBtn" onclick="doExplore()">探索する</button>
+          <div class="explore-remaining" id="mapExploreRemaining"></div>
+          <div class="explore-result" id="mapExploreResult"></div>
+        </div>
         <div class="map-pref-detail" id="mapPrefDetail">
           <div class="map-pref-title">
             <span id="mapPrefName">-</span>
@@ -1781,25 +1788,38 @@ function closePickerModal() {
 /* ═══════════════════════════════════════════════════════
    EXPLORE
    ═══════════════════════════════════════════════════════ */
+function syncExploreUI(remaining, html) {
+  // Update both map and team explore sections
+  ['exploreRemaining','mapExploreRemaining'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && remaining !== undefined) el.textContent = '残り ' + remaining + ' 回';
+  });
+  if (html !== undefined) {
+    ['exploreResult','mapExploreResult'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.innerHTML = html; el.classList.add('visible'); }
+    });
+  }
+}
+
 async function doExplore() {
-  const btn = document.getElementById('exploreBtn');
-  const resultEl = document.getElementById('exploreResult');
-  btn.disabled = true;
-  btn.textContent = '探索中...';
-  resultEl.classList.remove('visible');
+  // Disable all explore buttons
+  const btns = [document.getElementById('exploreBtn'), document.getElementById('mapExploreBtn')].filter(Boolean);
+  btns.forEach(b => { b.disabled = true; b.textContent = '探索中...'; });
+  ['exploreResult','mapExploreResult'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('visible');
+  });
 
   try {
     const res = await apiFetch('/api/game/explore', {method:'POST'});
 
     if (!res.success) {
       showToast(res.error || '探索に失敗しました', 'error');
-      if (res.remaining !== undefined) {
-        document.getElementById('exploreRemaining').textContent = '残り ' + res.remaining + ' 回';
-      }
+      syncExploreUI(res.remaining);
       return;
     }
 
-    document.getElementById('exploreRemaining').textContent = '残り ' + res.remaining + ' 回';
+    syncExploreUI(res.remaining);
 
     let html = '<div style="text-align:center;">';
     if (res.encounter && res.character) {
@@ -1814,8 +1834,7 @@ async function doExplore() {
     }
     html += '<div style="font-size:0.82rem;margin-top:8px;color:rgba(255,255,255,0.5);">' + (res.message||'') + '</div></div>';
 
-    resultEl.innerHTML = html;
-    resultEl.classList.add('visible');
+    syncExploreUI(res.remaining, html);
 
     // Refresh collection if new encounter
     if (res.encounter) loadCollection();
@@ -1824,8 +1843,7 @@ async function doExplore() {
     console.error('Explore error:', e);
     showToast('通信エラー', 'error');
   } finally {
-    btn.disabled = false;
-    btn.textContent = '探索する';
+    btns.forEach(b => { b.disabled = false; b.textContent = '探索する'; });
   }
 }
 
