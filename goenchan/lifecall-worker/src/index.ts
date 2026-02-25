@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { sessions } from './session';
 import { payment } from './payment';
+import { calling } from './calling';
 
 type Env = {
   DB: D1Database;
@@ -22,5 +23,6 @@ app.get('/health', (c) => c.json({ ok: true, service: 'lifecall-worker' }));
 
 app.route('/api/sessions', sessions);
 app.route('/api/payment', payment);
+app.route('/api/calls', calling);
 
 export default app;
