@@ -288,7 +288,7 @@
         var calls = data.calls || [];
 
         var lines = calls.map(function(c) {
-          var icon = c.status === 'completed' ? (c.outcome === 'booked' ? '[OK]' : '[NG]') : c.status === 'calling' ? '[...]' : '[wait]';
+          var icon = c.status === 'completed' ? (c.outcome === 'booked' ? '\u2705' : '\u274C') : c.status === 'calling' ? '\uD83D\uDCDE' : '\u23F3';
           return icon + ' ' + c.target_name;
         });
         statusEl.innerHTML = lines.join('<br>') || (locale === 'ja' ? '電話中...' : 'Calling...');
