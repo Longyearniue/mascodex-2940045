@@ -2,6 +2,11 @@ name = "lifecall-worker"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
 
+[[rules]]
+type = "Text"
+globs = ["src/static/*.txt"]
+fallthrough = true
+
 [[d1_databases]]
 binding = "DB"
 database_name = "lifecall-db"
@@ -10,3 +15,4 @@ database_id = "c4ee9be8-becf-4d83-9fbf-84d80592a086"
 [vars]
 TELNYX_CONNECTION_ID = "2752342096672196603"
 CORS_ORIGIN = "https://mascodex.com"
+PAYPAL_MODE = "sandbox"

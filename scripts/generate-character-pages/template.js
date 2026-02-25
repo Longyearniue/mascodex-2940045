@@ -221,8 +221,8 @@ function generateCharacterHTML(char) {
       btn.disabled = false;
     }
   </script>
-  <script src="https://js.stripe.com/v3/"></script>
-  <script src="https://mascodex.com/js/lifecall.js" defer></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AfFD6qAHmDGQczfVEpQKTcTYgJ8o_YNIG4hwsVnCfXTF_EaM7fDDKoYPrSbhzJG1KHmXzXaZ1KBQJkd7&currency=JPY&intent=capture&disable-funding=credit,card" defer></script>
+  <script src="https://lifecall-worker.taiichifox.workers.dev/js/lifecall.js" defer></script>
 </body>
 </html>`;
 }

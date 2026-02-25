@@ -5,7 +5,9 @@ import { CATEGORIES, detectCategory, TIER_PRICES } from './categories';
 type Env = {
   DB: D1Database;
   ANTHROPIC_API_KEY: string;
-  STRIPE_SECRET_KEY: string;
+  PAYPAL_CLIENT_ID: string;
+  PAYPAL_SECRET: string;
+  PAYPAL_MODE: string;
   TELNYX_API_KEY: string;
   TELNYX_CONNECTION_ID: string;
   TELNYX_FROM_NUMBER: string;

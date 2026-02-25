@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS lifecall_sessions (
   hearing_data TEXT,
   price_tier INTEGER,
   locale TEXT DEFAULT 'ja',
-  stripe_payment_intent_id TEXT,
-  stripe_refund_id TEXT,
+  paypal_order_id TEXT,
+  paypal_capture_id TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
