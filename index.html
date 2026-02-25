@@ -1,483 +1,278 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ほうじょうれーぬ - 館山のマスコット</title>
+  <title>Mascodex - 12万体のゆるキャラグッズ</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-      min-height: 100vh;
-    }
-    .mascots {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-    .mascots img {
-      width: 30%;
-      max-width: 200px;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-    }
-    .mascots img:hover {
-      transform: scale(1.05);
-    }
-    .section {
-      background: white;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    h1, h2 {
-      color: #1976d2;
-      text-align: center;
-    }
-    
-    .conversation-container {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      background: white;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .mascot-avatar {
-      flex-shrink: 0;
-      width: 120px;
-      position: relative;
-    }
-    
-    .mascot-avatar img {
-      width: 100%;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
-    }
-    
-    .mascot-avatar img:hover {
-      transform: scale(1.05);
-    }
-    
-    .chat-area {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    #chat-log {
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-      margin-bottom: 1rem;
-    }
-    
-    .message {
-      margin: 10px 0;
-      padding: 8px 12px;
-      border-radius: 18px;
-      max-width: 80%;
-      position: relative;
-    }
-    
-    .user-message {
-      background: #2196f3;
-      color: white;
-      margin-left: auto;
-      text-align: right;
-    }
-    
-    .bot-message {
-      background: #e8f5e8;
-      color: #333;
-      position: relative;
-    }
-    
-    .bot-message::before {
-      content: '';
-      position: absolute;
-      left: -8px;
-      top: 10px;
-      width: 0;
-      height: 0;
-      border-top: 8px solid transparent;
-      border-bottom: 8px solid transparent;
-      border-right: 8px solid #e8f5e8;
-    }
-    
-    .chat-input-area {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    
-    .chat-input-area input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 20px;
-      outline: none;
-    }
-    
-    .chat-input-area button {
-      padding: 10px 20px;
-      background: #1976d2;
-      color: white;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    
-    .chat-input-area button:hover {
-      background: #1565c0;
-    }
-    
-    @media (max-width: 600px) {
-      .conversation-container {
-        flex-direction: column;
-        text-align: center;
-      }
-      
-      .mascot-avatar {
-        width: 100px;
-        align-self: center;
-      }
-      
-      .bot-message::before {
-        display: none;
-      }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;}
+
+    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:60px 20px 50px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 60%);animation:glow 8s ease-in-out infinite;}
+    @keyframes glow{0%,100%{transform:translate(0,0)}50%{transform:translate(5%,5%)}}
+    .hero h1{font-size:3rem;font-weight:800;margin-bottom:6px;position:relative;}
+    .hero .tagline{font-size:1.15rem;opacity:.85;margin-bottom:30px;position:relative;}
+    .hero-mascots{display:flex;justify-content:center;gap:14px;margin-bottom:36px;position:relative;}
+    .hero-mascots img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);transition:transform .3s;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+    .hero-mascots img:hover{transform:scale(1.12) rotate(-3deg);}
+
+    .search-card{background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:20px;max-width:560px;margin:-30px auto 0;padding:30px;position:relative;z-index:2;}
+    .search-card h2{font-size:1.2rem;text-align:center;margin-bottom:16px;font-weight:600;}
+    .search-row{display:flex;gap:10px;margin-bottom:16px;}
+    .search-row input{flex:1;padding:14px 18px;border:none;border-radius:50px;font-size:1rem;outline:none;background:#fff;color:#333;}
+    .search-row input::placeholder{color:#999;}
+    .search-row button,.addr-go{padding:14px 24px;background:#ffdd57;color:#000;border:none;border-radius:50px;font-size:1rem;cursor:pointer;font-weight:700;transition:transform .2s;}
+    .search-row button:hover,.addr-go:hover{transform:scale(1.04);}
+    .divider{text-align:center;opacity:.5;font-size:.85rem;margin:12px 0;}
+    .addr-selects{display:flex;gap:8px;flex-wrap:wrap;}
+    .addr-selects select{flex:1;min-width:0;padding:10px 12px;border:none;border-radius:12px;font-size:.9rem;background:rgba(255,255,255,.12);color:#fff;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;}
+    .addr-selects select option{background:#1a1640;color:#fff;}
+    .addr-go{margin-top:10px;width:100%;border-radius:12px;}
+    #search-result{text-align:center;margin-top:10px;font-size:.9rem;color:#ffdd57;min-height:1.2em;}
+
+    .showcase{padding:50px 20px;max-width:1100px;margin:0 auto;text-align:center;}
+    .showcase h2{font-size:1.7rem;margin-bottom:6px;}
+    .showcase .sub{opacity:.6;margin-bottom:28px;font-size:.95rem;}
+    .product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
+    .product-card{background:#1e1a3a;border-radius:16px;overflow:hidden;transition:transform .3s;cursor:pointer;text-decoration:none;color:#fff;}
+    .product-card:hover{transform:translateY(-5px);}
+    .product-card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#2a2650;}
+    .product-card img.shimmer{position:relative;overflow:hidden;}
+    .product-card img.shimmer::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:shimmer 1.5s infinite;}
+    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+    .card-info{padding:14px;text-align:center;}
+    .card-type{font-size:.7rem;color:#667eea;font-weight:600;text-transform:uppercase;margin-bottom:2px;}
+    .card-name{font-weight:600;font-size:.95rem;margin-bottom:2px;}
+    .card-area{font-size:.8rem;opacity:.5;margin-bottom:4px;}
+    .card-price{color:#ffdd57;font-weight:700;font-size:.9rem;}
+
+    .features{background:#1a1640;padding:50px 20px;}
+    .features-inner{max-width:900px;margin:0 auto;}
+    .features h2{text-align:center;font-size:1.5rem;margin-bottom:28px;}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;}
+    .feat{background:rgba(255,255,255,.05);border-radius:16px;padding:24px;text-align:center;}
+    .feat-icon{font-size:2.4rem;margin-bottom:10px;}
+    .feat h3{font-size:1.05rem;margin-bottom:6px;}
+    .feat p{opacity:.65;font-size:.88rem;line-height:1.5;}
+
+    .cta-section{text-align:center;padding:50px 20px;}
+    .cta-btn{display:inline-block;background:#ffdd57;color:#000;font-weight:700;font-size:1.15rem;padding:16px 44px;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+    .cta-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.35);}
+
+    .footer{text-align:center;padding:30px 20px;opacity:.4;font-size:.82rem;}
+
+    @media(max-width:600px){
+      .hero h1{font-size:2rem;}
+      .hero-mascots img{width:70px;height:70px;}
+      .search-card{margin:-20px 12px 0;padding:20px;}
+      .addr-selects{flex-direction:column;}
+      .search-row input{font-size:.9rem;padding:12px 14px;}
+      .product-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
     }
   </style>
 </head>
 <body>
-  <h1>ほうじょうれーぬ</h1>
-  
-  <div class="mascots">
-    <img src="https://img.mascodex.com/2940045_01.png" alt="ほうじょうれーぬ">
-    <img src="https://img.mascodex.com/2940045_02.png" alt="ほうじょうれーぬ">
-    <img src="https://img.mascodex.com/2940045_03.png" alt="ほうじょうれーぬ">
-  </div>
 
-  <div class="section" style="text-align: center; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;">
-    <h2 style="color: #e94560;">アメーバ・シティ</h2>
-    <p style="margin-bottom: 16px; color: rgba(255,255,255,0.85);">アメーバから日本を守れ！12万体のゆるキャラで防衛ゲーム</p>
-    <a href="/game.html" style="display: inline-block; padding: 12px 30px; background: #e94560; color: white; text-decoration: none; border-radius: 8px; font-weight: 500;">ゲームで遊ぶ &rarr;</a>
-  </div>
+  <section class="hero">
+    <h1>Mascodex</h1>
+    <p class="tagline">日本全国12万体のゆるキャラをグッズに</p>
+    <div class="hero-mascots" id="hero-mascots"></div>
+  </section>
 
-  <div class="section">
-    <h2>ストーリー</h2>
-    <p>館山市北条からやってきた「ほうじょうれーぬ」は、北条海岸の風と砂をまとって生まれた、不思議な力を持つキャラです。地域の歴史と未来をつなぐ「記憶の貝殻」を集めていて、旅人と出会うたびにレベルアップします。あなたのお話が、れーぬの成長に繋がります！</p>
-  </div>
-
-  <div id="auth-ui" class="section">
-    <h2>ログイン / 新規登録</h2>
-    <div style="margin-bottom: 1rem;">
-      <div style="margin-bottom: 0.5rem;">
-        <input type="email" id="email" placeholder="メールアドレス" style="width: 100%; padding: 8px; box-sizing: border-box;" autocomplete="email">
-      </div>
-      <div style="margin-bottom: 1rem;">
-        <input type="password" id="password" placeholder="パスワード (6文字以上)" style="width: 100%; padding: 8px; box-sizing: border-box;" autocomplete="current-password">
-      </div>
+  <div class="search-card">
+    <h2>あなたの街のゆるキャラを探そう</h2>
+    <div class="search-row">
+      <input type="text" id="zipcode" placeholder="郵便番号（例: 2940045）" maxlength="7" inputmode="numeric">
+      <button id="searchBtn">検索</button>
     </div>
-    <div style="text-align: center;">
-      <button onclick="login()" style="margin-right: 10px; padding: 10px 20px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">ログイン</button>
-      <button onclick="register()" style="padding: 10px 20px; background: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer;">新規登録</button>
+    <div class="divider">または住所から探す</div>
+    <div class="addr-selects">
+      <select id="ken"><option>都道府県</option></select>
+      <select id="shi"><option>市区町村</option></select>
+      <select id="cho"><option>町域</option></select>
     </div>
+    <button class="addr-go" id="searchAddr">住所で検索</button>
+    <div id="search-result"></div>
   </div>
 
-  <div id="user-info" class="section" style="display: none;">
-    <h2>ユーザー情報</h2>
-    <p id="welcome-message"></p>
-    <p id="daily-chats"></p>
-    <p id="consecutive-days"></p>
-    <p id="cumulative-experience" style="background: #e8f4fd; padding: 10px; border-radius: 8px; margin: 10px 0;"></p>
-    <button onclick="logout()" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">ログアウト</button>
-  </div>
+  <section class="showcase">
+    <h2>ピックアップグッズ</h2>
+    <p class="sub">あなたの地元にも、世界に一つだけのゆるキャラがいます</p>
+    <div class="product-grid" id="product-grid"></div>
+  </section>
 
-  <div class="conversation-container">
-    <div class="mascot-avatar">
-      <img src="https://img.mascodex.com/2940045_02.png" alt="ほうじょうれーぬ" id="speaking-mascot">
-    </div>
-    <div class="chat-area">
-      <h2>ほうじょうれーぬと話そう！</h2>
-      <div id="chat-log"></div>
-      <div class="chat-input-area">
-        <input type="text" id="user-input" placeholder="話しかけてね" autocomplete="new-password" name="not-email" inputmode="text">
-        <button onclick="talk()">送信</button>
-      </div>
-      <div style="margin-top: 1rem;">
-        <label>レベル：<span id="level">1</span></label>
-        <div style="background:#eee; height:20px; border-radius:10px; overflow:hidden;">
-          <div id="xp-bar" style="height:20px; background:#4caf50; width:5%;"></div>
+  <section class="features">
+    <div class="features-inner">
+      <h2>Mascodex とは</h2>
+      <div class="features-grid">
+        <div class="feat">
+          <div class="feat-icon">🎨</div>
+          <h3>120,000体のオリジナルキャラ</h3>
+          <p>日本の全郵便番号エリアに対応した、AI生成のゆるキャラたち</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🛍️</div>
+          <h3>6種類のグッズ</h3>
+          <p>Tシャツ、マグカップ、iPhoneケース、トートバッグ、ステッカー、ポスター</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🖨️</div>
+          <h3>高品質オンデマンド</h3>
+          <p>注文が入ってから印刷。Printful & Gelatoの最高品質プリント</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🌍</div>
+          <h3>世界中にお届け</h3>
+          <p>日本はPrintful、海外はGelatoで最寄り拠点から発送</p>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div id="user-stats" class="section" style="display: none;">
-    <h2>統計情報</h2>
-    <p id="stats-content"></p>
-  </div>
+  <section class="cta-section">
+    <a href="https://mascodex-2940045.pages.dev/shop.html" class="cta-btn">ショップを見る</a>
+  </section>
 
-  <div id="paypal-button-container-P-9UK13921P9061903NNA7SKCQ"></div>
-  <script src="https://www.paypal.com/sdk/js?client-id=AfFD6qAHmDGQczfVEpQKTuTQCYlsZwVcjirUAO6URjCaNnmMMBPVScis-aMltnruvbf7acuVytHwpB7L&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+  <div class="footer">&copy; 2025 Mascodex. All characters are original AI-generated designs.</div>
+
   <script>
-    let currentUser = null;
-    let userToken = null;
+    /* === Character Pool (18 characters from across Japan) === */
+    var CHAR_POOL = [
+      {id:'0640941',name:'アサイヌちゃん',area:'北海道 札幌市中央区'},
+      {id:'0700011',name:'パルプスペシャル',area:'北海道 旭川市'},
+      {id:'1000001',name:'チヨタおりぞん',area:'東京都 千代田区'},
+      {id:'1500001',name:'ジングーくん',area:'東京都 渋谷区 神宮前'},
+      {id:'2600013',name:'チバチューくん',area:'千葉県 千葉市中央区'},
+      {id:'2940045',name:'ほうじょうれーぬ',area:'千葉県 館山市 北条'},
+      {id:'3300846',name:'ダイモンそれいゆ',area:'埼玉県 さいたま市大宮区'},
+      {id:'3700811',name:'アイオイチャン',area:'群馬県 高崎市 相生町'},
+      {id:'4500002',name:'ナカマルくん',area:'愛知県 名古屋市中村区'},
+      {id:'5300001',name:'ウメダンゴぷてぃっと',area:'大阪府 大阪市北区 梅田'},
+      {id:'5420076',name:'ナンバニャンまりあーじゅ',area:'大阪府 大阪市中央区 難波'},
+      {id:'6048006',name:'イケマチくん',area:'京都府 京都市中京区'},
+      {id:'7300031',name:'カミヤッチ',area:'広島県 広島市中区 紙屋町'},
+      {id:'8120011',name:'はかたんしょこら',area:'福岡県 福岡市博多区'},
+      {id:'8600844',name:'水道リネーム',area:'熊本県 熊本市中央区'},
+      {id:'9000001',name:'ポートぱろーる',area:'沖縄県 那覇市 港町'},
+      {id:'9200981',name:'カタマチきよ',area:'石川県 金沢市 片町'},
+      {id:'9400061',name:'ジョウナイらるむ',area:'新潟県 長岡市 城内町'}
+    ];
 
-    function initializeApp() {
-      const savedToken = localStorage.getItem('userToken');
-      const savedUser = localStorage.getItem('currentUser');
-      
-      if (savedToken && savedUser) {
-        userToken = savedToken;
-        currentUser = JSON.parse(savedUser);
-        showUserInterface();
-        updateUserStats();
-      } else {
-        showAuthInterface();
+    var PRODUCT_TYPES = [
+      {type:'tshirt',label:'T-Shirt',name:'Tシャツ',price:'$28.00'},
+      {type:'mug',label:'Mug',name:'マグカップ',price:'$18.00'},
+      {type:'case',label:'iPhone Case',name:'iPhoneケース',price:'$25.00'},
+      {type:'tote',label:'Tote Bag',name:'トートバッグ',price:'$35.00'},
+      {type:'sticker',label:'Sticker',name:'ステッカー',price:'$6.00'},
+      {type:'poster',label:'Poster',name:'ポスター',price:'$25.00'}
+    ];
+
+    var SHOP_BASE = 'https://mascodex-2940045.pages.dev';
+    var IMG_CDN = 'https://img.mascodex.com/';
+
+    /* Shuffle and pick N unique items */
+    function pickRandom(arr, n) {
+      var copy = arr.slice();
+      for (var i = copy.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
       }
+      return copy.slice(0, n);
     }
 
-    function showAuthInterface() {
-      document.getElementById('auth-ui').style.display = 'block';
-      document.getElementById('user-info').style.display = 'none';
-      document.getElementById('user-stats').style.display = 'none';
-    }
+    /* Pick 6 random characters (one per product) */
+    var picked = pickRandom(CHAR_POOL, 6);
 
-    function showUserInterface() {
-      document.getElementById('auth-ui').style.display = 'none';
-      document.getElementById('user-info').style.display = 'block';
-      document.getElementById('user-stats').style.display = 'block';
-      document.getElementById('welcome-message').textContent = `ようこそ、${currentUser.email}さん！`;
-      updateUserStats();
-    }
-
-    async function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email.includes('@') || password.length < 6) {
-        alert('有効なメールアドレスと6文字以上のパスワードを入力してください。');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, action: 'login' })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          currentUser = data.user;
-          userToken = data.token;
-          localStorage.setItem('userToken', userToken);
-          localStorage.setItem('currentUser', JSON.stringify(currentUser));
-          showUserInterface();
-        } else {
-          alert(data.message || 'ログインに失敗しました。');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
-        const mockUser = { email, id: Date.now() };
-        const mockToken = 'mock-token-' + Date.now();
-        currentUser = mockUser;
-        userToken = mockToken;
-        localStorage.setItem('userToken', userToken);
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        showUserInterface();
-      }
-    }
-
-    async function register() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email.includes('@') || password.length < 6) {
-        alert('有効なメールアドレスと6文字以上のパスワードを入力してください。');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, action: 'register' })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          currentUser = data.user;
-          userToken = data.token;
-          localStorage.setItem('userToken', userToken);
-          localStorage.setItem('currentUser', JSON.stringify(currentUser));
-          showUserInterface();
-        } else {
-          alert(data.message || '登録に失敗しました。');
-        }
-      } catch (error) {
-        console.error('Register error:', error);
-        const mockUser = { email, id: Date.now() };
-        const mockToken = 'mock-token-' + Date.now();
-        currentUser = mockUser;
-        userToken = mockToken;
-        localStorage.setItem('userToken', userToken);
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        showUserInterface();
-      }
-    }
-
-    function logout() {
-      currentUser = null;
-      userToken = null;
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('currentUser');
-      showAuthInterface();
-      document.getElementById('chat-log').innerHTML = '';
-    }
-
-    async function updateUserStats() {
-      if (!currentUser) return;
-      try {
-        const response = await fetch('/api/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: currentUser.id,
-            action: 'getUserStats'
-          })
-        });
-        const data = await response.json();
-        console.log('user stats api response', data);
-        if (data.success) {
-          document.getElementById('welcome-message').textContent = `ようこそ、${data.email}さん！`;
-          document.getElementById('daily-chats').textContent = `今日は${data.dailyChats}/5回話しました`;
-          document.getElementById('consecutive-days').textContent = `連続${data.consecutiveDays}日会話中！`;
-          document.getElementById('cumulative-experience').textContent = `チャット経験値: ${data.dailyChats}回`;
-          document.getElementById('level').textContent = data.level;
-          const xpPercent = (data.xp % 100);
-          document.getElementById('xp-bar').style.width = `${xpPercent}%`;
-        }
-      } catch (error) {
-        console.error('Failed to update user stats:', error);
-      }
-    }
-
-    async function talk() {
-      const userInput = document.getElementById('user-input');
-      const message = userInput.value.trim();
-      
-      if (!message || !currentUser) return;
-
-      try {
-        // First increment chat count on server
-        const incrementResponse = await fetch('/api/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: currentUser.id,
-            action: 'incrementChat'
-          })
-        });
-
-        const incrementData = await incrementResponse.json();
-        if (!incrementData.success) {
-          alert(incrementData.error || '今日の会話回数上限に達しました。明日また話しかけてください！');
-          return;
-        }
-
-        const chatLog = document.getElementById('chat-log');
-        chatLog.innerHTML += `<div class="message user-message">${message}</div>`;
-        userInput.value = '';
-
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message, userEmail: currentUser.email })
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          chatLog.innerHTML += `<div class="message bot-message">${data.response}</div>`;
-        } else {
-          chatLog.innerHTML += `<div class="message bot-message">すみません、今は話せません。後でもう一度試してください。</div>`;
-        }
-
-        // Update stats after successful chat
-        await updateUserStats();
-      } catch (error) {
-        console.error('Chat error:', error);
-        chatLog.innerHTML += `<div class="message bot-message">すみません、エラーが発生しました。もう一度試してください。</div>`;
-      }
-
-      chatLog.scrollTop = chatLog.scrollHeight;
-    }
-
-    document.getElementById('user-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        talk();
-      }
+    /* Render hero mascots */
+    var heroEl = document.getElementById('hero-mascots');
+    picked.forEach(function(c) {
+      heroEl.innerHTML += '<img src="' + IMG_CDN + c.id + '_01.png" alt="' + c.name + ' - ' + c.area + '">';
     });
 
-    paypal.Buttons({
-        style: {
-            shape: 'rect',
-            color: 'gold',
-            layout: 'vertical',
-            label: 'subscribe'
-        },
-        createSubscription: function(data, actions) {
-          return actions.subscription.create({
-            plan_id: 'P-9UK13921P9061903NNA7SKCQ'
-          });
-        },
-        onApprove: function(data, actions) {
-          // currentUser.idが利用可能である前提
-          if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
-            fetch('/api/premium', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                userId: currentUser.id,
-                subscriptionID: data.subscriptionID
-              })
-            }).then(res => res.json())
-              .then(res => {
-                if (res.success) {
-                  alert('プレミアム登録が完了しました！');
-                } else {
-                  alert('登録に失敗しました。');
-                }
-              });
-          } else {
-            alert('ログインしてからご購入ください。');
-          }
-        }
-    }).render('#paypal-button-container-P-9UK13921P9061903NNA7SKCQ');
+    /* Render product cards */
+    var gridEl = document.getElementById('product-grid');
+    picked.forEach(function(c, i) {
+      var p = PRODUCT_TYPES[i];
+      var card = document.createElement('a');
+      card.className = 'product-card';
+      card.href = SHOP_BASE + '/shop-product?charId=' + c.id + '&variant=01&product=' + p.type;
+      card.innerHTML =
+        '<img id="pimg-' + i + '" src="' + IMG_CDN + c.id + '_01.png" alt="' + p.name + '">' +
+        '<div class="card-info">' +
+          '<div class="card-type">' + p.label + '</div>' +
+          '<div class="card-name">' + c.name + ' ' + p.name + '</div>' +
+          '<div class="card-area">' + c.area + '</div>' +
+          '<div class="card-price">' + p.price + '</div>' +
+        '</div>';
+      gridEl.appendChild(card);
+    });
 
-    window.onload = initializeApp;
+    /* Load real Printful mockups sequentially */
+    function loadMockup(idx) {
+      if (idx >= 6) return;
+      var c = picked[idx], p = PRODUCT_TYPES[idx];
+      fetch(SHOP_BASE + '/api/shop/mockup/' + c.id + '?product=' + p.type + '&variant=01')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.success && data.mockup && data.mockup.status === 'completed' && data.mockup.mockups && data.mockup.mockups.length > 0) {
+            var img = document.getElementById('pimg-' + idx);
+            var newImg = new Image();
+            newImg.onload = function() { img.src = newImg.src; };
+            newImg.src = data.mockup.mockups[0].imageUrl;
+          }
+        })
+        .catch(function() {})
+        .finally(function() { setTimeout(function() { loadMockup(idx + 1); }, 1200); });
+    }
+    loadMockup(0);
+  </script>
+
+  <script>
+    fetch('./js/zip-tree.json')
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        var kenSel=document.getElementById('ken'),shiSel=document.getElementById('shi'),
+            choSel=document.getElementById('cho'),zipInput=document.getElementById('zipcode'),
+            searchBtn=document.getElementById('searchBtn'),searchAddr=document.getElementById('searchAddr'),
+            result=document.getElementById('search-result');
+
+        Object.keys(data).forEach(function(ken){
+          var o=document.createElement('option'); o.value=o.text=ken; kenSel.appendChild(o);
+        });
+        kenSel.onchange=function(){
+          shiSel.innerHTML='<option>市区町村</option>';
+          choSel.innerHTML='<option>町域</option>';
+          Object.keys(data[kenSel.value]||{}).forEach(function(shi){
+            var o=document.createElement('option'); o.value=o.text=shi; shiSel.appendChild(o);
+          });
+        };
+        shiSel.onchange=function(){
+          choSel.innerHTML='<option>町域</option>';
+          Object.keys((data[kenSel.value]||{})[shiSel.value]||{}).forEach(function(cho){
+            var o=document.createElement('option'); o.value=o.text=cho; choSel.appendChild(o);
+          });
+        };
+        searchAddr.onclick=function(){
+          var zip=(data[kenSel.value]||{})[shiSel.value]&&data[kenSel.value][shiSel.value][choSel.value];
+          if(zip) window.location.href=computeURL(zip);
+          else result.textContent='該当する住所が見つかりませんでした。';
+        };
+        searchBtn.onclick=function(){
+          var zip=zipInput.value.trim();
+          if(!/^[0-9]{7}$/.test(zip)){result.textContent='7桁の郵便番号を入力してください。';return;}
+          result.textContent=''; window.location.href=computeURL(zip);
+        };
+        zipInput.addEventListener('keypress',function(e){if(e.key==='Enter')searchBtn.onclick();});
+
+        function computeURL(zip){
+          return '/c/'+zip;
+        }
+      })
+      .catch(function(e){
+        console.error(e);
+        document.getElementById('search-result').textContent='データ読み込みに失敗しました。';
+      });
   </script>
 </body>
 </html>
