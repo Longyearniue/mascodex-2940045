@@ -1,0 +1,12 @@
+name = "lifecall-worker"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lifecall-db"
+database_id = "TO_BE_CREATED"
+
+[vars]
+TELNYX_CONNECTION_ID = "2752342096672196603"
+CORS_ORIGIN = "https://mascodex.com"
