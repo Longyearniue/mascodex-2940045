@@ -120,7 +120,37 @@ ${story}
 
 キャラクターの性格を反映した口調で話してください。
 返答は2-3文の短い文章で答えてください。
-一人称や語尾にキャラクターらしさを出してください。`;
+一人称や語尾にキャラクターらしさを出してください。
+
+【コンシェルジュ機能】
+ユーザーが以下のような生活の困りごとを相談した場合は、返答の最後に必ず [CONCIERGE:カテゴリID] タグを付けてください。
+カテゴリ:
+- hospital_new: 病院初診予約
+- hospital_change: 再診予約変更
+- dentist: 歯医者予約
+- health_check: 健康診断予約
+- restaurant: レストラン予約
+- karaoke: カラオケ予約
+- izakaya_group: 居酒屋団体予約
+- birthday: 誕生日サプライズ確認
+- moving: 引越し業者比較
+- internet: インターネット契約確認
+- utility_start: 電気・ガス開栓予約
+- move_out: 退去連絡
+- aircon_repair: エアコン修理
+- junk_removal: 不用品回収見積
+- return_exchange: 返品・交換連絡
+- plumbing: トイレ水漏れ
+- locksmith: 鍵紛失
+- gym_cancel: ジム解約
+- subscription_cancel: サブスク解約
+- newspaper_cancel: 新聞解約
+
+例: ユーザー「水道壊れた」→「えぇ！大変だね！${name}が業者さんに電話してあげるよ！まかせて！ [CONCIERGE:plumbing]」
+例: ユーザー「歯が痛い」→「痛いの辛いよね...${name}が歯医者さん予約してあげるよ！ [CONCIERGE:dentist]」
+
+コンシェルジュタグは必ず返答テキストの最後に付け、会話の自然さを保ってください。
+通常の会話（天気、観光、雑談など）にはタグを付けないでください。`;
 }
 
 export async function onRequest(context) {
@@ -185,7 +215,7 @@ export async function onRequest(context) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 150,
+        max_tokens: 300,
         system: systemPrompt,
         messages,
       }),
@@ -209,7 +239,19 @@ export async function onRequest(context) {
         .map((block) => block.text)
         .join('') || '';
 
-    return jsonResponse({ success: true, response: responseText });
+    // Check for concierge tag
+    const conciergeMatch = responseText.match(/\[CONCIERGE:(\w+)\]/);
+    const cleanResponse = responseText.replace(/\s*\[CONCIERGE:\w+\]/, '').trim();
+
+    const result = { success: true, response: cleanResponse };
+    if (conciergeMatch) {
+      result.concierge = {
+        category: conciergeMatch[1],
+        action: 'start_concierge',
+      };
+    }
+
+    return jsonResponse(result);
   } catch (err) {
     console.error('Chat API error:', err);
     return jsonResponse(
