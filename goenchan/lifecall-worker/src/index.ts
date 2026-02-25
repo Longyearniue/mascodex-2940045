@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { sessions } from './session';
 
 type Env = {
   DB: D1Database;
@@ -17,5 +18,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', cors({ origin: '*' }));
 
 app.get('/health', (c) => c.json({ ok: true, service: 'lifecall-worker' }));
+
+app.route('/api/sessions', sessions);
 
 export default app;
