@@ -20,10 +20,10 @@ function generateCharacterHTML(char) {
   <meta property="og:title" content="${escapedName} - ${escapedArea}のゆるキャラ">
   <meta property="og:description" content="${desc}">
   <meta property="og:image" content="${imgBase}_01.png">
-  <meta property="og:url" content="https://characters.mascodex.com/${postalCode}/">
+  <meta property="og:url" content="https://mascodex.com/c/${postalCode}">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="canonical" href="https://characters.mascodex.com/${postalCode}/">
+  <link rel="canonical" href="https://mascodex.com/c/${postalCode}">
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -31,7 +31,7 @@ function generateCharacterHTML(char) {
     "name":${JSON.stringify(name)},
     "description":${JSON.stringify(desc)},
     "image":"${imgBase}_01.png",
-    "url":"https://characters.mascodex.com/${postalCode}/"
+    "url":"https://mascodex.com/c/${postalCode}"
   }
   </script>
   <style>

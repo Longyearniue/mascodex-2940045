@@ -1,0 +1,14 @@
+scripts/
+backups/
+data/
+node_modules/
+.wrangler/
+.claude/
+.beads/
+.git/
+game-cron-worker/
+d1/
+docs/
+goenchan/
+backend/
+superpowers/

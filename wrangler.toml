@@ -22,4 +22,4 @@ database_id = "75c46a4a-2c7e-4119-b898-caeb32211a7e"
 
 [[r2_buckets]]
 binding = "CHAR_R2"
-bucket_name = "mascodex-characters"
+bucket_name = "yuruchara"

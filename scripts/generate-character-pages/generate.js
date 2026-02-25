@@ -54,6 +54,8 @@ async function processBatch(postalCodes, batchNum, totalBatches) {
 }
 
 async function main() {
+  const RESUME = process.argv.includes('--resume');
+
   // Load all postal codes from zip-tree.json
   const zipTree = JSON.parse(fs.readFileSync(ZIP_TREE_PATH, 'utf-8'));
   const allCodes = [];
@@ -66,9 +68,18 @@ async function main() {
   }
   console.log(`Total postal codes: ${allCodes.length}`);
 
-  // Clean output dir
-  if (fs.existsSync(OUTPUT_DIR)) {
-    fs.rmSync(OUTPUT_DIR, { recursive: true });
+  if (RESUME) {
+    // Skip already-generated codes
+    const existing = new Set(fs.existsSync(OUTPUT_DIR) ? fs.readdirSync(OUTPUT_DIR) : []);
+    const remaining = allCodes.filter(c => !existing.has(c));
+    console.log(`Resume mode: ${existing.size} already done, ${remaining.length} remaining`);
+    allCodes.length = 0;
+    allCodes.push(...remaining);
+  } else {
+    // Clean output dir
+    if (fs.existsSync(OUTPUT_DIR)) {
+      fs.rmSync(OUTPUT_DIR, { recursive: true });
+    }
   }
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 

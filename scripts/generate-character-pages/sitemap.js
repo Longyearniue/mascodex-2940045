@@ -3,7 +3,7 @@ const path = require('path');
 
 const ZIP_TREE_PATH = path.join(__dirname, '../../backups/mascodex-top-backup/zip-tree.json');
 const OUTPUT_DIR = path.join(__dirname, 'output');
-const BASE_URL = 'https://characters.mascodex.com';
+const BASE_URL = 'https://mascodex.com/c';
 
 function main() {
   const zipTree = JSON.parse(fs.readFileSync(ZIP_TREE_PATH, 'utf-8'));
