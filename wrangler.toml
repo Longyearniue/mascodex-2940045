@@ -23,6 +23,10 @@ database_id = "75c46a4a-2c7e-4119-b898-caeb32211a7e"
 binding = "CHAR_R2"
 bucket_name = "yuruchara"
 
+[[r2_buckets]]
+binding = "IMG_R2"
+bucket_name = "yuruchara-clean"
+
 # === US Mascot additions ===
 [[r2_buckets]]
 binding = "US_CHAR_R2"
@@ -40,4 +44,4 @@ bucket_name = "mascodex-in"
 
 [[kv_namespaces]]
 binding = "IN_KV"
-id = "<PLACEHOLDER_WILL_BE_UPDATED>"
+id = "b53a747d21934113b3c7fbfe47e3e0d4"
