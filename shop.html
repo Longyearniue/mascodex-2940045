@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mascodex T-shirt Shop</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      padding: 40px 20px 20px;
+    }
+
+    .header h1 {
+      color: #fff;
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: #fff;
+    }
+
+    .search-section {
+      max-width: 500px;
+      margin: 24px auto;
+      padding: 0 20px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border-radius: 8px;
+      background: transparent;
+      font-family: inherit;
+    }
+
+    .search-box input::placeholder {
+      color: #aaa;
+    }
+
+    .search-box button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .search-box button:hover {
+      opacity: 0.9;
+    }
+
+    .search-box button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #ffcdd2;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.9rem;
+      min-height: 1.2em;
+    }
+
+    .products-section {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px 40px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .product-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: #f5f5f5;
+    }
+
+    .product-card .card-body {
+      padding: 20px;
+    }
+
+    .product-card .char-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .product-card .char-code {
+      font-size: 0.85rem;
+      color: #999;
+      margin-bottom: 12px;
+    }
+
+    .product-card .price {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 16px;
+    }
+
+    .product-card .buy-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.2s;
+      font-family: inherit;
+    }
+
+    .product-card .buy-btn:hover {
+      opacity: 0.9;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      display: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255, 255, 255, 0.7);
+      display: none;
+    }
+
+    .empty-state p {
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 640px) {
+      .header h1 {
+        font-size: 1.6rem;
+      }
+
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .search-box {
+        flex-direction: column;
+      }
+
+      .search-box button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/" class="back-link">&larr; Mascodex Home</a>
+    <h1>Mascodex T-shirt Shop</h1>
+    <p>あなたの街のゆるキャラをTシャツに！郵便番号で検索してください。</p>
+  </div>
+
+  <div class="search-section">
+    <div class="search-box">
+      <input
+        type="text"
+        id="postal-code"
+        placeholder="郵便番号を入力 (例: 2940045)"
+        inputmode="numeric"
+        maxlength="7"
+        pattern="[0-9]{7}"
+      >
+      <button id="search-btn" onclick="searchProducts()">検索</button>
+    </div>
+    <div class="error-message" id="error-message"></div>
+  </div>
+
+  <div class="loading" id="loading">検索中...</div>
+
+  <div class="empty-state" id="empty-state">
+    <p>郵便番号を入力して、あなたの街のキャラクターを見つけましょう！</p>
+  </div>
+
+  <div class="products-section">
+    <div class="products-grid" id="products-grid"></div>
+  </div>
+
+  <script>
+    const postalInput = document.getElementById('postal-code');
+    const searchBtn = document.getElementById('search-btn');
+    const errorMessage = document.getElementById('error-message');
+    const loading = document.getElementById('loading');
+    const emptyState = document.getElementById('empty-state');
+    const productsGrid = document.getElementById('products-grid');
+
+    // Allow only numeric input
+    postalInput.addEventListener('input', function () {
+      this.value = this.value.replace(/[^0-9]/g, '').slice(0, 7);
+    });
+
+    postalInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        searchProducts();
+      }
+    });
+
+    // Check URL params on load
+    window.addEventListener('DOMContentLoaded', function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (code && /^[0-9]{7}$/.test(code)) {
+        postalInput.value = code;
+        searchProducts();
+      } else {
+        emptyState.style.display = 'block';
+      }
+    });
+
+    async function searchProducts() {
+      const code = postalInput.value.trim();
+      errorMessage.textContent = '';
+
+      if (!/^[0-9]{7}$/.test(code)) {
+        errorMessage.textContent = '7桁の数字で郵便番号を入力してください。';
+        return;
+      }
+
+      searchBtn.disabled = true;
+      loading.style.display = 'block';
+      emptyState.style.display = 'none';
+      productsGrid.innerHTML = '';
+
+      try {
+        const response = await fetch(`/api/shop/products/${code}`);
+        const data = await response.json();
+
+        if (!data.success || !data.products || data.products.length === 0) {
+          // Fall back to showing default variants
+          showDefaultCards(code, data.characterName || null);
+        } else {
+          renderProducts(data.products, code);
+        }
+      } catch (err) {
+        // If API not available, show default variant cards
+        showDefaultCards(code, null);
+      } finally {
+        searchBtn.disabled = false;
+        loading.style.display = 'none';
+      }
+    }
+
+    function showDefaultCards(code, characterName) {
+      const variants = ['01', '02', '03'];
+      const name = characterName || `キャラクター ${code}`;
+
+      productsGrid.innerHTML = '';
+
+      variants.forEach(function (v) {
+        const card = createProductCard(code, v, name);
+        productsGrid.appendChild(card);
+      });
+    }
+
+    function renderProducts(products, code) {
+      productsGrid.innerHTML = '';
+
+      products.forEach(function (product) {
+        const card = createProductCard(
+          code,
+          product.variant || '01',
+          product.name || `キャラクター ${code}`
+        );
+        productsGrid.appendChild(card);
+      });
+    }
+
+    function createProductCard(code, variant, name) {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      const imgSrc = `https://img.mascodex.com/${code}_${variant}.png`;
+
+      card.innerHTML = `
+        <img src="${imgSrc}" alt="${name} - バリアント ${variant}" onerror="this.closest('.product-card').style.display='none'">
+        <div class="card-body">
+          <div class="char-name">${name}</div>
+          <div class="char-code">${code} - バリアント ${variant}</div>
+          <div class="price">$28.00 USD</div>
+          <a href="/shop-product.html?charId=${code}&variant=${variant}" class="buy-btn">Tシャツを購入 &rarr;</a>
+        </div>
+      `;
+
+      return card;
+    }
+  </script>
+</body>
+</html>

@@ -114,7 +114,7 @@ For each ZIP code, output a JSON object with these fields:
 - "zipCode": the 5-digit ZIP
 - "name": A creative English mascot name (pun, portmanteau, or wordplay on local features)
 - "catchphrase": A fun one-liner the mascot would say
-- "sdPrompt": An SDXL image generation prompt: "3D rendered cute kawaii mascot character, chibi style, soft lighting, smooth shading, [specific visual details reflecting the area], simple clean design, white background, high quality, 3D illustration, Pixar style"
+- "sdPrompt": An SDXL image generation prompt following this EXACT structure: "cute yuru-chara mascot, full body, 3D soft plush texture, kigurumi style, simple rounded body, big eyes, short limbs, friendly expression, [specific regional visual details — landmarks, local food, animals, cultural features], white background, high quality, studio lighting, no text, no letters, no watermark"
 - "colorPalette": Array of 3 hex colors inspired by the area
 - "backstory": 1-2 sentences about the character
 

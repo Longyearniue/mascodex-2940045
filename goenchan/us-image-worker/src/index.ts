@@ -21,9 +21,10 @@ export default {
     }
 
     try {
-      const { zipCode, prompt, variant } = await request.json() as {
+      const { zipCode, prompt, negative_prompt, variant } = await request.json() as {
         zipCode?: string;
         prompt?: string;
+        negative_prompt?: string;
         variant?: number;
       };
 
@@ -45,9 +46,11 @@ export default {
       }
 
       // Generate image with SDXL
-      const result = await env.AI.run('@cf/stabilityai/stable-diffusion-xl-base-1.0', {
-        prompt,
-      }) as ReadableStream;
+      const aiInput: Record<string, string> = { prompt };
+      if (negative_prompt) {
+        aiInput.negative_prompt = negative_prompt;
+      }
+      const result = await env.AI.run('@cf/stabilityai/stable-diffusion-xl-base-1.0', aiInput) as ReadableStream;
 
       // Store in R2
       await env.IMAGES.put(key, result, {

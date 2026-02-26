@@ -21,6 +21,7 @@ const PROFILES_DIR = path.join(__dirname, '..', 'data', 'profiles');
 const WORKER_URL = 'https://us-mascot-image-gen.taiichifox.workers.dev';
 const VARIANTS = [1, 2];
 const DEFAULT_CONCURRENCY = 5;
+const NEGATIVE_PROMPT = 'low quality, text, letters, watermark, blurry, bad anatomy, cropped, disfigured, duplicate, extra limbs, realistic human, photograph';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -40,9 +41,9 @@ function parseArgs() {
 /**
  * POST to image generation Worker.
  */
-function generateImage(zipCode, prompt, variant) {
+function generateImage(zipCode, prompt, variant, negative_prompt) {
   return new Promise((resolve, reject) => {
-    const body = JSON.stringify({ zipCode, prompt, variant });
+    const body = JSON.stringify({ zipCode, prompt, negative_prompt, variant });
     const parsedUrl = new URL(WORKER_URL);
 
     const options = {
@@ -122,7 +123,7 @@ async function main() {
       if (variant === 2) {
         prompt = prompt.replace('white background', 'soft gradient background');
       }
-      allTasks.push({ zipCode, prompt, variant });
+      allTasks.push({ zipCode, prompt, variant, negative_prompt: NEGATIVE_PROMPT });
     }
   }
 
@@ -140,9 +141,9 @@ async function main() {
   let completed = 0;
 
   const taskFns = allTasks.map((task, idx) => async () => {
-    const { zipCode, prompt, variant } = task;
+    const { zipCode, prompt, variant, negative_prompt } = task;
     try {
-      const result = await generateImage(zipCode, prompt, variant);
+      const result = await generateImage(zipCode, prompt, variant, negative_prompt);
       completed++;
 
       if (result.skipped) {
