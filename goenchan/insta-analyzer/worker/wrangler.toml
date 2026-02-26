@@ -6,5 +6,4 @@ compatibility_date = "2024-01-01"
 binding = "REPORTS"
 id = "cb6cb3b95563469eb46b8f99db10f191"
 
-[vars]
-UPLOAD_SECRET = ""
+# UPLOAD_SECRET is set via `wrangler secret put UPLOAD_SECRET`
