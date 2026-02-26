@@ -13,7 +13,6 @@ preview_id = "65ddc6c899c94cf89e825099c1c1d329"
 [[kv_namespaces]]
 binding = "GAME_KV"
 id = "1d4a90905d6c438688a5fa3cb6631a10"
-preview_id = "129fc508aa2e48178ac42b209e84ed0f"
 
 [[d1_databases]]
 binding = "GAME_DB"
@@ -33,3 +32,12 @@ bucket_name = "mascodex-us"
 binding = "US_KV"
 id = "53c515c4988d4379b2cf231ee3901fdb"
 preview_id = "b6acbab6be084511adec67bf3e05938d"
+
+# === India Mascot additions ===
+[[r2_buckets]]
+binding = "IN_CHAR_R2"
+bucket_name = "mascodex-in"
+
+[[kv_namespaces]]
+binding = "IN_KV"
+id = "<PLACEHOLDER_WILL_BE_UPDATED>"
