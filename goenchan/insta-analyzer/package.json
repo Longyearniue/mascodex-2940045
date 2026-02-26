@@ -1,0 +1,13 @@
+{
+  "name": "insta-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "scrape": "node src/scrape.js",
+    "upload": "node src/upload.js"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
