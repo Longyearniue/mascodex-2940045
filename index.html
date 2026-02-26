@@ -1,74 +1,40 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mascodex - 12万体のゆるキャラグッズ</title>
+  <title>Mascodex - Every ZIP Code Has a Mascot</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;display:flex;flex-direction:column;}
 
-    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:60px 20px 50px;text-align:center;position:relative;overflow:hidden;}
+    .hero{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:80px 20px 60px;text-align:center;position:relative;overflow:hidden;}
     .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 60%);animation:glow 8s ease-in-out infinite;}
     @keyframes glow{0%,100%{transform:translate(0,0)}50%{transform:translate(5%,5%)}}
-    .hero h1{font-size:3rem;font-weight:800;margin-bottom:6px;position:relative;}
-    .hero .tagline{font-size:1.15rem;opacity:.85;margin-bottom:30px;position:relative;}
-    .hero-mascots{display:flex;justify-content:center;gap:14px;margin-bottom:36px;position:relative;}
-    .hero-mascots img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);transition:transform .3s;box-shadow:0 6px 20px rgba(0,0,0,.25);}
-    .hero-mascots img:hover{transform:scale(1.12) rotate(-3deg);}
+    .hero h1{font-size:3.5rem;font-weight:800;position:relative;margin-bottom:8px;}
+    .hero .tagline{font-size:1.25rem;opacity:.85;position:relative;max-width:500px;margin:0 auto;}
 
-    .search-card{background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:20px;max-width:560px;margin:-30px auto 0;padding:30px;position:relative;z-index:2;}
-    .search-card h2{font-size:1.2rem;text-align:center;margin-bottom:16px;font-weight:600;}
-    .search-row{display:flex;gap:10px;margin-bottom:16px;}
-    .search-row input{flex:1;padding:14px 18px;border:none;border-radius:50px;font-size:1rem;outline:none;background:#fff;color:#333;}
-    .search-row input::placeholder{color:#999;}
-    .search-row button,.addr-go{padding:14px 24px;background:#ffdd57;color:#000;border:none;border-radius:50px;font-size:1rem;cursor:pointer;font-weight:700;transition:transform .2s;}
-    .search-row button:hover,.addr-go:hover{transform:scale(1.04);}
-    .divider{text-align:center;opacity:.5;font-size:.85rem;margin:12px 0;}
-    .addr-selects{display:flex;gap:8px;flex-wrap:wrap;}
-    .addr-selects select{flex:1;min-width:0;padding:10px 12px;border:none;border-radius:12px;font-size:.9rem;background:rgba(255,255,255,.12);color:#fff;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;}
-    .addr-selects select option{background:#1a1640;color:#fff;}
-    .addr-go{margin-top:10px;width:100%;border-radius:12px;}
-    #search-result{text-align:center;margin-top:10px;font-size:.9rem;color:#ffdd57;min-height:1.2em;}
+    .cards-section{flex:1;display:flex;justify-content:center;align-items:center;padding:60px 20px;gap:32px;flex-wrap:wrap;}
 
-    .showcase{padding:50px 20px;max-width:1100px;margin:0 auto;text-align:center;}
-    .showcase h2{font-size:1.7rem;margin-bottom:6px;}
-    .showcase .sub{opacity:.6;margin-bottom:28px;font-size:.95rem;}
-    .product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
-    .product-card{background:#1e1a3a;border-radius:16px;overflow:hidden;transition:transform .3s;cursor:pointer;text-decoration:none;color:#fff;}
-    .product-card:hover{transform:translateY(-5px);}
-    .product-card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#2a2650;}
-    .product-card img.shimmer{position:relative;overflow:hidden;}
-    .product-card img.shimmer::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:shimmer 1.5s infinite;}
-    @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-    .card-info{padding:14px;text-align:center;}
-    .card-type{font-size:.7rem;color:#667eea;font-weight:600;text-transform:uppercase;margin-bottom:2px;}
-    .card-name{font-weight:600;font-size:.95rem;margin-bottom:2px;}
-    .card-area{font-size:.8rem;opacity:.5;margin-bottom:4px;}
-    .card-price{color:#ffdd57;font-weight:700;font-size:.9rem;}
-
-    .features{background:#1a1640;padding:50px 20px;}
-    .features-inner{max-width:900px;margin:0 auto;}
-    .features h2{text-align:center;font-size:1.5rem;margin-bottom:28px;}
-    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;}
-    .feat{background:rgba(255,255,255,.05);border-radius:16px;padding:24px;text-align:center;}
-    .feat-icon{font-size:2.4rem;margin-bottom:10px;}
-    .feat h3{font-size:1.05rem;margin-bottom:6px;}
-    .feat p{opacity:.65;font-size:.88rem;line-height:1.5;}
-
-    .cta-section{text-align:center;padding:50px 20px;}
-    .cta-btn{display:inline-block;background:#ffdd57;color:#000;font-weight:700;font-size:1.15rem;padding:16px 44px;border-radius:50px;text-decoration:none;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 20px rgba(0,0,0,.25);}
-    .cta-btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.35);}
+    .country-card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:24px;width:340px;padding:40px 30px;text-align:center;transition:transform .3s,box-shadow .3s;cursor:pointer;text-decoration:none;color:#fff;}
+    .country-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(0,0,0,.4);border-color:rgba(255,255,255,.25);}
+    .country-flag{font-size:4rem;margin-bottom:16px;}
+    .country-name{font-size:1.6rem;font-weight:700;margin-bottom:6px;}
+    .country-count{font-size:1rem;opacity:.65;margin-bottom:20px;}
+    .country-mascots{display:flex;justify-content:center;gap:10px;margin-bottom:24px;}
+    .country-mascots img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.2);box-shadow:0 4px 12px rgba(0,0,0,.3);}
+    .country-btn{display:inline-block;background:#ffdd57;color:#000;font-weight:700;font-size:1rem;padding:12px 32px;border-radius:50px;transition:transform .2s;}
+    .country-card:hover .country-btn{transform:scale(1.05);}
 
     .footer{text-align:center;padding:30px 20px;opacity:.4;font-size:.82rem;}
 
     @media(max-width:600px){
-      .hero h1{font-size:2rem;}
-      .hero-mascots img{width:70px;height:70px;}
-      .search-card{margin:-20px 12px 0;padding:20px;}
-      .addr-selects{flex-direction:column;}
-      .search-row input{font-size:.9rem;padding:12px 14px;}
-      .product-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+      .hero h1{font-size:2.4rem;}
+      .hero .tagline{font-size:1.05rem;}
+      .cards-section{padding:30px 16px;gap:20px;}
+      .country-card{width:100%;max-width:360px;padding:30px 24px;}
+      .country-flag{font-size:3rem;}
+      .country-mascots img{width:52px;height:52px;}
     }
   </style>
 </head>
@@ -76,203 +42,37 @@
 
   <section class="hero">
     <h1>Mascodex</h1>
-    <p class="tagline">日本全国12万体のゆるキャラをグッズに</p>
-    <div class="hero-mascots" id="hero-mascots"></div>
+    <p class="tagline">Every ZIP code has a unique mascot character. Find yours.</p>
   </section>
 
-  <div class="search-card">
-    <h2>あなたの街のゆるキャラを探そう</h2>
-    <div class="search-row">
-      <input type="text" id="zipcode" placeholder="郵便番号（例: 2940045）" maxlength="7" inputmode="numeric">
-      <button id="searchBtn">検索</button>
-    </div>
-    <div class="divider">または住所から探す</div>
-    <div class="addr-selects">
-      <select id="ken"><option>都道府県</option></select>
-      <select id="shi"><option>市区町村</option></select>
-      <select id="cho"><option>町域</option></select>
-    </div>
-    <button class="addr-go" id="searchAddr">住所で検索</button>
-    <div id="search-result"></div>
-  </div>
-
-  <section class="showcase">
-    <h2>ピックアップグッズ</h2>
-    <p class="sub">あなたの地元にも、世界に一つだけのゆるキャラがいます</p>
-    <div class="product-grid" id="product-grid"></div>
-  </section>
-
-  <section class="features">
-    <div class="features-inner">
-      <h2>Mascodex とは</h2>
-      <div class="features-grid">
-        <div class="feat">
-          <div class="feat-icon">🎨</div>
-          <h3>120,000体のオリジナルキャラ</h3>
-          <p>日本の全郵便番号エリアに対応した、AI生成のゆるキャラたち</p>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">🛍️</div>
-          <h3>6種類のグッズ</h3>
-          <p>Tシャツ、マグカップ、iPhoneケース、トートバッグ、ステッカー、ポスター</p>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">🖨️</div>
-          <h3>高品質オンデマンド</h3>
-          <p>注文が入ってから印刷。Printful & Gelatoの最高品質プリント</p>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">🌍</div>
-          <h3>世界中にお届け</h3>
-          <p>日本はPrintful、海外はGelatoで最寄り拠点から発送</p>
-        </div>
+  <section class="cards-section">
+    <a href="/jp/" class="country-card">
+      <div class="country-flag">&#x1F1EF;&#x1F1F5;</div>
+      <div class="country-name">Japan</div>
+      <div class="country-count">120,000+ mascots</div>
+      <div class="country-mascots">
+        <img src="https://img.mascodex.com/1000001_01.png" alt="Chiyoda mascot">
+        <img src="https://img.mascodex.com/2940045_01.png" alt="Tateyama mascot">
+        <img src="https://img.mascodex.com/5300001_01.png" alt="Umeda mascot">
+        <img src="https://img.mascodex.com/8120011_01.png" alt="Hakata mascot">
       </div>
-    </div>
-  </section>
+      <span class="country-btn">Explore Japan</span>
+    </a>
 
-  <section class="cta-section">
-    <a href="https://mascodex-2940045.pages.dev/shop.html" class="cta-btn">ショップを見る</a>
+    <a href="/us/" class="country-card">
+      <div class="country-flag">&#x1F1FA;&#x1F1F8;</div>
+      <div class="country-name">United States</div>
+      <div class="country-count">31,000+ mascots</div>
+      <div class="country-mascots" id="us-mascots">
+        <img src="/img/us/10001_01.png" alt="Manhattan mascot">
+        <img src="/img/us/90210_01.png" alt="Beverly Hills mascot">
+        <img src="/img/us/60601_01.png" alt="Chicago mascot">
+      </div>
+      <span class="country-btn">Explore USA</span>
+    </a>
   </section>
 
   <div class="footer">&copy; 2025 Mascodex. All characters are original AI-generated designs.</div>
 
-  <script>
-    /* === Character Pool (18 characters from across Japan) === */
-    var CHAR_POOL = [
-      {id:'0640941',name:'アサイヌちゃん',area:'北海道 札幌市中央区'},
-      {id:'0700011',name:'パルプスペシャル',area:'北海道 旭川市'},
-      {id:'1000001',name:'チヨタおりぞん',area:'東京都 千代田区'},
-      {id:'1500001',name:'ジングーくん',area:'東京都 渋谷区 神宮前'},
-      {id:'2600013',name:'チバチューくん',area:'千葉県 千葉市中央区'},
-      {id:'2940045',name:'ほうじょうれーぬ',area:'千葉県 館山市 北条'},
-      {id:'3300846',name:'ダイモンそれいゆ',area:'埼玉県 さいたま市大宮区'},
-      {id:'3700811',name:'アイオイチャン',area:'群馬県 高崎市 相生町'},
-      {id:'4500002',name:'ナカマルくん',area:'愛知県 名古屋市中村区'},
-      {id:'5300001',name:'ウメダンゴぷてぃっと',area:'大阪府 大阪市北区 梅田'},
-      {id:'5420076',name:'ナンバニャンまりあーじゅ',area:'大阪府 大阪市中央区 難波'},
-      {id:'6048006',name:'イケマチくん',area:'京都府 京都市中京区'},
-      {id:'7300031',name:'カミヤッチ',area:'広島県 広島市中区 紙屋町'},
-      {id:'8120011',name:'はかたんしょこら',area:'福岡県 福岡市博多区'},
-      {id:'8600844',name:'水道リネーム',area:'熊本県 熊本市中央区'},
-      {id:'9000001',name:'ポートぱろーる',area:'沖縄県 那覇市 港町'},
-      {id:'9200981',name:'カタマチきよ',area:'石川県 金沢市 片町'},
-      {id:'9400061',name:'ジョウナイらるむ',area:'新潟県 長岡市 城内町'}
-    ];
-
-    var PRODUCT_TYPES = [
-      {type:'tshirt',label:'T-Shirt',name:'Tシャツ',price:'$28.00'},
-      {type:'mug',label:'Mug',name:'マグカップ',price:'$18.00'},
-      {type:'case',label:'iPhone Case',name:'iPhoneケース',price:'$25.00'},
-      {type:'tote',label:'Tote Bag',name:'トートバッグ',price:'$35.00'},
-      {type:'sticker',label:'Sticker',name:'ステッカー',price:'$6.00'},
-      {type:'poster',label:'Poster',name:'ポスター',price:'$25.00'}
-    ];
-
-    var SHOP_BASE = 'https://mascodex-2940045.pages.dev';
-    var IMG_CDN = 'https://img.mascodex.com/';
-
-    /* Shuffle and pick N unique items */
-    function pickRandom(arr, n) {
-      var copy = arr.slice();
-      for (var i = copy.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
-      }
-      return copy.slice(0, n);
-    }
-
-    /* Pick 6 random characters (one per product) */
-    var picked = pickRandom(CHAR_POOL, 6);
-
-    /* Render hero mascots */
-    var heroEl = document.getElementById('hero-mascots');
-    picked.forEach(function(c) {
-      heroEl.innerHTML += '<img src="' + IMG_CDN + c.id + '_01.png" alt="' + c.name + ' - ' + c.area + '">';
-    });
-
-    /* Render product cards */
-    var gridEl = document.getElementById('product-grid');
-    picked.forEach(function(c, i) {
-      var p = PRODUCT_TYPES[i];
-      var card = document.createElement('a');
-      card.className = 'product-card';
-      card.href = SHOP_BASE + '/shop-product?charId=' + c.id + '&variant=01&product=' + p.type;
-      card.innerHTML =
-        '<img id="pimg-' + i + '" src="' + IMG_CDN + c.id + '_01.png" alt="' + p.name + '">' +
-        '<div class="card-info">' +
-          '<div class="card-type">' + p.label + '</div>' +
-          '<div class="card-name">' + c.name + ' ' + p.name + '</div>' +
-          '<div class="card-area">' + c.area + '</div>' +
-          '<div class="card-price">' + p.price + '</div>' +
-        '</div>';
-      gridEl.appendChild(card);
-    });
-
-    /* Load real Printful mockups sequentially */
-    function loadMockup(idx) {
-      if (idx >= 6) return;
-      var c = picked[idx], p = PRODUCT_TYPES[idx];
-      fetch(SHOP_BASE + '/api/shop/mockup/' + c.id + '?product=' + p.type + '&variant=01')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.success && data.mockup && data.mockup.status === 'completed' && data.mockup.mockups && data.mockup.mockups.length > 0) {
-            var img = document.getElementById('pimg-' + idx);
-            var newImg = new Image();
-            newImg.onload = function() { img.src = newImg.src; };
-            newImg.src = data.mockup.mockups[0].imageUrl;
-          }
-        })
-        .catch(function() {})
-        .finally(function() { setTimeout(function() { loadMockup(idx + 1); }, 1200); });
-    }
-    loadMockup(0);
-  </script>
-
-  <script>
-    fetch('./js/zip-tree.json')
-      .then(function(res){ return res.json(); })
-      .then(function(data){
-        var kenSel=document.getElementById('ken'),shiSel=document.getElementById('shi'),
-            choSel=document.getElementById('cho'),zipInput=document.getElementById('zipcode'),
-            searchBtn=document.getElementById('searchBtn'),searchAddr=document.getElementById('searchAddr'),
-            result=document.getElementById('search-result');
-
-        Object.keys(data).forEach(function(ken){
-          var o=document.createElement('option'); o.value=o.text=ken; kenSel.appendChild(o);
-        });
-        kenSel.onchange=function(){
-          shiSel.innerHTML='<option>市区町村</option>';
-          choSel.innerHTML='<option>町域</option>';
-          Object.keys(data[kenSel.value]||{}).forEach(function(shi){
-            var o=document.createElement('option'); o.value=o.text=shi; shiSel.appendChild(o);
-          });
-        };
-        shiSel.onchange=function(){
-          choSel.innerHTML='<option>町域</option>';
-          Object.keys((data[kenSel.value]||{})[shiSel.value]||{}).forEach(function(cho){
-            var o=document.createElement('option'); o.value=o.text=cho; choSel.appendChild(o);
-          });
-        };
-        searchAddr.onclick=function(){
-          var zip=(data[kenSel.value]||{})[shiSel.value]&&data[kenSel.value][shiSel.value][choSel.value];
-          if(zip) window.location.href=computeURL(zip);
-          else result.textContent='該当する住所が見つかりませんでした。';
-        };
-        searchBtn.onclick=function(){
-          var zip=zipInput.value.trim();
-          if(!/^[0-9]{7}$/.test(zip)){result.textContent='7桁の郵便番号を入力してください。';return;}
-          result.textContent=''; window.location.href=computeURL(zip);
-        };
-        zipInput.addEventListener('keypress',function(e){if(e.key==='Enter')searchBtn.onclick();});
-
-        function computeURL(zip){
-          return '/c/'+zip;
-        }
-      })
-      .catch(function(e){
-        console.error(e);
-        document.getElementById('search-result').textContent='データ読み込みに失敗しました。';
-      });
-  </script>
 </body>
 </html>
