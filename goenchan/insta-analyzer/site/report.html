@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram Deep Analyzer - Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+  <!-- PDF via print dialog -->
   <style>
     body {
       background-color: #0f172a;
@@ -232,32 +231,42 @@
       padding: 1rem 1.25rem;
     }
 
-    /* Print styles */
+    /* Print styles - keep dark theme for PDF */
     @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
       body {
-        background: white !important;
-        color: #1e293b !important;
+        background: #0f172a !important;
+        color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact !important;
       }
       .sheet {
-        background: white !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: none !important;
         page-break-after: always;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        margin: 0 auto !important;
+        border: none !important;
       }
       .card {
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
+        page-break-inside: avoid;
       }
       .metric-card, .roadmap-col, .proposal-item {
-        background: #f8fafc !important;
-        border: 1px solid #e2e8f0 !important;
+        page-break-inside: avoid;
       }
       .no-print {
         display: none !important;
       }
-      .gradient-text, .gradient-text-blue, .gradient-text-green {
-        -webkit-text-fill-color: #6366f1 !important;
+      #reportContent {
+        padding-bottom: 0 !important;
       }
+    }
+
+    @page {
+      size: A4;
+      margin: 10mm;
     }
   </style>
 </head>
@@ -1042,34 +1051,14 @@
 
     // ── PDF Export ──
 
-    async function exportPdf(username) {
-      const { jsPDF } = window.jspdf;
-
-      // Temporarily adjust for capture
-      const sheets = [document.getElementById('sheet1'), document.getElementById('sheet2')];
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-
-      for (let i = 0; i < sheets.length; i++) {
-        const sheet = sheets[i];
-        const canvas = await html2canvas(sheet, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#0f172a',
-          logging: false,
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-        if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, Math.min(imgHeight, pdfHeight));
-      }
-
+    function exportPdf(username) {
+      // Set document title for PDF filename
+      const origTitle = document.title;
       const dateStr = new Date().toISOString().slice(0, 10);
-      pdf.save(`instagram-analysis-${username || 'report'}-${dateStr}.pdf`);
+      document.title = `instagram-analysis-${username || 'report'}-${dateStr}`;
+      window.print();
+      // Restore title after print dialog
+      setTimeout(() => { document.title = origTitle; }, 1000);
     }
 
     // ── Main ──
