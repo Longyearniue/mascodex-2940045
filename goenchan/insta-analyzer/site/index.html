@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Deep Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ec4899, #a855f7, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card-glass {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .code-input {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #f1f5f9;
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+      letter-spacing: 0.25em;
+      text-align: center;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .code-input::placeholder {
+      letter-spacing: 0.1em;
+      color: rgba(148, 163, 184, 0.4);
+    }
+
+    .code-input:focus {
+      outline: none;
+      border-color: #a855f7;
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      transition: all 0.2s ease;
+    }
+
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #9333ea, #4f46e5);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-gradient:active {
+      transform: translateY(0);
+    }
+
+    .btn-gradient:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="w-full max-w-md mx-auto px-4">
+    <div class="card-glass rounded-2xl p-8 sm:p-10 shadow-2xl">
+      <!-- Icon -->
+      <div class="text-center mb-6">
+        <span class="text-6xl" role="img" aria-label="chart">📊</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-3xl sm:text-4xl font-bold text-center mb-3">
+        <span class="gradient-text">Instagram Deep Analyzer</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-slate-400 text-center text-sm sm:text-base mb-8">
+        シークレットコードを入力してレポートを閲覧
+      </p>
+
+      <!-- Input -->
+      <div class="mb-4">
+        <input
+          id="codeInput"
+          type="text"
+          maxlength="8"
+          placeholder="XXXXXXXX"
+          autocomplete="off"
+          spellcheck="false"
+          class="code-input w-full px-4 py-3.5 rounded-xl text-lg"
+        >
+      </div>
+
+      <!-- Button -->
+      <button
+        id="submitBtn"
+        class="btn-gradient w-full py-3.5 rounded-xl text-white font-semibold text-base flex items-center justify-center gap-2"
+      >
+        <span id="btnText">レポートを表示</span>
+        <div id="btnSpinner" class="spinner hidden"></div>
+      </button>
+
+      <!-- Error message -->
+      <div
+        id="errorMessage"
+        class="error-message hidden mt-4 px-4 py-3 rounded-xl text-sm text-center"
+      ></div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-slate-600 text-xs text-center mt-6">
+      &copy; 2026 Instagram Deep Analyzer
+    </p>
+  </div>
+
+  <script>
+    const API_BASE = 'https://insta-analyzer-worker.taiichifox.workers.dev';
+
+    const codeInput = document.getElementById('codeInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const errorMessage = document.getElementById('errorMessage');
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.classList.remove('hidden');
+    }
+
+    function hideError() {
+      errorMessage.classList.add('hidden');
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        btnText.textContent = '読み込み中...';
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'レポートを表示';
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    async function submitCode() {
+      hideError();
+
+      const code = codeInput.value.trim();
+      if (!code) {
+        showError('コードを入力してください。');
+        codeInput.focus();
+        return;
+      }
+
+      if (code.length !== 8) {
+        showError('コードは8文字です。');
+        codeInput.focus();
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/report/${encodeURIComponent(code)}`);
+
+        if (res.ok) {
+          window.location.href = `report.html?code=${encodeURIComponent(code)}`;
+          return;
+        }
+
+        if (res.status === 404) {
+          showError('レポートが見つかりません。コードが正しいか、有効期限（48時間）が切れていないか確認してください。');
+        } else {
+          showError('エラーが発生しました。しばらくしてからお試しください。');
+        }
+      } catch (e) {
+        showError('ネットワークエラーが発生しました。');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    submitBtn.addEventListener('click', submitCode);
+
+    codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        submitCode();
+      }
+    });
+
+    // Auto-focus the input on page load
+    codeInput.focus();
+  </script>
+</body>
+</html>
