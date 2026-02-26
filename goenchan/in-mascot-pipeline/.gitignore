@@ -1,0 +1,16 @@
+# Raw downloaded data (large, reproducible via prepare-csv.js)
+data/raw-*.csv
+data/raw-*.json
+
+# Node modules
+node_modules/
+
+# Wrangler
+.wrangler/
+
+# Generated intermediate files
+data/osm/
+data/wiki/
+data/pages/
+data/profiles/
+data/merged/
