@@ -16,7 +16,29 @@ export async function onRequestGet(context) {
     return new Response('Not Found', { status: 404 });
   }
 
-  const html = await obj.text();
+  let html = await obj.text();
+
+  // historyグローバル変数の衝突をスクリプト注入で修正
+  const fixScript = `<script>
+// Fix: override window.history collision
+(function(){
+  var _chatHistory = [];
+  Object.defineProperty(window, '_chatHistory', {value: _chatHistory, writable: true});
+  // Patch after page scripts load
+  document.addEventListener('DOMContentLoaded', function() {
+    var scripts = document.querySelectorAll('script:not([src])');
+    // history variable is local to the inline script - no patch needed
+    // The real fix: redefine sendChat to use a safe variable
+    var origSend = window.sendChat;
+  });
+})();
+</script>`;
+
+  // 直接文字列置換（Functionが呼ばれていれば効く）
+  html = html
+    .split('var history = [];').join('var chatHistory = [];')
+    .split('history.push(').join('chatHistory.push(')
+    .split('history.slice(-8)').join('chatHistory.slice(-8)');
 
   // Inject shop widget (India version)
   const injected = html.replace('</body>', '<script src="/js/shop-widget.js" defer></script></body>');
