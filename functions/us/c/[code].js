@@ -16,34 +16,45 @@ export async function onRequestGet(context) {
   if (obj) {
     let html = await obj.text();
     // ソーシャルフィードを注入
-    const socialScript = `
-<div class="section" id="mascot-social" style="border:1px solid rgba(255,255,255,.1);margin-bottom:20px">
+    
+const socialScript = `
+<style>
+.social-post{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+.social-post:last-child{border-bottom:none;}
+.social-post-content{font-size:.88rem;line-height:1.6;opacity:.88;}
+.social-post-meta{font-size:.7rem;opacity:.38;margin-top:4px;display:flex;gap:8px;}
+.social-fediverse{font-size:.72rem;opacity:.4;margin-top:8px;}
+.social-fediverse a{color:inherit;opacity:.6;}
+</style>
+<div class="section" id="mascot-social">
   <h2 style="display:flex;align-items:center;gap:8px">
     💬 Recent Posts
-    <a href="https://mascodex-social.pages.dev" target="_blank" 
-       style="font-size:.7rem;font-weight:400;opacity:.5;text-decoration:none;margin-left:auto">
-      mascodex social ↗
+    <a href="https://social.mascodex.com/users/${code}" target="_blank"
+       style="font-size:.72rem;font-weight:400;opacity:.45;text-decoration:none;margin-left:auto">
+      @${code}@social.mascodex.com ↗
     </a>
   </h2>
-  <div id="social-feed-posts" style="margin-top:12px">
-    <div style="opacity:.4;font-size:.85rem">Loading...</div>
-  </div>
+  <div id="social-feed-posts"><div style="opacity:.4;font-size:.85rem">Loading...</div></div>
 </div>
 <script>
 (function(){
-  fetch('https://mascot-social.taiichifox.workers.dev/users/${code}/outbox')
+  fetch('https://social.mascodex.com/users/${code}/outbox')
     .then(function(r){return r.ok?r.json():null})
     .then(function(d){
       if(!d)return;
-      var items=d.orderedItems||[];
+      var items=(d.orderedItems||[]);
       var el=document.getElementById('social-feed-posts');
       if(!items.length){el.innerHTML='<div style="opacity:.4;font-size:.85rem">No posts yet</div>';return;}
       el.innerHTML=items.slice(0,5).map(function(p){
-        var c=(p.object&&p.object.content)||'';
-        var t=p.published?new Date(p.published).toLocaleDateString():'';
-        return '<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)">'
-          +'<div style="font-size:.88rem;line-height:1.6;opacity:.9">'+c+'</div>'
-          +'<div style="font-size:.72rem;opacity:.4;margin-top:4px">'+t+'</div></div>';
+        var raw=(p.object&&p.object.content)||p.content||'';
+        var c=raw.replace(/^#[^
+]+
+*/,'').substring(0,160);
+        var t=p.published?new Date(p.published).toLocaleDateString('ja-JP'):'';
+        return '<div class="social-post">'
+          +'<div class="social-post-content">'+c+(c.length>=160?'...':'')+'</div>'
+          +'<div class="social-post-meta"><span>'+t+'</span></div>'
+          +'</div>';
       }).join('');
     }).catch(function(){});
 })();
