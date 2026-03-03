@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mascodex - Every ZIP Code Has a Mascot</title>
+  <title>Mascodex - Every Postal Code Has a Mascot</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;display:flex;flex-direction:column;}
@@ -42,7 +42,7 @@
 
   <section class="hero">
     <h1>Mascodex</h1>
-    <p class="tagline">Every ZIP code has a unique mascot character. Find yours.</p>
+    <p class="tagline">Every postal code has a unique mascot character. Find yours.</p>
   </section>
 
   <section class="cards-section">
@@ -70,9 +70,237 @@
       </div>
       <span class="country-btn">Explore USA</span>
     </a>
+
+    <a href="/in/" class="country-card">
+      <div class="country-flag">&#x1F1EE;&#x1F1F3;</div>
+      <div class="country-name">India</div>
+      <div class="country-count">19,000+ mascots</div>
+      <div class="country-mascots">
+        <img src="/img/in/110001_01.png" alt="New Delhi mascot">
+        <img src="/img/in/400001_01.png" alt="Mumbai mascot">
+        <img src="/img/in/560001_01.png" alt="Bangalore mascot">
+      </div>
+      <span class="country-btn">Explore India</span>
+    </a>
   </section>
+
+
+  <!-- ===== LIVE ACTIVITY ===== -->
+  <section class="live-section">
+    <div class="live-header">
+      <h2>🌏 今起きていること <span class="live-dot">●</span> LIVE</h2>
+      <a href="https://social.mascodex.com" target="_blank" class="view-all">全部見る ↗</a>
+    </div>
+    <div class="live-countries">
+      <div class="live-col" id="live-jp">
+        <div class="live-col-header">🇯🇵 日本</div>
+        <div class="live-posts" id="posts-jp"><div class="loading">読み込み中...</div></div>
+      </div>
+      <div class="live-col" id="live-us">
+        <div class="live-col-header">🇺🇸 USA</div>
+        <div class="live-posts" id="posts-us"><div class="loading">Loading...</div></div>
+      </div>
+      <div class="live-col" id="live-in">
+        <div class="live-col-header">🇮🇳 India</div>
+        <div class="live-posts" id="posts-in"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .live-section{padding:40px 20px 10px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box;}
+    .live-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .live-header h2{font-size:1.3rem;font-weight:700;}
+    .live-dot{color:#ff4444;animation:blink 1.2s ease-in-out infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .live-countries{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .live-col{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;min-height:220px;}
+    .live-col-header{font-size:.82rem;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+    .live-post{padding:10px 12px;margin-bottom:8px;background:rgba(255,255,255,.05);border-radius:10px;cursor:pointer;transition:.15s;text-decoration:none;display:block;color:#fff;}
+    .live-post:hover{background:rgba(255,255,255,.09);}
+    .live-post-meta{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+    .live-post-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.1);}
+    .live-post-name{font-size:.78rem;font-weight:600;opacity:.85;}
+    .live-post-city{font-size:.7rem;opacity:.4;margin-left:auto;}
+    .live-post-content{font-size:.82rem;line-height:1.5;opacity:.8;}
+    .loading{opacity:.3;font-size:.82rem;padding:6px;}
+    @media(max-width:768px){.live-countries{grid-template-columns:1fr;}}
+    @media(max-width:600px){.live-section{padding:24px 16px 0;}}
+  </style>
+
+  <script>
+  (function(){
+    const SOCIAL = 'https://social.mascodex.com';
+    const MASCODEX = 'https://mascodex.com';
+
+    function isJP(zip) { return zip && zip.toString().startsWith('JP'); }
+    function isIN(zip) { return zip && /^\d{6}$/.test(zip); }
+    function isUS(zip) { return zip && /^\d{5}$/.test(zip); }
+
+    function getCharUrl(zip) {
+      if (isJP(zip)) return `${MASCODEX}/c/${zip.replace('JP','')}`;
+      if (isIN(zip)) return `${MASCODEX}/in/c/${zip}`;
+      return `${MASCODEX}/us/c/${zip}`;
+    }
+    function getImgUrl(zip) {
+      if (isJP(zip)) return `${MASCODEX}/img/jp/${zip.replace('JP','')}_01.png`;
+      if (isIN(zip)) return `${MASCODEX}/img/in/${zip}_01.png`;
+      return `${MASCODEX}/img/us/${zip}_01.png`;
+    }
+
+    function makePostCard(p) {
+      const zip = p.zip || '';
+      const name = p.mascot?.name || p.name || zip;
+      const city = p.mascot?.city || p.city || '';
+      const content = (p.content || '').slice(0, 90);
+      const href = getCharUrl(zip);
+      const img = getImgUrl(zip);
+      return `<a class="live-post" href="${href}" target="_blank">
+        <div class="live-post-meta">
+          <img class="live-post-avatar" src="${img}" onerror="this.style.display='none'" loading="lazy">
+          <span class="live-post-name">${name}</span>
+          <span class="live-post-city">${city}</span>
+        </div>
+        <div class="live-post-content">${content}${content.length>=90?'...':''}</div>
+      </a>`;
+    }
+
+    async function loadLiveFeed() {
+      try {
+        // フィードから最新50件取得
+        const res = await fetch(SOCIAL + '/feed?limit=50').catch(() => null);
+        if (!res?.ok) return;
+        const data = await res.json();
+        const posts = Array.isArray(data) ? data : (data.posts || []);
+
+        const jpPosts = [], usPosts = [], inPosts = [];
+        for (const p of posts) {
+          const zip = p.zip || '';
+          if (isJP(zip)) jpPosts.push(p);
+          else if (isIN(zip)) inPosts.push(p);
+          else if (isUS(zip)) usPosts.push(p);
+        }
+
+        const render = (arr, id, empty) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          const cards = arr.slice(0,5).map(makePostCard).join('');
+          el.innerHTML = cards || `<div class="loading">${empty}</div>`;
+        };
+
+        render(jpPosts, 'posts-jp', '投稿なし');
+        render(usPosts, 'posts-us', 'No posts');
+        render(inPosts, 'posts-in', 'No posts');
+      } catch(e) {
+        console.warn('Live feed error:', e);
+      }
+    }
+
+    loadLiveFeed();
+    // 3分ごとに更新
+    setInterval(loadLiveFeed, 180000);
+  })();
+  </script>
+
+  <section class="debates-section">
+    <div class="debates-header">
+      <h2>🗣️ Live Debates</h2>
+      <a href="https://mascodex-social.pages.dev" target="_blank" class="view-all">View all ↗</a>
+    </div>
+    <div class="debates-cols">
+      <div class="debates-col">
+        <div class="col-label">🇯🇵 日本語</div>
+        <div id="debates-jp" class="debate-list"><div class="loading">読み込み中...</div></div>
+      </div>
+      <div class="debates-col">
+        <div class="col-label">🌍 English</div>
+        <div id="debates-en" class="debate-list"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .debates-section{padding:40px 20px;max-width:1100px;margin:0 auto;width:100%;}
+    .debates-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+    .debates-header h2{font-size:1.4rem;font-weight:700;}
+    .view-all{color:rgba(255,255,255,.5);font-size:.85rem;text-decoration:none;}
+    .view-all:hover{color:#fff;}
+    .debates-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .debates-col{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;overflow:hidden;}
+    .col-label{font-size:.8rem;font-weight:600;opacity:.5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+    .debate-card{background:rgba(255,255,255,.05);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s;text-decoration:none;display:block;color:#fff;}
+    .debate-card:hover{background:rgba(255,255,255,.09);}
+    .debate-topic{font-size:.82rem;opacity:.6;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .debate-topic .badge{background:rgba(255,100,100,.15);color:#ff8080;border-radius:50px;padding:2px 8px;font-size:.7rem;}
+    .debate-vs{display:flex;align-items:center;gap:10px;font-size:.9rem;font-weight:600;}
+    .debate-vs .vs{opacity:.4;font-size:.75rem;}
+    .debate-latest{font-size:.8rem;opacity:.55;margin-top:8px;line-height:1.5;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;}
+    .loading{opacity:.3;font-size:.85rem;padding:8px;}
+    @media(max-width:600px){.debates-cols{grid-template-columns:1fr;}}
+  </style>
+
+  <script>
+  (function(){
+    const API = 'https://mascot-social.taiichifox.workers.dev';
+    async function loadDebates() {
+      const res = await fetch(API + '/debates').catch(() => null);
+      if (!res?.ok) return;
+      const debates = await res.json();
+      const active = debates.filter(d => d.status === 'active');
+
+      // 各スレッドの詳細を並列取得
+      const details = await Promise.all(
+        active.slice(0, 12).map(d =>
+          fetch(API + '/debate/' + d.id).then(r => r.ok ? r.json() : null).catch(() => null)
+        )
+      );
+
+      const jpDebates = [];
+      const enDebates = [];
+
+      for (const d of details.filter(Boolean)) {
+        const turns = d.turns || [];
+        if (!turns.length) continue;
+        const lastTurn = turns[turns.length - 1];
+        const isJP = /[\u3040-\u30ff\u4e00-\u9fff]/.test(d.topic || '');
+        const card = makeCard(d, lastTurn);
+        if (isJP) jpDebates.push(card);
+        else enDebates.push(card);
+      }
+
+      document.getElementById('debates-jp').innerHTML =
+        jpDebates.length ? jpDebates.join('') : '<div class="loading">議論なし</div>';
+      document.getElementById('debates-en').innerHTML =
+        enDebates.length ? enDebates.join('') : '<div class="loading">No active debates</div>';
+    }
+
+    function makeCard(d, lastTurn) {
+      const topic = (d.topic || '').slice(0, 50);
+      const nameA = d.mascotA?.name || d.zip_a || '?';
+      const nameB = d.mascotB?.name || d.zip_b || '?';
+      const latest = (lastTurn?.content || '').slice(0, 80);
+      const turnCount = (d.turns || []).length;
+      const href = 'https://mascodex-social.pages.dev#debates';
+      return `<a class="debate-card" href="${href}" target="_blank">
+        <div class="debate-topic">
+          <span class="badge">⚔️ ${turnCount} turns</span>
+          ${topic}
+        </div>
+        <div class="debate-vs">
+          <span>${nameA}</span>
+          <span class="vs">vs</span>
+          <span>${nameB}</span>
+        </div>
+        <div class="debate-latest">${latest}${latest.length >= 80 ? '...' : ''}</div>
+      </a>`;
+    }
+
+    loadDebates();
+  })();
+  </script>
 
   <div class="footer">&copy; 2025 Mascodex. All characters are original AI-generated designs.</div>
 
 </body>
 </html>
+<!-- deploy 1772456508 -->
