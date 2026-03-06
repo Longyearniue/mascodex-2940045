@@ -10,7 +10,7 @@ export async function onRequestGet(context) {
     return new Response('Not Found', { status: 404 });
   }
 
-  const validProducts = ['tshirt', 'mug', 'tote', 'poster', 'pillow'];
+  const validProducts = ['tshirt', 'mug', 'case', 'sticker'];
   if (!validProducts.includes(product)) {
     return new Response('Invalid product', { status: 400 });
   }
