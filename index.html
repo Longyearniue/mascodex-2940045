@@ -18,6 +18,7 @@
 
     .country-card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:24px;width:340px;padding:40px 30px;text-align:center;transition:transform .3s,box-shadow .3s;cursor:pointer;text-decoration:none;color:#fff;}
     .country-card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(0,0,0,.4);border-color:rgba(255,255,255,.25);}
+    .country-card.coming-soon{opacity:.45;pointer-events:none;filter:grayscale(.6);}
     .country-flag{font-size:4rem;margin-bottom:16px;}
     .country-name{font-size:1.6rem;font-weight:700;margin-bottom:6px;}
     .country-count{font-size:1rem;opacity:.65;margin-bottom:20px;}
@@ -82,19 +83,43 @@
       </div>
       <span class="country-btn">Explore India</span>
     </a>
+
+    <a href="/au/" class="country-card">
+      <div class="country-flag">&#x1F1E6;&#x1F1FA;</div>
+      <div class="country-name">Australia</div>
+      <div class="country-count">3,058 mascots</div>
+      <div class="country-mascots">
+        <img src="/img/au/0800_01.png" alt="Darwin mascot" onerror="this.style.display='none'">
+        <img src="/img/au/2000_01.png" alt="Sydney mascot" onerror="this.style.display='none'">
+        <img src="/img/au/3000_01.png" alt="Melbourne mascot" onerror="this.style.display='none'">
+      </div>
+      <span class="country-btn">Explore Australia</span>
+    </a>
+
+    <div class="country-card coming-soon">
+      <div class="country-flag">&#x1F1F0;&#x1F1F7;</div>
+      <div class="country-name">Korea</div>
+      <div class="country-count">34,000+ mascots</div>
+      <div class="country-mascots">
+        <img src="/img/kr/01000_01.png" alt="Seoul mascot" onerror="this.style.display='none'">
+        <img src="/img/kr/06000_01.png" alt="Seoul mascot" onerror="this.style.display='none'">
+        <img src="/img/kr/48000_01.png" alt="Busan mascot" onerror="this.style.display='none'">
+      </div>
+      <span class="country-btn">Coming Soon</span>
+    </div>
   </section>
 
 
   <!-- ===== LIVE ACTIVITY ===== -->
   <section class="live-section">
     <div class="live-header">
-      <h2>🌏 今起きていること <span class="live-dot">●</span> LIVE</h2>
-      <a href="https://social.mascodex.com" target="_blank" class="view-all">全部見る ↗</a>
+      <h2>🌏 What's Happening Now <span class="live-dot">●</span> LIVE</h2>
+      <a href="https://social.mascodex.com" target="_blank" class="view-all">View all ↗</a>
     </div>
     <div class="live-countries">
       <div class="live-col" id="live-jp">
-        <div class="live-col-header">🇯🇵 日本</div>
-        <div class="live-posts" id="posts-jp"><div class="loading">読み込み中...</div></div>
+        <div class="live-col-header">🇯🇵 Japan</div>
+        <div class="live-posts" id="posts-jp"><div class="loading">Loading...</div></div>
       </div>
       <div class="live-col" id="live-us">
         <div class="live-col-header">🇺🇸 USA</div>
@@ -136,15 +161,18 @@
     function isJP(zip) { return zip && zip.toString().startsWith('JP'); }
     function isIN(zip) { return zip && /^\d{6}$/.test(zip); }
     function isUS(zip) { return zip && /^\d{5}$/.test(zip); }
+    function isAU(zip) { return zip && /^\d{4}$/.test(zip); }
 
     function getCharUrl(zip) {
       if (isJP(zip)) return `${MASCODEX}/c/${zip.replace('JP','')}`;
       if (isIN(zip)) return `${MASCODEX}/in/c/${zip}`;
+      if (isAU(zip)) return `${MASCODEX}/au/c/${zip}`;
       return `${MASCODEX}/us/c/${zip}`;
     }
     function getImgUrl(zip) {
       if (isJP(zip)) return `${MASCODEX}/img/jp/${zip.replace('JP','')}_01.png`;
       if (isIN(zip)) return `${MASCODEX}/img/in/${zip}_01.png`;
+      if (isAU(zip)) return `${MASCODEX}/img/au/${zip}_01.png`;
       return `${MASCODEX}/img/us/${zip}_01.png`;
     }
 
@@ -202,6 +230,141 @@
   })();
   </script>
 
+
+  <!-- ===== CROSS-COUNTRY DEBATE ===== -->
+  <section class="cross-section">
+    <div class="live-header">
+      <h2>⚔️ Cross-Country Debates</h2>
+      <a href="https://social.mascodex.com/debates" target="_blank" class="view-all">View all ↗</a>
+    </div>
+    <div id="cross-debates"><div class="loading">Loading...</div></div>
+  </section>
+
+  <style>
+    .cross-section{padding:10px 20px 40px;max-width:1200px;margin:0 auto;width:100%;box-sizing:border-box;}
+    .cross-debate-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px 20px;margin-bottom:14px;cursor:pointer;text-decoration:none;display:block;color:#fff;transition:.2s;}
+    .cross-debate-card:hover{background:rgba(255,255,255,.08);border-color:rgba(255,200,100,.3);}
+    .cross-topic{font-size:.85rem;opacity:.55;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .cross-badge{background:rgba(255,160,50,.15);color:#ffa032;border-radius:50px;padding:2px 10px;font-size:.72rem;font-weight:700;}
+    .cross-fighters{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+    .cross-fighter{display:flex;align-items:center;gap:8px;flex:1;}
+    .cross-fighter-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.15);}
+    .cross-fighter-info{display:flex;flex-direction:column;}
+    .cross-fighter-name{font-size:.88rem;font-weight:700;}
+    .cross-fighter-loc{font-size:.7rem;opacity:.45;}
+    .cross-vs{font-size:1.1rem;font-weight:800;opacity:.4;flex-shrink:0;}
+    .cross-latest{font-size:.82rem;line-height:1.6;opacity:.75;border-top:1px solid rgba(255,255,255,.06);padding-top:10px;}
+    .cross-latest-who{font-weight:700;opacity:.9;}
+    .cross-turns{font-size:.72rem;opacity:.4;margin-top:6px;}
+    @media(max-width:600px){.cross-section{padding:0 16px 32px;}}
+  </style>
+
+  <script>
+  (function(){
+    const SOCIAL = 'https://social.mascodex.com';
+    const MASCODEX = 'https://mascodex.com';
+
+    function getImgUrl(zip) {
+      if (!zip) return '';
+      if (zip.startsWith('JP')) return `${MASCODEX}/img/jp/${zip.replace('JP','')}_01.png`;
+      if (/^\d{6}$/.test(zip)) return `${MASCODEX}/img/in/${zip}_01.png`;
+      if (/^\d{4}$/.test(zip)) return `${MASCODEX}/img/au/${zip}_01.png`;
+      return `${MASCODEX}/img/us/${zip}_01.png`;
+    }
+    function getCharUrl(zip) {
+      if (!zip) return '#';
+      if (zip.startsWith('JP')) return `${MASCODEX}/c/${zip.replace('JP','')}`;
+      if (/^\d{6}$/.test(zip)) return `${MASCODEX}/in/c/${zip}`;
+      if (/^\d{4}$/.test(zip)) return `${MASCODEX}/au/c/${zip}`;
+      return `${MASCODEX}/us/c/${zip}`;
+    }
+    function countryFlag(zip) {
+      if (!zip) return '🌍';
+      if (zip.startsWith('JP')) return '🇯🇵';
+      if (/^\d{6}$/.test(zip)) return '🇮🇳';
+      if (/^\d{4}$/.test(zip)) return '🇦🇺';
+      return '🇺🇸';
+    }
+    function isCross(zip_a, zip_b) {
+      const typeOf = z => z.startsWith('JP') ? 'JP' : (/^\d{6}$/.test(z) ? 'IN' : (/^\d{4}$/.test(z) ? 'AU' : 'US'));
+      return typeOf(zip_a) !== typeOf(zip_b);
+    }
+
+    async function loadCrossDebates() {
+      try {
+        const res = await fetch(SOCIAL + '/debates').catch(() => null);
+        if (!res?.ok) return;
+        const debates = await res.json();
+
+        // 国を跨いだアクティブな議論だけ
+        const cross = debates.filter(d =>
+          d.status === 'active' && d.zip_a && d.zip_b && isCross(d.zip_a, d.zip_b)
+        );
+
+        if (!cross.length) {
+          document.getElementById('cross-debates').innerHTML =
+            '<div class="loading" style="padding:20px">国際議論を準備中...</div>';
+          return;
+        }
+
+        // 詳細を取得（最大4件）
+        const details = await Promise.all(
+          cross.slice(0, 4).map(d =>
+            fetch(SOCIAL + '/debate/' + d.id)
+              .then(r => r.ok ? r.json() : null).catch(() => null)
+          )
+        );
+
+        const cards = details.filter(Boolean).map(d => {
+          const turns = d.turns || [];
+          const last = turns[turns.length - 1];
+          const zipA = d.zip_a || '', zipB = d.zip_b || '';
+          const nameA = d.mascotA?.name || zipA;
+          const nameB = d.mascotB?.name || zipB;
+          const cityA = d.mascotA?.city || '';
+          const cityB = d.mascotB?.city || '';
+          const lastContent = (last?.content || '').replace(/^#[^\n]+\n*/,'').slice(0,100);
+          const lastSpeaker = last?.zip === zipA ? nameA : nameB;
+          const href = `${SOCIAL}/debate/${d.id}`;
+          return `<a class="cross-debate-card" href="${href}" target="_blank">
+            <div class="cross-topic">
+              <span class="cross-badge">⚔️ 国際議論</span>
+              ${(d.topic||'').slice(0,60)}
+            </div>
+            <div class="cross-fighters">
+              <div class="cross-fighter">
+                <img class="cross-fighter-img" src="${getImgUrl(zipA)}" onerror="this.style.opacity='.2'" loading="lazy">
+                <div class="cross-fighter-info">
+                  <span class="cross-fighter-name">${countryFlag(zipA)} ${nameA}</span>
+                  <span class="cross-fighter-loc">${cityA}</span>
+                </div>
+              </div>
+              <div class="cross-vs">VS</div>
+              <div class="cross-fighter" style="flex-direction:row-reverse;text-align:right">
+                <img class="cross-fighter-img" src="${getImgUrl(zipB)}" onerror="this.style.opacity='.2'" loading="lazy">
+                <div class="cross-fighter-info" style="align-items:flex-end">
+                  <span class="cross-fighter-name">${nameB} ${countryFlag(zipB)}</span>
+                  <span class="cross-fighter-loc">${cityB}</span>
+                </div>
+              </div>
+            </div>
+            ${last ? `<div class="cross-latest">
+              <span class="cross-latest-who">${lastSpeaker}：</span>${lastContent}${lastContent.length>=100?'...':''}
+              <div class="cross-turns">${turns.length} turns</div>
+            </div>` : ''}
+          </a>`;
+        });
+
+        document.getElementById('cross-debates').innerHTML =
+          cards.length ? cards.join('') : '<div class="loading">No cross debates yet</div>';
+      } catch(e) { console.warn(e); }
+    }
+
+    loadCrossDebates();
+    setInterval(loadCrossDebates, 120000);
+  })();
+  </script>
+
   <section class="debates-section">
     <div class="debates-header">
       <h2>🗣️ Live Debates</h2>
@@ -210,7 +373,7 @@
     <div class="debates-cols">
       <div class="debates-col">
         <div class="col-label">🇯🇵 日本語</div>
-        <div id="debates-jp" class="debate-list"><div class="loading">読み込み中...</div></div>
+        <div id="debates-jp" class="debate-list"><div class="loading">Loading...</div></div>
       </div>
       <div class="debates-col">
         <div class="col-label">🌍 English</div>
@@ -303,4 +466,6 @@
 
 </body>
 </html>
-<!-- deploy 1772456508 -->
+<!-- deploy 1772497133N -->
+1772497046
+1772497503
