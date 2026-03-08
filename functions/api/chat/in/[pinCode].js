@@ -127,58 +127,53 @@ export async function onRequest(context) {
     }
     messages.push({ role: 'user', content: message });
 
-    // Call Claude API with retry + fallback
-    const MODELS = ['claude-haiku-4-5-20251001', 'claude-sonnet-4-5-20250514'];
-    let claudeData = null;
+        // --- Call DeepSeek V3.2 API with retry ---
+    const DEEPSEEK_API_KEY = 'sk-15629e0d2d9d46bcb8e39c8e037e0ad4';
+    let responseText = null;
     let lastError = null;
 
-    for (const model of MODELS) {
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          if (attempt > 0) {
-            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
-          }
-
-          const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-api-key': env.ANTHROPIC_API_KEY,
-              'anthropic-version': '2023-06-01',
-            },
-            body: JSON.stringify({
-              model,
-              max_tokens: 300,
-              system: systemPrompt,
-              messages,
-            }),
-          });
-
-          if (claudeRes.ok) {
-            claudeData = await claudeRes.json();
-            break;
-          }
-
-          lastError = `${model} attempt ${attempt + 1}: ${claudeRes.status}`;
-          if (claudeRes.status >= 400 && claudeRes.status < 500 && claudeRes.status !== 429) break;
-        } catch (e) {
-          lastError = `${model} attempt ${attempt + 1}: ${e.message}`;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        if (attempt > 0) {
+          await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
         }
+
+        const dsRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            max_tokens: 300,
+            messages: [{ role: 'system', content: systemPrompt }, ...messages],
+          }),
+        });
+
+        if (dsRes.ok) {
+          const dsData = await dsRes.json();
+          responseText = dsData.choices?.[0]?.message?.content || '';
+          break;
+        }
+
+        lastError = `attempt ${attempt + 1}: ${dsRes.status}`;
+        console.error('DeepSeek API error:', lastError);
+
+        if (dsRes.status >= 400 && dsRes.status < 500 && dsRes.status !== 429) break;
+      } catch (e) {
+        lastError = `attempt ${attempt + 1}: ${e.message}`;
+        console.error('DeepSeek fetch error:', lastError);
       }
-      if (claudeData) break;
     }
 
-    if (!claudeData) {
+    if (responseText === null) {
+      console.error('All DeepSeek API attempts failed:', lastError);
       return jsonResponse({
         success: true,
-        response: "Oops, my brain froze for a sec! Try asking me again?",
+        response: `Sorry, I got a bit confused... Can you try talking to me again?`,
       });
     }
-
-    const responseText = claudeData.content
-      ?.filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('') || '';
 
     return jsonResponse({ success: true, response: responseText.trim() });
   } catch (err) {
