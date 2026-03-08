@@ -101,9 +101,9 @@ function buildProductSection(code) {
   const products = [
     { type: 'tshirt',  label: 'Tシャツ',       price: '$28.00', bg: '#f2f1ef' },
     { type: 'mug',     label: 'マグカップ',     price: '$18.00', bg: '#f0edea' },
-    { type: 'tote',    label: 'トートバッグ',   price: '$35.00', bg: '#f0ede6' },
-    { type: 'pillow',  label: 'クッション',     price: '$25.00', bg: '#eef0ed' },
-    { type: 'poster',  label: 'ポスター',       price: '$25.00', bg: '#f0ece2' },
+
+
+
   ];
 
   // Try CDN cached mockup first, fallback to compose API (generates + caches automatically)
