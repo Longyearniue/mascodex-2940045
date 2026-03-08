@@ -172,7 +172,7 @@
     </div>
   </section>
 
-  <section class="browse-section">
+  <section class="browse-section" id="browse-section">
     <h2>Browse All Mascots</h2>
     <p class="sub">3,200+ mascots across all states and territories</p>
     <div class="state-tabs" id="state-tabs"></div>
@@ -269,10 +269,27 @@
       if (e.key === 'Enter') searchBtn.onclick();
     });
 
+    // State選択 → browse sectionにスクロールして該当stateを表示
+    var stateCodeMap = {
+      '2000':'NSW','3000':'VIC','4000':'QLD','5000':'SA',
+      '6000':'WA','7000':'TAS','2600':'ACT','0800':'NT'
+    };
     searchAddr.onclick = function(){
       var val = stateSel.value;
-      if (val && /^\d{4}$/.test(val)) {
-        window.location.href = '/au/c/' + val;
+      if (!val) { result.textContent = 'Please select a state or territory.'; return; }
+      var st = stateCodeMap[val];
+      if (st) {
+        // browse sectionのタブをクリックしてスクロール
+        var browseSection = document.getElementById('state-tabs');
+        if (browseSection) {
+          var tabs = browseSection.querySelectorAll('.state-tab');
+          for (var i = 0; i < tabs.length; i++) {
+            if (tabs[i].dataset.st === st) { tabs[i].click(); break; }
+          }
+          document.getElementById('browse-section').scrollIntoView({behavior:'smooth'});
+        } else {
+          window.location.href = '/au/c/' + val;
+        }
       } else {
         result.textContent = 'Please select a state or territory.';
       }
