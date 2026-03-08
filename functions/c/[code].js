@@ -49,7 +49,7 @@ export async function onRequestGet(context) {
   }
 
   // JPソーシャルフィード注入
-  const jpZip = 'JP' + code;
+  
   const socialHtml = `
 <div style="max-width:700px;margin:20px auto;padding:0 20px">
   <div style="background:rgba(255,255,255,.06);border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,.1)">

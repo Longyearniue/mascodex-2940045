@@ -65,6 +65,10 @@ const socialScript = `
       .replace('var history = [];', 'var chatHistory = [];')
       .replace(/history\.push\(/g, 'chatHistory.push(')
       .replace(/history\.slice\(-8\)/g, 'chatHistory.slice(-8)');
+    // tote / pillow / poster のproductカードを削除
+    html = html.replace(/<a [^>]*product=tote[^>]*>[\s\S]*?<\/a>/g, '');
+    html = html.replace(/<a [^>]*product=pillow[^>]*>[\s\S]*?<\/a>/g, '');
+    html = html.replace(/<a [^>]*product=poster[^>]*>[\s\S]*?<\/a>/g, '');
     html = html.replace('<div class="chat-widget">', socialScript + '<div class="chat-widget">');
     if (!html.includes('social-feed-posts')) {
       html = html.replace('</body>', socialScript + '</body>');
