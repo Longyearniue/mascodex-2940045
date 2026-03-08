@@ -3,7 +3,7 @@
 export async function onRequestGet(context) {
   const { file } = context.params;
 
-  if (!file || !file.endsWith('.js')) {
+  if (!file || (!file.endsWith('.js') && !file.endsWith('.json'))) {
     return new Response('Not Found', { status: 404 });
   }
 
@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
 
   return new Response(obj.body, {
     headers: {
-      'Content-Type': 'application/javascript; charset=utf-8',
+      'Content-Type': file.endsWith('.json') ? 'application/json' : 'application/javascript; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',
     },
   });

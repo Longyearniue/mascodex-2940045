@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Deep Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ec4899, #a855f7, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card-glass {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .url-textarea {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #f1f5f9;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      resize: vertical;
+      min-height: 48px;
+    }
+
+    .url-textarea::placeholder {
+      color: rgba(148, 163, 184, 0.4);
+    }
+
+    .url-textarea:focus {
+      outline: none;
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+    }
+
+    .code-input {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #f1f5f9;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      letter-spacing: 0.25em;
+      text-align: center;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .code-input::placeholder {
+      letter-spacing: 0.1em;
+      color: rgba(148, 163, 184, 0.4);
+    }
+
+    .code-input:focus {
+      outline: none;
+      border-color: #a855f7;
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-pink {
+      background: linear-gradient(135deg, #ec4899, #db2777);
+      transition: all 0.2s ease;
+    }
+    .btn-pink:hover {
+      background: linear-gradient(135deg, #db2777, #be185d);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+    }
+    .btn-pink:disabled {
+      opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none;
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      transition: all 0.2s ease;
+    }
+    .btn-purple:hover {
+      background: linear-gradient(135deg, #9333ea, #4f46e5);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
+    .btn-purple:disabled {
+      opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      width: 20px; height: 20px;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      color: #f87171;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    .divider {
+      border-color: rgba(148, 163, 184, 0.15);
+    }
+
+    /* Account row statuses */
+    .account-row {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      transition: border-color 0.3s;
+    }
+    .account-row.is-active {
+      border-color: rgba(96, 165, 250, 0.5);
+    }
+    .account-row.is-done {
+      border-color: rgba(74, 222, 128, 0.3);
+    }
+    .account-row.is-error {
+      border-color: rgba(248, 113, 113, 0.3);
+    }
+
+    .badge-sm {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 9999px; font-size: 0.65rem; font-weight: 600;
+    }
+    .badge-pending { background: rgba(148,163,184,0.15); color: #94a3b8; }
+    .badge-scraping { background: rgba(234,179,8,0.15); color: #facc15; }
+    .badge-analyzing { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-done { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .badge-error { background: rgba(239,68,68,0.15); color: #f87171; }
+
+    .progress-thin {
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(51, 65, 85, 0.5);
+      overflow: hidden;
+    }
+    .progress-thin-bar {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #ec4899, #a855f7);
+      transition: width 0.5s ease;
+    }
+
+    .result-code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      letter-spacing: 0.15em;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl mx-auto space-y-6">
+
+    <!-- Card 1: Instagram URL Input (Multiple) -->
+    <div class="card-glass rounded-2xl p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <span class="text-5xl">📸</span>
+      </div>
+      <h1 class="text-3xl font-bold text-center mb-2">
+        <span class="gradient-text">Instagram Deep Analyzer</span>
+      </h1>
+      <p class="text-slate-400 text-center text-sm mb-6">
+        Instagram URLを入力して深層分析（複数同時対応）
+      </p>
+
+      <div id="inputSection">
+        <textarea
+          id="urlTextarea"
+          rows="4"
+          placeholder="URLまたはユーザー名を1行ずつ入力&#10;&#10;例:&#10;https://instagram.com/user1&#10;@user2&#10;user3"
+          class="url-textarea w-full px-4 py-3 rounded-xl text-sm leading-relaxed"
+        ></textarea>
+        <div class="flex items-center justify-between mt-3">
+          <p class="text-slate-500 text-xs">
+            <span id="accountCount">0</span>件のアカウント
+          </p>
+          <button
+            id="analyzeBtn"
+            class="btn-pink px-6 py-2.5 rounded-xl text-white font-semibold text-sm flex items-center gap-2"
+          >
+            <span id="analyzeBtnText">一括分析開始</span>
+            <div id="analyzeSpinner" class="spinner hidden"></div>
+          </button>
+        </div>
+        <div id="analyzeError" class="error-msg hidden mt-3 px-4 py-3 rounded-xl text-sm text-center"></div>
+      </div>
+
+      <!-- Progress Section: per-account rows -->
+      <div id="progressSection" class="hidden mt-5 space-y-2">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-white font-semibold text-sm">
+            分析進捗 <span class="text-slate-400 font-normal" id="progressCounter">0/0</span>
+          </span>
+          <span class="text-slate-400 text-xs" id="overallStatus">処理中...</span>
+        </div>
+        <div id="accountRows"></div>
+      </div>
+
+      <!-- Results Section: list of completed reports -->
+      <div id="resultsSection" class="hidden mt-5">
+        <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl">✅</span>
+            <div>
+              <p class="text-green-400 font-semibold text-sm" id="resultsSummary">全て完了</p>
+              <p class="text-slate-400 text-xs">⏰ 48時間で自動削除されます</p>
+            </div>
+          </div>
+          <div id="resultsList" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="flex items-center gap-4 px-2">
+      <hr class="divider flex-1 border-t">
+      <span class="text-slate-500 text-xs">または</span>
+      <hr class="divider flex-1 border-t">
+    </div>
+
+    <!-- Card 2: Secret Code Input -->
+    <div class="card-glass rounded-2xl p-6 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-2xl">🔑</span>
+        <div>
+          <h2 class="text-white font-semibold text-base">既存レポートを閲覧</h2>
+          <p class="text-slate-400 text-xs">シークレットコードを入力</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <input
+          id="codeInput"
+          type="text"
+          maxlength="8"
+          placeholder="XXXXXXXX"
+          autocomplete="off"
+          spellcheck="false"
+          class="code-input flex-1 px-4 py-3 rounded-xl text-lg"
+        >
+        <button
+          id="codeBtn"
+          class="btn-purple px-5 py-3 rounded-xl text-white font-semibold text-sm flex items-center gap-2"
+        >
+          <span id="codeBtnText">表示</span>
+          <div id="codeSpinner" class="spinner hidden"></div>
+        </button>
+      </div>
+      <div id="codeError" class="error-msg hidden mt-3 px-4 py-3 rounded-xl text-sm text-center"></div>
+    </div>
+
+    <p class="text-slate-600 text-xs text-center">&copy; 2026 Instagram Deep Analyzer</p>
+  </div>
+
+  <script>
+    const API_BASE = 'https://insta-analyzer-worker.taiichifox.workers.dev';
+
+    // === Parse username from various formats ===
+    function parseUsername(input) {
+      input = input.trim();
+      if (!input) return null;
+      if (input.startsWith('@')) return input.slice(1);
+      try {
+        const url = new URL(input.startsWith('http') ? input : 'https://' + input);
+        if (url.hostname.includes('instagram.com')) {
+          const parts = url.pathname.split('/').filter(Boolean);
+          if (parts.length > 0 && parts[0] !== 'p' && parts[0] !== 'reel') return parts[0];
+        }
+      } catch {}
+      if (/^[A-Za-z0-9_.]{1,30}$/.test(input)) return input;
+      return null;
+    }
+
+    // === Textarea → account count ===
+    const urlTextarea = document.getElementById('urlTextarea');
+    const accountCountEl = document.getElementById('accountCount');
+
+    function getUniqueUsernames() {
+      const lines = urlTextarea.value.split('\n').map(l => l.trim()).filter(Boolean);
+      const usernames = [];
+      const seen = new Set();
+      for (const line of lines) {
+        const u = parseUsername(line);
+        if (u && !seen.has(u.toLowerCase())) {
+          seen.add(u.toLowerCase());
+          usernames.push(u);
+        }
+      }
+      return usernames;
+    }
+
+    urlTextarea.addEventListener('input', () => {
+      accountCountEl.textContent = getUniqueUsernames().length;
+    });
+
+    // === Batch Analysis ===
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analyzeBtnText = document.getElementById('analyzeBtnText');
+    const analyzeSpinner = document.getElementById('analyzeSpinner');
+    const analyzeError = document.getElementById('analyzeError');
+    const progressSection = document.getElementById('progressSection');
+    const accountRows = document.getElementById('accountRows');
+    const progressCounter = document.getElementById('progressCounter');
+    const overallStatus = document.getElementById('overallStatus');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsList = document.getElementById('resultsList');
+    const resultsSummary = document.getElementById('resultsSummary');
+
+    function createAccountRow(username, index) {
+      const row = document.createElement('div');
+      row.id = `row-${index}`;
+      row.className = 'account-row rounded-lg px-4 py-3';
+      row.innerHTML = `
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-white text-sm font-medium">@${username}</span>
+          <span id="badge-${index}" class="badge-sm badge-pending">待機中</span>
+        </div>
+        <div class="progress-thin">
+          <div id="bar-${index}" class="progress-thin-bar" style="width:0%"></div>
+        </div>
+        <p id="detail-${index}" class="text-slate-500 text-xs mt-1.5 hidden"></p>
+      `;
+      return row;
+    }
+
+    function setRowStatus(index, status, detail) {
+      const row = document.getElementById(`row-${index}`);
+      const badge = document.getElementById(`badge-${index}`);
+      const bar = document.getElementById(`bar-${index}`);
+      const detailEl = document.getElementById(`detail-${index}`);
+
+      row.className = 'account-row rounded-lg px-4 py-3';
+
+      if (status === 'scraping') {
+        row.classList.add('is-active');
+        badge.className = 'badge-sm badge-scraping';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>スクレイピング中';
+        bar.style.width = '30%';
+      } else if (status === 'analyzing') {
+        row.classList.add('is-active');
+        badge.className = 'badge-sm badge-analyzing';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>AI分析中';
+        bar.style.width = '70%';
+      } else if (status === 'done') {
+        row.classList.add('is-done');
+        badge.className = 'badge-sm badge-done';
+        badge.textContent = '✓ 完了';
+        bar.style.width = '100%';
+      } else if (status === 'error') {
+        row.classList.add('is-error');
+        badge.className = 'badge-sm badge-error';
+        badge.textContent = '✗ エラー';
+        bar.style.width = '100%';
+        bar.style.background = '#f87171';
+      }
+
+      if (detail) {
+        detailEl.textContent = detail;
+        detailEl.classList.remove('hidden');
+      }
+    }
+
+    function addResultRow(username, code) {
+      const div = document.createElement('div');
+      div.className = 'flex items-center justify-between bg-slate-800/60 rounded-lg px-4 py-2.5';
+      div.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="text-white text-sm">@${username}</span>
+          <span class="result-code text-slate-400 text-xs">${code}</span>
+        </div>
+        <button
+          onclick="window.open('report.html?code=${code}','_blank')"
+          class="btn-purple px-3 py-1.5 rounded-lg text-white text-xs font-semibold"
+        >表示</button>
+      `;
+      resultsList.appendChild(div);
+    }
+
+    async function analyzeOne(username, index) {
+      // Step 1: Scrape
+      setRowStatus(index, 'scraping');
+
+      const scrapeRes = await fetch(`${API_BASE}/api/scrape`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+      });
+
+      if (!scrapeRes.ok) {
+        const err = await scrapeRes.json().catch(() => ({}));
+        throw new Error(err.error || 'スクレイピング失敗');
+      }
+
+      const scrapeData = await scrapeRes.json();
+
+      // Step 2: Analyze
+      setRowStatus(index, 'analyzing');
+
+      const analyzeRes = await fetch(`${API_BASE}/api/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, scrapeData: scrapeData.data }),
+      });
+
+      if (!analyzeRes.ok) {
+        const err = await analyzeRes.json().catch(() => ({}));
+        throw new Error(err.error || 'AI分析失敗');
+      }
+
+      const result = await analyzeRes.json();
+      return result.secretCode;
+    }
+
+    async function startBatchAnalysis() {
+      analyzeError.classList.add('hidden');
+      const usernames = getUniqueUsernames();
+
+      if (usernames.length === 0) {
+        analyzeError.textContent = 'URLまたはユーザー名を入力してください';
+        analyzeError.classList.remove('hidden');
+        return;
+      }
+
+      // Disable input
+      analyzeBtn.disabled = true;
+      analyzeBtnText.textContent = '分析中...';
+      analyzeSpinner.classList.remove('hidden');
+      urlTextarea.disabled = true;
+
+      // Show progress
+      accountRows.innerHTML = '';
+      usernames.forEach((u, i) => accountRows.appendChild(createAccountRow(u, i)));
+      progressSection.classList.remove('hidden');
+      resultsSection.classList.add('hidden');
+      resultsList.innerHTML = '';
+
+      let completed = 0;
+      let failed = 0;
+      const results = [];
+
+      // Process sequentially to avoid rate limits
+      for (let i = 0; i < usernames.length; i++) {
+        progressCounter.textContent = `${completed}/${usernames.length}`;
+        overallStatus.textContent = `${i + 1}/${usernames.length} 処理中...`;
+
+        try {
+          const code = await analyzeOne(usernames[i], i);
+          setRowStatus(i, 'done');
+          results.push({ username: usernames[i], code });
+        } catch (err) {
+          setRowStatus(i, 'error', err.message);
+          failed++;
+        }
+
+        completed++;
+        progressCounter.textContent = `${completed}/${usernames.length}`;
+      }
+
+      // Show results
+      overallStatus.textContent = '完了';
+
+      if (results.length > 0) {
+        resultsSection.classList.remove('hidden');
+        results.forEach(r => addResultRow(r.username, r.code));
+
+        if (failed > 0) {
+          resultsSummary.textContent = `${results.length}件完了 / ${failed}件エラー`;
+        } else {
+          resultsSummary.textContent = `全${results.length}件の分析が完了`;
+        }
+      } else {
+        analyzeError.textContent = '全てのアカウントで分析に失敗しました';
+        analyzeError.classList.remove('hidden');
+      }
+
+      // Re-enable
+      analyzeBtn.disabled = false;
+      analyzeBtnText.textContent = '一括分析開始';
+      analyzeSpinner.classList.add('hidden');
+      urlTextarea.disabled = false;
+    }
+
+    analyzeBtn.addEventListener('click', startBatchAnalysis);
+
+    // === Secret Code ===
+    const codeInput = document.getElementById('codeInput');
+    const codeBtn = document.getElementById('codeBtn');
+    const codeBtnText = document.getElementById('codeBtnText');
+    const codeSpinner = document.getElementById('codeSpinner');
+    const codeError = document.getElementById('codeError');
+
+    async function submitCode() {
+      codeError.classList.add('hidden');
+      const code = codeInput.value.trim();
+      if (!code || code.length < 6) {
+        codeError.textContent = '有効なシークレットコードを入力してください';
+        codeError.classList.remove('hidden');
+        return;
+      }
+
+      codeBtn.disabled = true;
+      codeBtnText.textContent = '...';
+      codeSpinner.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/report/${encodeURIComponent(code)}`);
+        if (res.ok) {
+          window.location.href = `report.html?code=${encodeURIComponent(code)}`;
+        } else if (res.status === 404) {
+          codeError.textContent = 'レポートが見つかりません。コードが正しいか、有効期限（48時間）が切れていないか確認してください。';
+          codeError.classList.remove('hidden');
+        } else {
+          codeError.textContent = 'エラーが発生しました。';
+          codeError.classList.remove('hidden');
+        }
+      } catch {
+        codeError.textContent = 'ネットワークエラーが発生しました。';
+        codeError.classList.remove('hidden');
+      } finally {
+        codeBtn.disabled = false;
+        codeBtnText.textContent = '表示';
+        codeSpinner.classList.add('hidden');
+      }
+    }
+
+    codeBtn.addEventListener('click', submitCode);
+    codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitCode(); });
+
+    urlTextarea.focus();
+  </script>
+</body>
+</html>

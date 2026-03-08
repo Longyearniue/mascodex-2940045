@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Deep Analyzer - Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PDF via print dialog -->
+  <style>
+    body {
+      background-color: #0f172a;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      color: #f1f5f9;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ec4899, #a855f7, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-text-blue {
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-text-green {
+      background: linear-gradient(135deg, #34d399, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 1rem;
+      padding: 1.5rem;
+    }
+
+    .sheet {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto 3rem;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .score-badge-lg {
+      width: 5rem;
+      height: 5rem;
+      font-size: 2rem;
+    }
+
+    .score-S { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #78350f; }
+    .score-A { background: linear-gradient(135deg, #22c55e, #4ade80); color: #14532d; }
+    .score-B { background: linear-gradient(135deg, #3b82f6, #60a5fa); color: #1e3a5f; }
+    .score-C { background: linear-gradient(135deg, #f97316, #fb923c); color: #7c2d12; }
+    .score-D { background: linear-gradient(135deg, #ef4444, #f87171); color: #7f1d1d; }
+    .score-F { background: linear-gradient(135deg, #6b7280, #9ca3af); color: #1f2937; }
+
+    .impact-high { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .impact-mid { background: rgba(250, 204, 21, 0.15); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.3); }
+    .impact-low { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+
+    .effort-low { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .effort-mid { background: rgba(250, 204, 21, 0.15); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.3); }
+    .effort-high { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .fatigue-low { color: #4ade80; }
+    .fatigue-mid { color: #fde047; }
+    .fatigue-high { color: #f87171; }
+
+    .bar-fill {
+      height: 1.25rem;
+      border-radius: 0.375rem;
+      transition: width 0.8s ease;
+    }
+
+    .sub-score-bar {
+      height: 0.5rem;
+      border-radius: 0.25rem;
+      background: rgba(51, 65, 85, 0.5);
+      overflow: hidden;
+    }
+
+    .sub-score-fill {
+      height: 100%;
+      border-radius: 0.25rem;
+      transition: width 0.8s ease;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .color-swatch {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      display: inline-block;
+    }
+
+    .section-header {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 0.5rem;
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .metric-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 0.25rem;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      transition: all 0.2s ease;
+    }
+
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #9333ea, #4f46e5);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .btn-gradient:active {
+      transform: translateY(0);
+    }
+
+    .btn-gradient:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .roadmap-col {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .proposal-item {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+    }
+
+    /* Print styles - keep dark theme for PDF */
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      body {
+        background: #0f172a !important;
+        color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact !important;
+      }
+      .sheet {
+        page-break-after: always;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        margin: 0 auto !important;
+        border: none !important;
+      }
+      .card {
+        page-break-inside: avoid;
+      }
+      .metric-card, .roadmap-col, .proposal-item {
+        page-break-inside: avoid;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #reportContent {
+        padding-bottom: 0 !important;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 10mm;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner mb-4"></div>
+    <p class="text-slate-400 text-sm">レポートを読み込み中...</p>
+  </div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="reportContent" class="hidden pb-12">
+
+    <!-- Top navigation bar -->
+    <div class="no-print sticky top-0 z-50 bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+      <div class="max-w-[900px] mx-auto flex items-center justify-between">
+        <a href="index.html" class="text-slate-400 hover:text-slate-200 transition text-sm flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          戻る
+        </a>
+        <span class="gradient-text font-bold text-sm">Instagram Deep Analyzer</span>
+        <button id="pdfBtnTop" class="btn-gradient px-4 py-1.5 rounded-lg text-white text-sm font-semibold flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SHEET 1: Analysis Sheet                     -->
+    <!-- ============================================ -->
+    <div id="sheet1" class="sheet mt-8 mx-4 sm:mx-auto">
+
+      <!-- Sheet header -->
+      <div class="text-center mb-8">
+        <p class="text-slate-500 text-xs uppercase tracking-widest mb-2">Analysis Report</p>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-1">
+          <span class="gradient-text">分析シート</span>
+        </h1>
+      </div>
+
+      <!-- Account header -->
+      <div class="card mb-6">
+        <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <!-- Overall score badge -->
+          <div id="overallScoreBadge" class="score-badge score-badge-lg score-S flex-shrink-0">S</div>
+          <div class="flex-1 text-center sm:text-left">
+            <h2 id="accountUsername" class="text-xl sm:text-2xl font-bold text-slate-100">@username</h2>
+            <p id="scrapedDate" class="text-slate-500 text-sm mt-1"></p>
+          </div>
+        </div>
+        <!-- Key metrics row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+          <div class="metric-card">
+            <div id="metricFollowers" class="metric-value">-</div>
+            <div class="metric-label">フォロワー数</div>
+          </div>
+          <div class="metric-card">
+            <div id="metricFollowRatio" class="metric-value">-</div>
+            <div class="metric-label">フォロー比率</div>
+          </div>
+          <div class="metric-card">
+            <div id="metricPostFreq" class="metric-value">-</div>
+            <div class="metric-label">投稿頻度</div>
+          </div>
+          <div class="metric-card">
+            <div id="metricGrowth" class="metric-value">-</div>
+            <div class="metric-label">成長ポテンシャル</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. Visual Consistency -->
+      <div class="card mb-4" id="sectionVisual">
+        <div class="section-header">
+          <span class="section-number">1</span>
+          <span>ビジュアル一貫性</span>
+          <span id="visualScore" class="score-badge ml-auto">-</span>
+        </div>
+        <div id="colorPalette" class="flex gap-2 mb-3 flex-wrap"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div class="metric-card">
+            <div id="visualTone" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">ドミナントトーン</div>
+          </div>
+          <div class="metric-card">
+            <div id="visualFilter" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">フィルター一貫性</div>
+          </div>
+          <div class="metric-card">
+            <div id="visualGrid" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">グリッド統一感</div>
+          </div>
+        </div>
+        <p id="visualDetails" class="text-slate-400 text-sm leading-relaxed"></p>
+      </div>
+
+      <!-- 2. Content Classification -->
+      <div class="card mb-4" id="sectionContent">
+        <div class="section-header">
+          <span class="section-number">2</span>
+          <span>コンテンツ分類</span>
+        </div>
+        <div id="contentCategories" class="space-y-3 mb-3"></div>
+        <p id="contentBalance" class="text-slate-400 text-sm mb-3"></p>
+        <div id="contentMissing" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- 3. Photo Quality -->
+      <div class="card mb-4" id="sectionPhoto">
+        <div class="section-header">
+          <span class="section-number">3</span>
+          <span>写真クオリティ</span>
+          <span id="photoScore" class="score-badge ml-auto">-</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">構図</span>
+              <span id="photoCompositionVal" class="text-slate-300">-</span>
+            </div>
+            <div class="sub-score-bar"><div id="photoCompositionBar" class="sub-score-fill bg-indigo-500" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">照明</span>
+              <span id="photoLightingVal" class="text-slate-300">-</span>
+            </div>
+            <div class="sub-score-bar"><div id="photoLightingBar" class="sub-score-fill bg-sky-500" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">被写体の明確さ</span>
+              <span id="photoClarityVal" class="text-slate-300">-</span>
+            </div>
+            <div class="sub-score-bar"><div id="photoClarityBar" class="sub-score-fill bg-emerald-500" style="width:0%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span class="text-slate-400">プロ度</span>
+              <span id="photoProVal" class="text-slate-300">-</span>
+            </div>
+            <div class="sub-score-bar"><div id="photoProBar" class="sub-score-fill bg-amber-500" style="width:0%"></div></div>
+          </div>
+        </div>
+        <p id="photoDetails" class="text-slate-400 text-sm leading-relaxed"></p>
+      </div>
+
+      <!-- 4. Engagement -->
+      <div class="card mb-4" id="sectionEngagement">
+        <div class="section-header">
+          <span class="section-number">4</span>
+          <span>エンゲージメント分析</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="metric-card">
+            <div id="engLikeRate" class="metric-value text-pink-400">-</div>
+            <div class="metric-label">平均いいね率</div>
+          </div>
+          <div class="metric-card">
+            <div id="engCommentRate" class="metric-value text-blue-400">-</div>
+            <div class="metric-label">平均コメント率</div>
+          </div>
+        </div>
+        <!-- Best posts -->
+        <div class="mb-3">
+          <h4 class="text-sm font-semibold text-emerald-400 mb-2">Best Posts (Top 3)</h4>
+          <div id="engBestPosts" class="space-y-2"></div>
+        </div>
+        <!-- Worst posts -->
+        <div class="mb-3">
+          <h4 class="text-sm font-semibold text-red-400 mb-2">Worst Posts (Bottom 3)</h4>
+          <div id="engWorstPosts" class="space-y-2"></div>
+        </div>
+        <!-- Performance by type -->
+        <div>
+          <h4 class="text-sm font-semibold text-slate-300 mb-2">タイプ別パフォーマンス</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-slate-500 text-xs border-b border-slate-700">
+                  <th class="text-left py-2 pr-4">タイプ</th>
+                  <th class="text-right py-2 px-2">平均いいね</th>
+                  <th class="text-right py-2 pl-2">平均コメント</th>
+                </tr>
+              </thead>
+              <tbody id="engPerformanceTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Posting Timing -->
+      <div class="card mb-4" id="sectionTiming">
+        <div class="section-header">
+          <span class="section-number">5</span>
+          <span>投稿タイミング</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="metric-card">
+            <div id="timingFrequency" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">投稿頻度</div>
+          </div>
+          <div class="metric-card">
+            <div id="timingStability" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">安定性スコア</div>
+          </div>
+          <div class="metric-card">
+            <div id="timingOptimal" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">最適タイミング</div>
+          </div>
+          <div class="metric-card">
+            <div id="timingPattern" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">パターン</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Caption Analysis -->
+      <div class="card mb-4" id="sectionCaption">
+        <div class="section-header">
+          <span class="section-number">6</span>
+          <span>キャプション分析</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="metric-card">
+            <div id="captionAvgLen" class="metric-value text-cyan-400">-</div>
+            <div class="metric-label">平均文字数</div>
+          </div>
+          <div class="metric-card">
+            <div class="relative">
+              <div id="captionCtaVal" class="metric-value text-violet-400">-</div>
+            </div>
+            <div class="metric-label">CTA使用率</div>
+            <div class="mt-2 sub-score-bar">
+              <div id="captionCtaBar" class="sub-score-fill bg-violet-500" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <h4 class="text-sm font-semibold text-slate-300 mb-2">ハッシュタグ戦略</h4>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="metric-card">
+              <div id="hashtagCount" class="text-sm font-semibold text-slate-200">-</div>
+              <div class="metric-label">平均数</div>
+            </div>
+            <div class="metric-card">
+              <div id="hashtagRelevance" class="text-sm font-semibold text-slate-200">-</div>
+              <div class="metric-label">関連性</div>
+            </div>
+            <div class="metric-card">
+              <div id="hashtagCompetitiveness" class="text-sm font-semibold text-slate-200">-</div>
+              <div class="metric-label">競合性</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-slate-300 mb-1">トーン</h4>
+          <p id="captionTone" class="text-slate-400 text-sm"></p>
+        </div>
+      </div>
+
+      <!-- 7. Branding -->
+      <div class="card mb-4" id="sectionBranding">
+        <div class="section-header">
+          <span class="section-number">7</span>
+          <span>ブランディング</span>
+          <span id="brandingScore" class="score-badge ml-auto">-</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <div class="metric-card">
+            <div id="brandingPersona" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">ペルソナ明確度</div>
+          </div>
+          <div class="metric-card">
+            <div id="brandingWorldView" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">世界観</div>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-slate-300 mb-2">差別化ポイント</h4>
+          <div id="brandingDiffPoints" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+
+      <!-- 8. Continuity -->
+      <div class="card" id="sectionContinuity">
+        <div class="section-header">
+          <span class="section-number">8</span>
+          <span>継続性評価</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="metric-card">
+            <div id="contInterval" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">投稿間隔の安定性</div>
+          </div>
+          <div class="metric-card">
+            <div id="contEvolution" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">コンテンツ進化</div>
+          </div>
+          <div class="metric-card">
+            <div id="contFatigue" class="text-sm font-semibold">-</div>
+            <div class="metric-label">疲弊リスク</div>
+          </div>
+          <div class="metric-card">
+            <div id="contTrend" class="text-sm font-semibold text-slate-200">-</div>
+            <div class="metric-label">トレンド適応</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sheet1 -->
+
+    <!-- ============================================ -->
+    <!-- SHEET 2: Proposal Sheet                     -->
+    <!-- ============================================ -->
+    <div id="sheet2" class="sheet mx-4 sm:mx-auto">
+
+      <!-- Sheet header -->
+      <div class="text-center mb-8">
+        <p class="text-slate-500 text-xs uppercase tracking-widest mb-2">Improvement Proposals</p>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-1">
+          <span class="gradient-text-green">提案シート</span>
+        </h1>
+      </div>
+
+      <!-- 1. Quick Wins -->
+      <div class="card mb-4" id="sectionQuickWins">
+        <div class="section-header">
+          <span class="section-number" style="background: linear-gradient(135deg, #34d399, #22d3ee);">1</span>
+          <span>即効性施策</span>
+        </div>
+        <div id="quickWinsList" class="space-y-3"></div>
+      </div>
+
+      <!-- 2. Content Strategy -->
+      <div class="card mb-4" id="sectionContentStrategy">
+        <div class="section-header">
+          <span class="section-number" style="background: linear-gradient(135deg, #34d399, #22d3ee);">2</span>
+          <span>コンテンツ戦略</span>
+        </div>
+        <div id="contentStrategyList" class="space-y-2"></div>
+      </div>
+
+      <!-- 3. Visual Improvement -->
+      <div class="card mb-4" id="sectionVisualImprovement">
+        <div class="section-header">
+          <span class="section-number" style="background: linear-gradient(135deg, #34d399, #22d3ee);">3</span>
+          <span>ビジュアル改善</span>
+        </div>
+        <div id="visualImprovementList" class="space-y-2"></div>
+      </div>
+
+      <!-- 4. Engagement Boost -->
+      <div class="card mb-4" id="sectionEngagementBoost">
+        <div class="section-header">
+          <span class="section-number" style="background: linear-gradient(135deg, #34d399, #22d3ee);">4</span>
+          <span>エンゲージメント向上</span>
+        </div>
+        <div id="engagementBoostList" class="space-y-2"></div>
+      </div>
+
+      <!-- 5. Follower Acquisition -->
+      <div class="card mb-4" id="sectionFollowerAcq">
+        <div class="section-header">
+          <span class="section-number" style="background: linear-gradient(135deg, #34d399, #22d3ee);">5</span>
+          <span>フォロワー獲得戦略</span>
+        </div>
+        <div id="followerAcqList" class="space-y-2"></div>
+      </div>
+
+      <!-- 6. Three Month Roadmap -->
+      <div class="card" id="sectionRoadmap">
+        <div class="section-header">
+          <span class="section-number" style="background: linear-gradient(135deg, #34d399, #22d3ee);">6</span>
+          <span>3ヶ月ロードマップ</span>
+        </div>
+        <div id="roadmapContainer" class="flex flex-col sm:flex-row gap-3"></div>
+      </div>
+
+    </div><!-- /sheet2 -->
+
+    <!-- Footer -->
+    <div class="no-print max-w-[900px] mx-auto px-4 pb-12 text-center">
+      <button id="pdfBtnBottom" class="btn-gradient px-8 py-3 rounded-xl text-white font-semibold text-base inline-flex items-center gap-2 mb-4">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        PDFダウンロード
+      </button>
+      <p class="text-red-400/80 text-sm mb-2">48時間で自動削除されます</p>
+      <p id="expiryCountdown" class="text-slate-500 text-xs"></p>
+      <p class="text-slate-600 text-xs mt-6">&copy; 2026 Instagram Deep Analyzer</p>
+    </div>
+
+  </div><!-- /reportContent -->
+
+  <script>
+    const API_BASE = 'https://insta-analyzer-worker.taiichifox.workers.dev';
+
+    // ── Utility helpers ──
+
+    function getScoreClass(score) {
+      if (!score) return 'score-F';
+      const s = score.toString().toUpperCase().charAt(0);
+      return ['S','A','B','C','D','F'].includes(s) ? `score-${s}` : 'score-F';
+    }
+
+    function formatNumber(n) {
+      if (n == null) return '-';
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function impactClass(level) {
+      if (!level) return 'impact-mid';
+      const l = level.toString();
+      if (l.includes('高') || l.toLowerCase() === 'high') return 'impact-high';
+      if (l.includes('低') || l.toLowerCase() === 'low') return 'impact-low';
+      return 'impact-mid';
+    }
+
+    function effortClass(level) {
+      if (!level) return 'effort-mid';
+      const l = level.toString();
+      if (l.includes('高') || l.toLowerCase() === 'high') return 'effort-high';
+      if (l.includes('低') || l.toLowerCase() === 'low') return 'effort-low';
+      return 'effort-mid';
+    }
+
+    function fatigueClass(level) {
+      if (!level) return 'fatigue-mid';
+      const l = level.toString();
+      if (l.includes('高') || l.toLowerCase() === 'high') return 'fatigue-high';
+      if (l.includes('低') || l.toLowerCase() === 'low') return 'fatigue-low';
+      return 'fatigue-mid';
+    }
+
+    function scoreToPercent(val) {
+      // Handle numeric (1-10 or 1-100) or string scores
+      if (val == null) return 0;
+      const n = parseFloat(val);
+      if (isNaN(n)) return 50;
+      if (n <= 10) return n * 10;
+      if (n <= 100) return n;
+      return 50;
+    }
+
+    // Bar color palette for content categories
+    const barColors = [
+      'bg-indigo-500', 'bg-pink-500', 'bg-emerald-500', 'bg-amber-500',
+      'bg-cyan-500', 'bg-rose-500', 'bg-violet-500', 'bg-teal-500',
+      'bg-orange-500', 'bg-lime-500'
+    ];
+
+    // ── Render functions ──
+
+    function renderAccountHeader(overview) {
+      // Overall score badge
+      const badge = document.getElementById('overallScoreBadge');
+      const scoreStr = overview.overallScore || '-';
+      badge.textContent = scoreStr;
+      badge.className = `score-badge score-badge-lg ${getScoreClass(scoreStr)} flex-shrink-0`;
+
+      // Username
+      document.getElementById('accountUsername').textContent = '@' + (overview.username || '-');
+
+      // Scraped date
+      const now = new Date();
+      document.getElementById('scrapedDate').textContent = `分析日: ${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
+
+      // Key metrics
+      document.getElementById('metricFollowers').textContent = formatNumber(overview.followerCount);
+      document.getElementById('metricFollowRatio').textContent = overview.followRatio != null ? overview.followRatio : '-';
+      document.getElementById('metricPostFreq').textContent = overview.postFrequency || '-';
+      document.getElementById('metricGrowth').textContent = overview.growthPotential || '-';
+    }
+
+    function renderVisualConsistency(data) {
+      if (!data) return;
+      // Score badge
+      const badge = document.getElementById('visualScore');
+      badge.textContent = data.score || '-';
+      badge.className = `score-badge ml-auto ${getScoreClass(data.score)}`;
+
+      // Color palette
+      const palette = document.getElementById('colorPalette');
+      palette.innerHTML = '';
+      if (data.colorPalette && Array.isArray(data.colorPalette)) {
+        data.colorPalette.forEach(c => {
+          const swatch = document.createElement('div');
+          swatch.className = 'color-swatch';
+          swatch.style.backgroundColor = c;
+          swatch.title = c;
+          palette.appendChild(swatch);
+        });
+      }
+
+      document.getElementById('visualTone').textContent = data.dominantTone || '-';
+      document.getElementById('visualFilter').textContent = data.filterConsistency || '-';
+      document.getElementById('visualGrid').textContent = data.gridCohesion || '-';
+      document.getElementById('visualDetails').textContent = data.details || '';
+    }
+
+    function renderContentClassification(data) {
+      if (!data) return;
+      const container = document.getElementById('contentCategories');
+      container.innerHTML = '';
+
+      if (data.categories && Array.isArray(data.categories)) {
+        data.categories.forEach((cat, i) => {
+          const pct = parseFloat(cat.percentage) || 0;
+          const colorClass = barColors[i % barColors.length];
+          container.innerHTML += `
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm text-slate-300">${escapeHtml(cat.name)}</span>
+                <span class="text-sm font-semibold text-slate-200">${pct}%</span>
+              </div>
+              <div class="w-full bg-slate-700/50 rounded-md overflow-hidden" style="height:1.25rem">
+                <div class="bar-fill ${colorClass}" style="width:${Math.min(pct, 100)}%"></div>
+              </div>
+              ${cat.description ? `<p class="text-slate-500 text-xs mt-0.5">${escapeHtml(cat.description)}</p>` : ''}
+            </div>`;
+        });
+      }
+
+      document.getElementById('contentBalance').textContent = data.balanceAssessment || '';
+
+      const missingContainer = document.getElementById('contentMissing');
+      missingContainer.innerHTML = '';
+      if (data.missingTypes && Array.isArray(data.missingTypes)) {
+        if (data.missingTypes.length > 0) {
+          missingContainer.innerHTML = '<span class="text-xs text-slate-500 mr-1">不足:</span>';
+          data.missingTypes.forEach(t => {
+            missingContainer.innerHTML += `<span class="tag">${escapeHtml(t)}</span>`;
+          });
+        }
+      }
+    }
+
+    function renderPhotoQuality(data) {
+      if (!data) return;
+      const badge = document.getElementById('photoScore');
+      badge.textContent = data.score || '-';
+      badge.className = `score-badge ml-auto ${getScoreClass(data.score)}`;
+
+      // Sub scores
+      const fields = [
+        { key: 'composition', valId: 'photoCompositionVal', barId: 'photoCompositionBar' },
+        { key: 'lighting', valId: 'photoLightingVal', barId: 'photoLightingBar' },
+        { key: 'subjectClarity', valId: 'photoClarityVal', barId: 'photoClarityBar' },
+        { key: 'professionalismLevel', valId: 'photoProVal', barId: 'photoProBar' },
+      ];
+      fields.forEach(f => {
+        const val = data[f.key];
+        document.getElementById(f.valId).textContent = val != null ? val : '-';
+        document.getElementById(f.barId).style.width = scoreToPercent(val) + '%';
+      });
+
+      document.getElementById('photoDetails').textContent = data.details || '';
+    }
+
+    function renderEngagement(data) {
+      if (!data) return;
+      document.getElementById('engLikeRate').textContent = data.avgLikeRate != null ? data.avgLikeRate + '%' : '-';
+      document.getElementById('engCommentRate').textContent = data.avgCommentRate != null ? data.avgCommentRate + '%' : '-';
+
+      // Best posts
+      const bestContainer = document.getElementById('engBestPosts');
+      bestContainer.innerHTML = '';
+      if (data.bestPosts && Array.isArray(data.bestPosts)) {
+        data.bestPosts.forEach(p => {
+          bestContainer.innerHTML += `
+            <div class="proposal-item flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+              <span class="text-xs text-slate-500 font-mono">#${p.index != null ? p.index : '?'}</span>
+              <span class="text-sm text-slate-300 flex-1">${escapeHtml(p.reason)}</span>
+              <div class="flex gap-3 text-xs text-slate-500">
+                <span class="text-pink-400/80">${formatNumber(p.likes)} likes</span>
+                <span class="text-blue-400/80">${formatNumber(p.comments)} comments</span>
+              </div>
+            </div>`;
+        });
+      }
+
+      // Worst posts
+      const worstContainer = document.getElementById('engWorstPosts');
+      worstContainer.innerHTML = '';
+      if (data.worstPosts && Array.isArray(data.worstPosts)) {
+        data.worstPosts.forEach(p => {
+          worstContainer.innerHTML += `
+            <div class="proposal-item flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+              <span class="text-xs text-slate-500 font-mono">#${p.index != null ? p.index : '?'}</span>
+              <span class="text-sm text-slate-300 flex-1">${escapeHtml(p.reason)}</span>
+              <div class="flex gap-3 text-xs text-slate-500">
+                <span class="text-pink-400/80">${formatNumber(p.likes)} likes</span>
+                <span class="text-blue-400/80">${formatNumber(p.comments)} comments</span>
+              </div>
+            </div>`;
+        });
+      }
+
+      // Performance by type
+      const tableBody = document.getElementById('engPerformanceTable');
+      tableBody.innerHTML = '';
+      if (data.performanceByType && Array.isArray(data.performanceByType)) {
+        data.performanceByType.forEach(row => {
+          tableBody.innerHTML += `
+            <tr class="border-b border-slate-700/50">
+              <td class="py-2 pr-4 text-slate-300">${escapeHtml(row.type)}</td>
+              <td class="py-2 px-2 text-right text-slate-400">${formatNumber(row.avgLikes)}</td>
+              <td class="py-2 pl-2 text-right text-slate-400">${formatNumber(row.avgComments)}</td>
+            </tr>`;
+        });
+      }
+    }
+
+    function renderPostingTiming(data) {
+      if (!data) return;
+      document.getElementById('timingFrequency').textContent = data.frequency || '-';
+      document.getElementById('timingStability').textContent = data.stabilityScore != null ? data.stabilityScore : '-';
+      document.getElementById('timingOptimal').textContent = data.optimalTiming || '-';
+      document.getElementById('timingPattern').textContent = data.pattern || '-';
+    }
+
+    function renderCaptionAnalysis(data) {
+      if (!data) return;
+      document.getElementById('captionAvgLen').textContent = data.avgLength != null ? data.avgLength : '-';
+
+      const ctaRate = parseFloat(data.ctaUsageRate) || 0;
+      document.getElementById('captionCtaVal').textContent = ctaRate + '%';
+      document.getElementById('captionCtaBar').style.width = Math.min(ctaRate, 100) + '%';
+
+      if (data.hashtagStrategy) {
+        document.getElementById('hashtagCount').textContent = data.hashtagStrategy.avgCount != null ? data.hashtagStrategy.avgCount : '-';
+        document.getElementById('hashtagRelevance').textContent = data.hashtagStrategy.relevance || '-';
+        document.getElementById('hashtagCompetitiveness').textContent = data.hashtagStrategy.competitiveness || '-';
+      }
+
+      document.getElementById('captionTone').textContent = data.toneOfVoice || '-';
+    }
+
+    function renderBranding(data) {
+      if (!data) return;
+      const badge = document.getElementById('brandingScore');
+      badge.textContent = data.consistencyScore || '-';
+      badge.className = `score-badge ml-auto ${getScoreClass(data.consistencyScore)}`;
+
+      document.getElementById('brandingPersona').textContent = data.personaClarity || '-';
+      document.getElementById('brandingWorldView').textContent = data.worldView || '-';
+
+      const pointsContainer = document.getElementById('brandingDiffPoints');
+      pointsContainer.innerHTML = '';
+      if (data.differentiationPoints && Array.isArray(data.differentiationPoints)) {
+        data.differentiationPoints.forEach(pt => {
+          pointsContainer.innerHTML += `<span class="tag">${escapeHtml(pt)}</span>`;
+        });
+      }
+    }
+
+    function renderContinuity(data) {
+      if (!data) return;
+      document.getElementById('contInterval').textContent = data.intervalStability || '-';
+      document.getElementById('contEvolution').textContent = data.contentEvolution || '-';
+
+      const fatigueEl = document.getElementById('contFatigue');
+      fatigueEl.textContent = data.fatigueRisk || '-';
+      fatigueEl.className = `text-sm font-semibold ${fatigueClass(data.fatigueRisk)}`;
+
+      document.getElementById('contTrend').textContent = data.trendAdaptation || '-';
+    }
+
+    // ── Proposal renderers ──
+
+    function renderQuickWins(items) {
+      const container = document.getElementById('quickWinsList');
+      container.innerHTML = '';
+      if (!items || !Array.isArray(items)) return;
+      items.forEach(item => {
+        container.innerHTML += `
+          <div class="proposal-item">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+              <h4 class="text-sm font-semibold text-slate-100">${escapeHtml(item.title)}</h4>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium ${impactClass(item.impact)}">Impact: ${escapeHtml(item.impact || '中')}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium ${effortClass(item.effort)}">Effort: ${escapeHtml(item.effort || '中')}</span>
+            </div>
+            <p class="text-slate-400 text-sm">${escapeHtml(item.description)}</p>
+          </div>`;
+      });
+    }
+
+    function renderProposalList(items, containerId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      if (!items || !Array.isArray(items)) return;
+      items.forEach(item => {
+        container.innerHTML += `
+          <div class="proposal-item">
+            <h4 class="text-sm font-semibold text-slate-100 mb-1">${escapeHtml(item.title)}</h4>
+            <p class="text-slate-400 text-sm">${escapeHtml(item.description)}</p>
+          </div>`;
+      });
+    }
+
+    function renderRoadmap(roadmap) {
+      const container = document.getElementById('roadmapContainer');
+      container.innerHTML = '';
+      if (!roadmap) return;
+
+      const months = [
+        { key: 'month1', label: 'Month 1', color: 'border-emerald-500/40' },
+        { key: 'month2', label: 'Month 2', color: 'border-cyan-500/40' },
+        { key: 'month3', label: 'Month 3', color: 'border-indigo-500/40' },
+      ];
+
+      months.forEach(m => {
+        const data = roadmap[m.key];
+        if (!data) return;
+
+        let actionsHtml = '';
+        if (data.actions && Array.isArray(data.actions)) {
+          actionsHtml = data.actions.map(a =>
+            `<label class="flex items-start gap-2 text-sm text-slate-400">
+              <input type="checkbox" class="mt-0.5 rounded border-slate-600 bg-slate-700/50 text-indigo-500 focus:ring-indigo-500/30">
+              <span>${escapeHtml(a)}</span>
+            </label>`
+          ).join('');
+        }
+
+        container.innerHTML += `
+          <div class="roadmap-col border-t-2 ${m.color}">
+            <h4 class="text-sm font-bold text-slate-200 mb-2">${m.label}</h4>
+            <div class="mb-2">
+              <span class="text-xs text-slate-500">フォーカス</span>
+              <p class="text-sm text-slate-300">${escapeHtml(data.focus || '-')}</p>
+            </div>
+            <div class="mb-3">
+              <span class="text-xs text-slate-500">KPI目標</span>
+              <p class="text-sm text-slate-300">${escapeHtml(data.kpi || '-')}</p>
+            </div>
+            <div class="space-y-1.5">
+              <span class="text-xs text-slate-500">アクション</span>
+              ${actionsHtml}
+            </div>
+          </div>`;
+      });
+    }
+
+    // ── Expiry countdown ──
+
+    function startExpiryCountdown(createdAt) {
+      const expiryEl = document.getElementById('expiryCountdown');
+      if (!createdAt) {
+        expiryEl.textContent = '';
+        return;
+      }
+      const expiryTime = new Date(createdAt).getTime() + 48 * 60 * 60 * 1000;
+
+      function update() {
+        const remaining = expiryTime - Date.now();
+        if (remaining <= 0) {
+          expiryEl.textContent = 'このレポートは期限切れです。';
+          expiryEl.classList.add('text-red-400');
+          return;
+        }
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        expiryEl.textContent = `残り時間: ${h}時間${m}分${s}秒`;
+        requestAnimationFrame(update);
+      }
+
+      update();
+    }
+
+    // ── PDF Export ──
+
+    function exportPdf(username) {
+      // Set document title for PDF filename
+      const origTitle = document.title;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      document.title = `instagram-analysis-${username || 'report'}-${dateStr}`;
+      window.print();
+      // Restore title after print dialog
+      setTimeout(() => { document.title = origTitle; }, 1000);
+    }
+
+    // ── Main ──
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+
+      if (!code) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/report/${encodeURIComponent(code)}`);
+
+        if (!res.ok) {
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const data = await res.json();
+        const report = data.report || data;
+        const analysis = report.analysis || {};
+        const proposals = report.proposals || {};
+        const username = data.username || analysis.accountOverview?.username || '';
+
+        // Render analysis sections
+        if (analysis.accountOverview) renderAccountHeader(analysis.accountOverview);
+        renderVisualConsistency(analysis.visualConsistency);
+        renderContentClassification(analysis.contentClassification);
+        renderPhotoQuality(analysis.photoQuality);
+        renderEngagement(analysis.engagement);
+        renderPostingTiming(analysis.postingTiming);
+        renderCaptionAnalysis(analysis.captionAnalysis);
+        renderBranding(analysis.branding);
+        renderContinuity(analysis.continuity);
+
+        // Render proposal sections
+        renderQuickWins(proposals.quickWins);
+        renderProposalList(proposals.contentStrategy, 'contentStrategyList');
+        renderProposalList(proposals.visualImprovement, 'visualImprovementList');
+        renderProposalList(proposals.engagementBoost, 'engagementBoostList');
+        renderProposalList(proposals.followerAcquisition, 'followerAcqList');
+        renderRoadmap(proposals.threeMonthRoadmap);
+
+        // Expiry countdown
+        startExpiryCountdown(data.createdAt);
+
+        // PDF buttons
+        const pdfHandler = () => exportPdf(username);
+        document.getElementById('pdfBtnTop').addEventListener('click', pdfHandler);
+        document.getElementById('pdfBtnBottom').addEventListener('click', pdfHandler);
+
+        // Update page title
+        document.title = `@${username} - Instagram Deep Analyzer Report`;
+
+        // Show content, hide loader
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('reportContent').classList.remove('hidden');
+
+      } catch (e) {
+        console.error('Failed to load report:', e);
+        window.location.href = 'index.html';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

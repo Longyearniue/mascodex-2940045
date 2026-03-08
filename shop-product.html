@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mascodex T-shirt Shop - 商品詳細</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      padding: 30px 20px 20px;
+    }
+
+    .header h1 {
+      color: #fff;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .back-link {
+      display: inline-block;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: #fff;
+    }
+
+    .product-container {
+      max-width: 1000px;
+      margin: 0 auto 40px;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .image-section {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-section img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      background: #f5f5f5;
+    }
+
+    .details-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .detail-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-card h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+      color: #333;
+    }
+
+    .detail-card label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .selector-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .selector-btn {
+      padding: 10px 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s;
+      color: #333;
+    }
+
+    .selector-btn:hover {
+      border-color: #667eea;
+    }
+
+    .selector-btn.active {
+      border-color: #667eea;
+      background: #667eea;
+      color: #fff;
+    }
+
+    .color-btn {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      border-radius: 50%;
+      border: 3px solid #ddd;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .color-btn:hover {
+      border-color: #667eea;
+    }
+
+    .color-btn.active {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+
+    .color-label {
+      font-size: 0.75rem;
+      text-align: center;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .color-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .price-summary {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .price-row.total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #667eea;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      margin-bottom: 0;
+    }
+
+    #paypal-button-container {
+      margin-top: 16px;
+    }
+
+    .form-error {
+      color: #e53935;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .product-container {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 1.3rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="/shop.html" class="back-link">&larr; ショップに戻る</a>
+    <h1>Mascodex T-shirt Shop</h1>
+  </div>
+
+  <div class="product-container">
+    <div class="image-section">
+      <img id="product-image" src="" alt="キャラクター Tシャツ">
+    </div>
+
+    <div class="details-section">
+      <div class="detail-card">
+        <h2 id="product-title">Tシャツ</h2>
+
+        <label>サイズ</label>
+        <div class="selector-group" id="size-selector">
+          <button class="selector-btn" data-size="S" onclick="selectSize(this)">S</button>
+          <button class="selector-btn" data-size="M" onclick="selectSize(this)">M</button>
+          <button class="selector-btn" data-size="L" onclick="selectSize(this)">L</button>
+          <button class="selector-btn" data-size="XL" onclick="selectSize(this)">XL</button>
+          <button class="selector-btn" data-size="XXL" onclick="selectSize(this)">XXL</button>
+        </div>
+
+        <label>カラー</label>
+        <div class="selector-group" id="color-selector">
+          <div class="color-option">
+            <button class="color-btn" data-color="White" data-hex="#FFFFFF" style="background:#FFFFFF" onclick="selectColor(this)"></button>
+            <span class="color-label">White</span>
+          </div>
+          <div class="color-option">
+            <button class="color-btn" data-color="Black" data-hex="#000000" style="background:#000000" onclick="selectColor(this)"></button>
+            <span class="color-label">Black</span>
+          </div>
+          <div class="color-option">
+            <button class="color-btn" data-color="Grey" data-hex="#808080" style="background:#808080" onclick="selectColor(this)"></button>
+            <span class="color-label">Grey</span>
+          </div>
+          <div class="color-option">
+            <button class="color-btn" data-color="Navy" data-hex="#000080" style="background:#000080" onclick="selectColor(this)"></button>
+            <span class="color-label">Navy</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h2>お届け先</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">名前 (名)</label>
+            <input type="text" id="firstName" required>
+          </div>
+          <div class="form-group">
+            <label for="lastName">名前 (姓)</label>
+            <input type="text" id="lastName" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="address1">住所1</label>
+          <input type="text" id="address1" required>
+        </div>
+
+        <div class="form-group">
+          <label for="address2">住所2 (任意)</label>
+          <input type="text" id="address2">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">市区町村</label>
+            <input type="text" id="city" required>
+          </div>
+          <div class="form-group">
+            <label for="state">都道府県/州</label>
+            <input type="text" id="state" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="zip">郵便番号</label>
+            <input type="text" id="zip" required>
+          </div>
+          <div class="form-group">
+            <label for="country">国</label>
+            <select id="country">
+              <option value="JP">JP (日本)</option>
+              <option value="US">US</option>
+              <option value="GB">GB</option>
+              <option value="DE">DE</option>
+              <option value="FR">FR</option>
+              <option value="AU">AU</option>
+              <option value="CA">CA</option>
+              <option value="KR">KR</option>
+              <option value="TW">TW</option>
+              <option value="CN">CN</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" required>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <h2>お支払い</h2>
+
+        <div class="price-summary">
+          <div class="price-row">
+            <span>商品</span>
+            <span>$28.00</span>
+          </div>
+          <div class="price-row">
+            <span>送料</span>
+            <span id="shipping-cost">$5.00</span>
+          </div>
+          <div class="price-row total">
+            <span>合計</span>
+            <span id="total-price">$33.00 (商品 $28.00 + 送料 $5.00)</span>
+          </div>
+        </div>
+
+        <div class="form-error" id="form-error">すべての必須項目を入力してください。</div>
+
+        <div id="paypal-button-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.paypal.com/sdk/js?client-id=AfFD6qAHmDGQczfVEpQKTuTQCYlsZwVcjirUAO6URjCaNnmMMBPVScis-aMltnruvbf7acuVytHwpB7L&currency=USD"></script>
+  <script>
+    // Read URL params
+    const params = new URLSearchParams(window.location.search);
+    const charId = params.get('charId') || '';
+    const variant = params.get('variant') || '01';
+
+    let selectedSize = 'M';
+    let selectedColor = 'White';
+    const productPrice = 28.00;
+    const shippingCost = 5.00;
+
+    // Initialize page
+    window.addEventListener('DOMContentLoaded', function () {
+      // Set image
+      const imgSrc = `https://img.mascodex.com/${charId}_${variant}.png`;
+      document.getElementById('product-image').src = imgSrc;
+      document.getElementById('product-title').textContent = `キャラクター ${charId} Tシャツ (バリアント ${variant})`;
+
+      // Set default selections
+      document.querySelector('[data-size="M"]').classList.add('active');
+      document.querySelector('[data-color="White"]').classList.add('active');
+
+      // Render PayPal buttons
+      initPayPal();
+    });
+
+    function selectSize(btn) {
+      document.querySelectorAll('#size-selector .selector-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      selectedSize = btn.dataset.size;
+    }
+
+    function selectColor(btn) {
+      document.querySelectorAll('#color-selector .color-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      selectedColor = btn.dataset.color;
+    }
+
+    function validateForm() {
+      const required = ['firstName', 'lastName', 'address1', 'city', 'state', 'zip', 'email'];
+      for (const id of required) {
+        const val = document.getElementById(id).value.trim();
+        if (!val) return false;
+      }
+      const email = document.getElementById('email').value.trim();
+      if (!email.includes('@')) return false;
+      return true;
+    }
+
+    function getRecipient() {
+      return {
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        address1: document.getElementById('address1').value.trim(),
+        address2: document.getElementById('address2').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        zip: document.getElementById('zip').value.trim(),
+        country: document.getElementById('country').value,
+        email: document.getElementById('email').value.trim()
+      };
+    }
+
+    function initPayPal() {
+      paypal.Buttons({
+        style: {
+          shape: 'rect',
+          color: 'blue',
+          layout: 'vertical',
+          label: 'pay'
+        },
+        createOrder: async function (data, actions) {
+          const formError = document.getElementById('form-error');
+
+          if (!validateForm()) {
+            formError.style.display = 'block';
+            throw new Error('Form validation failed');
+          }
+          formError.style.display = 'none';
+
+          const countryCode = document.getElementById('country').value;
+
+          const response = await fetch('/api/shop/paypal-create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              charId: charId,
+              size: selectedSize,
+              color: selectedColor,
+              countryCode: countryCode,
+              shippingCost: shippingCost
+            })
+          });
+
+          const result = await response.json();
+          if (!result.success) {
+            throw new Error(result.error || 'Failed to create order');
+          }
+          return result.paypalOrderId;
+        },
+        onApprove: async function (data) {
+          const recipient = getRecipient();
+
+          const response = await fetch('/api/shop/paypal-capture', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paypalOrderId: data.orderID,
+              charId: charId,
+              size: selectedSize,
+              color: selectedColor,
+              variant: variant,
+              recipient: recipient
+            })
+          });
+
+          const result = await response.json();
+          if (result.success && result.orderId) {
+            window.location.href = `/shop-order.html?orderId=${result.orderId}`;
+          } else {
+            alert('注文処理中にエラーが発生しました。');
+          }
+        },
+        onError: function (err) {
+          console.error('PayPal error:', err);
+        }
+      }).render('#paypal-button-container');
+    }
+  </script>
+</body>
+</html>

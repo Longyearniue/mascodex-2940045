@@ -1,0 +1,9 @@
+name = "insta-analyzer-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "REPORTS"
+id = "cb6cb3b95563469eb46b8f99db10f191"
+
+# UPLOAD_SECRET is set via `wrangler secret put UPLOAD_SECRET`

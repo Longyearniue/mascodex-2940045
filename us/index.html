@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mascodex USA - Every ZIP Code Has a Mascot</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;}
+
+    .hero{background:linear-gradient(135deg,#1a3a8a 0%,#c8102e 100%);padding:60px 20px 50px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 60%);animation:glow 8s ease-in-out infinite;}
+    @keyframes glow{0%,100%{transform:translate(0,0)}50%{transform:translate(5%,5%)}}
+    .hero h1{font-size:3rem;font-weight:800;margin-bottom:6px;position:relative;}
+    .hero .tagline{font-size:1.15rem;opacity:.85;margin-bottom:30px;position:relative;}
+    .hero-mascots{display:flex;justify-content:center;gap:14px;margin-bottom:36px;position:relative;}
+    .hero-mascots img{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);transition:transform .3s;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+    .hero-mascots img:hover{transform:scale(1.12) rotate(-3deg);}
+    .back-link{position:absolute;top:16px;left:20px;color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;}
+    .back-link:hover{color:#fff;}
+
+    .search-card{background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:20px;max-width:560px;margin:-30px auto 0;padding:30px;position:relative;z-index:2;}
+    .search-card h2{font-size:1.2rem;text-align:center;margin-bottom:16px;font-weight:600;}
+    .search-row{display:flex;gap:10px;margin-bottom:16px;}
+    .search-row input{flex:1;padding:14px 18px;border:none;border-radius:50px;font-size:1rem;outline:none;background:#fff;color:#333;}
+    .search-row input::placeholder{color:#999;}
+    .search-row button,.addr-go{padding:14px 24px;background:#ffdd57;color:#000;border:none;border-radius:50px;font-size:1rem;cursor:pointer;font-weight:700;transition:transform .2s;}
+    .search-row button:hover,.addr-go:hover{transform:scale(1.04);}
+    .divider{text-align:center;opacity:.5;font-size:.85rem;margin:12px 0;}
+    .addr-selects{display:flex;gap:8px;flex-wrap:wrap;}
+    .addr-selects select{flex:1;min-width:0;padding:10px 12px;border:none;border-radius:12px;font-size:.9rem;background:rgba(255,255,255,.12);color:#fff;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;}
+    .addr-selects select option{background:#1a1640;color:#fff;}
+    .addr-go{margin-top:10px;width:100%;border-radius:12px;}
+    #search-result{text-align:center;margin-top:10px;font-size:.9rem;color:#ffdd57;min-height:1.2em;}
+
+    .showcase{padding:50px 20px;max-width:1100px;margin:0 auto;text-align:center;}
+    .showcase h2{font-size:1.7rem;margin-bottom:6px;}
+    .showcase .sub{opacity:.6;margin-bottom:28px;font-size:.95rem;}
+    .char-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
+    .char-card{background:#1e1a3a;border-radius:16px;overflow:hidden;transition:transform .3s;cursor:pointer;text-decoration:none;color:#fff;}
+    .char-card:hover{transform:translateY(-5px);}
+    .char-card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#2a2650;}
+    .card-info{padding:14px;text-align:center;}
+    .card-name{font-weight:600;font-size:.95rem;margin-bottom:2px;}
+    .card-area{font-size:.8rem;opacity:.5;margin-bottom:4px;}
+    .card-zip{color:#ffdd57;font-weight:700;font-size:.85rem;}
+
+    .features{background:#1a1640;padding:50px 20px;}
+    .features-inner{max-width:900px;margin:0 auto;}
+    .features h2{text-align:center;font-size:1.5rem;margin-bottom:28px;}
+    .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;}
+    .feat{background:rgba(255,255,255,.05);border-radius:16px;padding:24px;text-align:center;}
+    .feat-icon{font-size:2.4rem;margin-bottom:10px;}
+    .feat h3{font-size:1.05rem;margin-bottom:6px;}
+    .feat p{opacity:.65;font-size:.88rem;line-height:1.5;}
+
+    .chat-section{max-width:600px;margin:0 auto;padding:50px 20px;}
+    .chat-section h2{text-align:center;margin-bottom:20px;font-size:1.4rem;}
+    .chat-box{background:#1e1a3a;border-radius:16px;padding:20px;}
+    .chat-messages{min-height:120px;max-height:300px;overflow-y:auto;margin-bottom:16px;}
+    .chat-msg{padding:8px 14px;margin:6px 0;border-radius:12px;font-size:.9rem;line-height:1.4;max-width:85%;}
+    .chat-msg.bot{background:rgba(102,126,234,.2);color:#fff;}
+    .chat-msg.user{background:rgba(255,221,87,.2);color:#fff;margin-left:auto;}
+    .chat-input-row{display:flex;gap:8px;}
+    .chat-input-row input{flex:1;padding:12px 16px;border:none;border-radius:50px;font-size:.9rem;background:rgba(255,255,255,.1);color:#fff;outline:none;}
+    .chat-input-row input::placeholder{color:rgba(255,255,255,.4);}
+    .chat-input-row button{padding:12px 20px;background:#ffdd57;color:#000;border:none;border-radius:50px;font-weight:700;cursor:pointer;}
+    .chat-zip-input{display:flex;gap:8px;margin-bottom:12px;}
+    .chat-zip-input input{flex:1;padding:10px 14px;border:none;border-radius:50px;font-size:.9rem;background:rgba(255,255,255,.1);color:#fff;outline:none;}
+    .chat-zip-input button{padding:10px 16px;background:rgba(102,126,234,.4);color:#fff;border:none;border-radius:50px;font-size:.85rem;cursor:pointer;}
+
+    .footer{text-align:center;padding:30px 20px;opacity:.4;font-size:.82rem;}
+
+    @media(max-width:600px){
+      .hero h1{font-size:2rem;}
+      .hero-mascots img{width:70px;height:70px;}
+      .search-card{margin:-20px 12px 0;padding:20px;}
+      .addr-selects{flex-direction:column;}
+      .search-row input{font-size:.9rem;padding:12px 14px;}
+      .char-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <a href="/" class="back-link">&larr; All Countries</a>
+    <h1>Mascodex USA</h1>
+    <p class="tagline">31,000+ unique mascot characters for every US ZIP code</p>
+    <div class="hero-mascots" id="hero-mascots"></div>
+  </section>
+
+  <div class="search-card">
+    <h2>Find your ZIP code's mascot</h2>
+    <div class="search-row">
+      <input type="text" id="zipcode" placeholder="Enter ZIP code (e.g. 10001)" maxlength="5" inputmode="numeric">
+      <button id="searchBtn">Search</button>
+    </div>
+    <div class="divider">or browse by state</div>
+    <div class="addr-selects">
+      <select id="state-sel"><option>State</option></select>
+      <select id="city-sel"><option>City</option></select>
+      <select id="zip-sel"><option>ZIP Code</option></select>
+    </div>
+    <button class="addr-go" id="searchAddr">Go</button>
+    <div id="search-result"></div>
+  </div>
+
+  <section class="showcase">
+    <h2>Featured Mascots</h2>
+    <p class="sub">Every neighborhood in America has its own unique character</p>
+    <div class="char-grid" id="char-grid"></div>
+  </section>
+
+  <section class="features">
+    <div class="features-inner">
+      <h2>About Mascodex USA</h2>
+      <div class="features-grid">
+        <div class="feat">
+          <div class="feat-icon">&#x1F3A8;</div>
+          <h3>31,000+ Unique Mascots</h3>
+          <p>AI-generated character for every US ZIP code area</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#x1F4AC;</div>
+          <h3>Chat with Your Mascot</h3>
+          <p>Each character knows about their local area and can chat with you</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#x1F6CD;&#xFE0F;</div>
+          <h3>Merchandise</h3>
+          <p>T-shirts, mugs, phone cases, and more with your local mascot</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">&#x1F30E;</div>
+          <h3>Hyper-Local</h3>
+          <p>Each mascot reflects the unique culture, landmarks, and vibe of its ZIP code</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chat-section">
+    <h2>Chat with a US Mascot</h2>
+    <div class="chat-box">
+      <div class="chat-zip-input">
+        <input type="text" id="chat-zip" placeholder="Enter ZIP code" maxlength="5" inputmode="numeric">
+        <button id="chat-zip-btn">Load Mascot</button>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg bot">Enter a ZIP code above to start chatting with that area's mascot!</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Type a message..." disabled>
+        <button id="chat-send" disabled>Send</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">&copy; 2025 Mascodex. All characters are original AI-generated designs.</div>
+
+  <script>
+    var US_CHAR_POOL = [
+      {id:'10001',name:'Middy Manhattan',area:'New York, NY'},
+      {id:'20001',name:'Capitol Buzz',area:'Washington, DC'},
+      {id:'37201',name:'Nashville Note',area:'Nashville, TN'},
+      {id:'60601',name:'Windy Loop',area:'Chicago, IL'},
+      {id:'70112',name:'Jazzy Beau',area:'New Orleans, LA'},
+      {id:'78201',name:'Alamo Amigo',area:'San Antonio, TX'},
+      {id:'90210',name:'Beverly Bliss',area:'Beverly Hills, CA'},
+      {id:'97201',name:'Portlandia Rose',area:'Portland, OR'},
+      {id:'98101',name:'Seattle Drizzle',area:'Seattle, WA'},
+      {id:'99501',name:'Aurora Bear',area:'Anchorage, AK'}
+    ];
+
+    var IMG_CDN = '/img/us/';
+
+    function pickRandom(arr, n) {
+      var copy = arr.slice();
+      for (var i = copy.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = copy[i]; copy[i] = copy[j]; copy[j] = tmp;
+      }
+      return copy.slice(0, n);
+    }
+
+    var picked = pickRandom(US_CHAR_POOL, Math.min(US_CHAR_POOL.length, 6));
+
+    /* Hero mascots */
+    var heroEl = document.getElementById('hero-mascots');
+    picked.forEach(function(c) {
+      heroEl.innerHTML += '<img src="' + IMG_CDN + c.id + '_01.png" alt="' + c.name + '">';
+    });
+
+    /* Character grid */
+    var gridEl = document.getElementById('char-grid');
+    picked.forEach(function(c) {
+      var card = document.createElement('a');
+      card.className = 'char-card';
+      card.href = '/us/c/' + c.id;
+      card.innerHTML =
+        '<img src="' + IMG_CDN + c.id + '_01.png" alt="' + c.name + '">' +
+        '<div class="card-info">' +
+          '<div class="card-name">' + c.name + '</div>' +
+          '<div class="card-area">' + c.area + '</div>' +
+          '<div class="card-zip">ZIP ' + c.id + '</div>' +
+        '</div>';
+      gridEl.appendChild(card);
+    });
+  </script>
+
+  <script>
+    /* Address dropdown */
+    fetch('/js/us-zip-tree.json')
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        var stateSel = document.getElementById('state-sel');
+        var citySel = document.getElementById('city-sel');
+        var zipSel = document.getElementById('zip-sel');
+        var zipInput = document.getElementById('zipcode');
+        var searchBtn = document.getElementById('searchBtn');
+        var searchAddr = document.getElementById('searchAddr');
+        var result = document.getElementById('search-result');
+
+        Object.keys(data).sort().forEach(function(st){
+          var o = document.createElement('option'); o.value = o.text = st; stateSel.appendChild(o);
+        });
+
+        stateSel.onchange = function(){
+          citySel.innerHTML = '<option>City</option>';
+          zipSel.innerHTML = '<option>ZIP Code</option>';
+          var cities = data[stateSel.value] || {};
+          Object.keys(cities).sort().forEach(function(city){
+            var o = document.createElement('option'); o.value = o.text = city; citySel.appendChild(o);
+          });
+        };
+
+        citySel.onchange = function(){
+          zipSel.innerHTML = '<option>ZIP Code</option>';
+          var zips = (data[stateSel.value] || {})[citySel.value] || [];
+          zips.forEach(function(z){
+            var o = document.createElement('option'); o.value = o.text = z; zipSel.appendChild(o);
+          });
+        };
+
+        searchAddr.onclick = function(){
+          var zip = zipSel.value;
+          if (zip && /^\d{5}$/.test(zip)) {
+            window.location.href = '/us/c/' + zip;
+          } else {
+            result.textContent = 'Please select a state, city, and ZIP code.';
+          }
+        };
+
+        searchBtn.onclick = function(){
+          var zip = zipInput.value.trim();
+          if (!/^\d{5}$/.test(zip)) {
+            result.textContent = 'Please enter a valid 5-digit ZIP code.';
+            return;
+          }
+          result.textContent = '';
+          window.location.href = '/us/c/' + zip;
+        };
+
+        zipInput.addEventListener('keypress', function(e){
+          if (e.key === 'Enter') searchBtn.onclick();
+        });
+      })
+      .catch(function(e){
+        console.error(e);
+        document.getElementById('search-result').textContent = 'Failed to load location data.';
+      });
+  </script>
+
+  <script>
+    /* Chat */
+    var chatZip = document.getElementById('chat-zip');
+    var chatZipBtn = document.getElementById('chat-zip-btn');
+    var chatMessages = document.getElementById('chat-messages');
+    var chatInput = document.getElementById('chat-input');
+    var chatSend = document.getElementById('chat-send');
+    var chatHistory = [];
+    var activeZip = null;
+
+    chatZipBtn.onclick = function(){
+      var zip = chatZip.value.trim();
+      if (!/^\d{5}$/.test(zip)) return;
+      activeZip = zip;
+      chatHistory = [];
+      chatMessages.innerHTML = '<div class="chat-msg bot">Loading mascot for ZIP ' + zip + '...</div>';
+      chatInput.disabled = false;
+      chatSend.disabled = false;
+      chatInput.focus();
+      /* Send initial greeting */
+      sendChat('Hello! Tell me about yourself and this area.');
+    };
+
+    chatSend.onclick = function(){ sendChat(chatInput.value); };
+    chatInput.addEventListener('keypress', function(e){ if (e.key === 'Enter') sendChat(chatInput.value); });
+
+    function sendChat(msg) {
+      if (!msg.trim() || !activeZip) return;
+      chatInput.value = '';
+      appendMsg('user', msg);
+      chatHistory.push({ role: 'user', content: msg });
+
+      fetch('/api/chat/us/' + activeZip, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, history: chatHistory.slice(-8) })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.success && data.response) {
+          appendMsg('bot', data.response);
+          chatHistory.push({ role: 'assistant', content: data.response });
+        } else {
+          appendMsg('bot', 'Hmm, something went wrong. Try again!');
+        }
+      })
+      .catch(function(){
+        appendMsg('bot', 'Network error. Please try again.');
+      });
+    }
+
+    function appendMsg(type, text) {
+      var div = document.createElement('div');
+      div.className = 'chat-msg ' + type;
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  </script>
+</body>
+</html>

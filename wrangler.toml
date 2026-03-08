@@ -13,7 +13,6 @@ preview_id = "65ddc6c899c94cf89e825099c1c1d329"
 [[kv_namespaces]]
 binding = "GAME_KV"
 id = "1d4a90905d6c438688a5fa3cb6631a10"
-preview_id = "129fc508aa2e48178ac42b209e84ed0f"
 
 [[d1_databases]]
 binding = "GAME_DB"
@@ -23,3 +22,26 @@ database_id = "75c46a4a-2c7e-4119-b898-caeb32211a7e"
 [[r2_buckets]]
 binding = "CHAR_R2"
 bucket_name = "yuruchara"
+
+[[r2_buckets]]
+binding = "IMG_R2"
+bucket_name = "yuruchara-clean"
+
+# === US Mascot additions ===
+[[r2_buckets]]
+binding = "US_CHAR_R2"
+bucket_name = "mascodex-us"
+
+[[kv_namespaces]]
+binding = "US_KV"
+id = "53c515c4988d4379b2cf231ee3901fdb"
+preview_id = "b6acbab6be084511adec67bf3e05938d"
+
+# === India Mascot additions ===
+[[r2_buckets]]
+binding = "IN_CHAR_R2"
+bucket_name = "mascodex-in"
+
+[[kv_namespaces]]
+binding = "IN_KV"
+id = "b53a747d21934113b3c7fbfe47e3e0d4"

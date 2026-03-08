@@ -1,0 +1,9 @@
+{
+  "name": "us-mascot-pipeline",
+  "private": true,
+  "scripts": {
+    "collect": "node src/collect-all.js",
+    "profiles": "node src/profile-gen.js",
+    "images": "node src/image-gen.js"
+  }
+}

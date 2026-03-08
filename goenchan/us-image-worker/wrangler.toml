@@ -1,0 +1,10 @@
+name = "us-mascot-image-gen"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+[ai]
+binding = "AI"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "mascodex-us"
