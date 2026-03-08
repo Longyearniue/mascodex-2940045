@@ -115,7 +115,8 @@
     </div>
     <div class="divider">or browse by state</div>
     <div class="addr-selects">
-      <select id="state-sel"><option value="">State / Territory</option><option value="2000">NSW - New South Wales</option><option value="3000">VIC - Victoria</option><option value="4000">QLD - Queensland</option><option value="5000">SA - South Australia</option><option value="6000">WA - Western Australia</option><option value="7000">TAS - Tasmania</option><option value="2600">ACT - Australian Capital Territory</option><option value="0800">NT - Northern Territory</option></select>
+      <select id="state-sel"><option value="">State / Territory</option></select>
+      <select id="suburb-sel"><option value="">Suburb / Area</option></select>
     </div>
     <button class="addr-go" id="searchAddr">Go</button>
     <div id="search-result"></div>
@@ -240,16 +241,7 @@
       gridEl.appendChild(card);
     });
 
-    /* State selector */
-    var stateSel = document.getElementById('state-sel');
-    STATES.forEach(function(s) {
-      var o = document.createElement('option');
-      o.value = s.sample;
-      o.textContent = s.code + ' - ' + s.name;
-      stateSel.appendChild(o);
-    });
-
-    /* Search */
+    /* Search (postcode直接入力) */
     var postcodeInput = document.getElementById('postcode');
     var searchBtn = document.getElementById('searchBtn');
     var searchAddr = document.getElementById('searchAddr');
@@ -264,36 +256,53 @@
       result.textContent = '';
       window.location.href = '/au/c/' + pc;
     };
-
     postcodeInput.addEventListener('keypress', function(e){
       if (e.key === 'Enter') searchBtn.onclick();
     });
 
-    // State選択 → browse sectionにスクロールして該当stateを表示
-    var stateCodeMap = {
-      '2000':'NSW','3000':'VIC','4000':'QLD','5000':'SA',
-      '6000':'WA','7000':'TAS','2600':'ACT','0800':'NT'
-    };
-    searchAddr.onclick = function(){
-      var val = stateSel.value;
-      if (!val) { result.textContent = 'Please select a state or territory.'; return; }
-      var st = stateCodeMap[val];
-      if (st) {
-        // browse sectionのタブをクリックしてスクロール
-        var browseSection = document.getElementById('state-tabs');
-        if (browseSection) {
-          var tabs = browseSection.querySelectorAll('.state-tab');
-          for (var i = 0; i < tabs.length; i++) {
-            if (tabs[i].dataset.st === st) { tabs[i].click(); break; }
+    /* 2段階ドロップダウン: State → Suburb */
+    fetch('/js/au-suburb-tree.json')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var stateSel = document.getElementById('state-sel');
+        var suburbSel = document.getElementById('suburb-sel');
+
+        var stateNames = {
+          'NSW':'NSW - New South Wales','VIC':'VIC - Victoria','QLD':'QLD - Queensland',
+          'SA':'SA - South Australia','WA':'WA - Western Australia','TAS':'TAS - Tasmania',
+          'ACT':'ACT - Australian Capital Territory','NT':'NT - Northern Territory'
+        };
+
+        Object.keys(data).forEach(function(st){
+          var o = document.createElement('option');
+          o.value = st;
+          o.textContent = stateNames[st] || st;
+          stateSel.appendChild(o);
+        });
+
+        stateSel.onchange = function(){
+          suburbSel.innerHTML = '<option value="">Suburb / Area</option>';
+          var areas = data[stateSel.value] || {};
+          Object.keys(areas).sort().forEach(function(area){
+            var o = document.createElement('option');
+            o.value = areas[area];
+            o.textContent = area;
+            suburbSel.appendChild(o);
+          });
+        };
+
+        searchAddr.onclick = function(){
+          var pc = suburbSel.value;
+          if (pc && /^\d{4}$/.test(pc)) {
+            window.location.href = '/au/c/' + pc;
+          } else if (stateSel.value) {
+            result.textContent = 'Please select a suburb / area.';
+          } else {
+            result.textContent = 'Please select a state first.';
           }
-          document.getElementById('browse-section').scrollIntoView({behavior:'smooth'});
-        } else {
-          window.location.href = '/au/c/' + val;
-        }
-      } else {
-        result.textContent = 'Please select a state or territory.';
-      }
-    };
+        };
+      })
+      .catch(function(){ console.error('Failed to load AU suburb tree'); });
   </script>
 
   <script>
