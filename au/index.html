@@ -105,7 +105,7 @@
       <select id="state-sel"><option value="">State / Territory</option></select>
       <select id="suburb-sel"><option value="">Suburb / Area</option></select>
     </div>
-    <button class="addr-go" id="searchAddr">Go</button>
+    <button type="button" class="addr-go" id="searchAddr" onclick="var pc=document.getElementById('suburb-sel').value;if(pc){window.location.href='/au/c/'+pc;}else{document.getElementById('search-result').textContent='Please select a suburb first.';}">Go</button>
     <div id="search-result"></div>
   </div>
 
@@ -273,19 +273,6 @@
       })
       .catch(function(){ console.error('Failed to load AU suburb tree'); });
 
-    // Go ボタン（fetchの外で設定 → 常に動作する）
-    document.getElementById('searchAddr').onclick = function(){
-      var pc = document.getElementById('suburb-sel').value;
-      var st = document.getElementById('state-sel').value;
-      var result = document.getElementById('search-result');
-      if (pc && /^\d{4}$/.test(pc)) {
-        window.location.href = '/au/c/' + pc;
-      } else if (st) {
-        result.textContent = 'Please select a suburb / area.';
-      } else {
-        result.textContent = 'Please select a state first.';
-      }
-    };
   </script>
 
   <script>
