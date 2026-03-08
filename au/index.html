@@ -103,7 +103,7 @@
     <div class="divider">or browse by state</div>
     <div class="addr-selects">
       <select id="state-sel"><option value="">State / Territory</option></select>
-      <select id="suburb-sel"><option value="">Suburb / Area</option></select>
+      <select id="suburb-sel" onchange="if(this.value){window.location.href='/au/c/'+this.value;}"><option value="">Suburb / Area</option></select>
     </div>
     <button type="button" class="addr-go" id="searchAddr" onclick="var pc=document.getElementById('suburb-sel').value;if(pc){window.location.href='/au/c/'+pc;}else{document.getElementById('search-result').textContent='Please select a suburb first.';}">Go</button>
     <div id="search-result"></div>
