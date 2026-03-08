@@ -45,3 +45,10 @@ bucket_name = "mascodex-in"
 [[kv_namespaces]]
 binding = "IN_KV"
 id = "b53a747d21934113b3c7fbfe47e3e0d4"
+[[r2_buckets]]
+binding = "AU_CHAR_R2"
+bucket_name = "mascodex-au"
+
+[[r2_buckets]]
+binding = "KR_CHAR_R2"
+bucket_name = "mascodex-kr"
