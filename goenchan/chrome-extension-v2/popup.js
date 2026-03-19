@@ -1288,7 +1288,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const percentage = total > 0 ? (processed / total) * 100 : 0;
       document.getElementById('contactSearchBar').style.width = `${percentage}%`;
 
-      document.getElementById('batchSummaryText').textContent = '🔍 お問合せページを検索中...';
+      // 現在処理中のURLとステップを表示
+      const curUrl = message.currentUrl || '';
+      const curStep = message.currentStep || '';
+      if (curUrl) {
+        const el = document.getElementById('contactSearchCurrentUrl');
+        if (el) el.textContent = curStep ? `${curStep}  ―  ${curUrl}` : curUrl;
+      }
+      document.getElementById('batchSummaryText').textContent = `🔍 検索中... ${processed}/${total}件処理済み`;
     } else if (message.phase === 'ready') {
       document.getElementById('findingContactsPhase').style.display = 'none';
       document.getElementById('openingTabsPhase').style.display = 'block';

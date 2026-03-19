@@ -952,7 +952,7 @@ async function findContactPageHumanStyle(baseUrl) {
 // =============================================================================
 
 // Try Worker API with retry logic
-async function tryWorkerAPIWithRetry(url, maxRetries = 2, entry = null) {
+async function tryWorkerAPIWithRetry(url, maxRetries = 0, entry = null) {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
@@ -971,7 +971,7 @@ async function tryWorkerAPIWithRetry(url, maxRetries = 2, entry = null) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
-      }, 30000); // 30 second timeout for API calls
+      }, 5000); // 5 second timeout
 
       if (response.ok) {
         const data = await response.json();
@@ -1865,6 +1865,19 @@ async function findContactPageEnhanced(baseUrl) {
       step,
       label
     }).catch(() => {});
+    // batchPhaseUpdate も同時送信して検索済みカウントをリアルタイム更新
+    if (batchState && batchState.isRunning) {
+      chrome.runtime.sendMessage({
+        action: 'batchPhaseUpdate',
+        phase: 'finding_contacts',
+        total: batchState.urls ? batchState.urls.length : 0,
+        processed: batchState.validUrls.length + batchState.skippedUrls.length,
+        validCount: batchState.validUrls.length,
+        skippedCount: batchState.skippedUrls.length,
+        currentUrl: short,
+        currentStep: label
+      }).catch(() => {});
+    }
   };
 
   // Step 1: 既存の高速チェック（サイトマップ + 並列HEAD）
