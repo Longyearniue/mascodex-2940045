@@ -1777,31 +1777,48 @@ async function findContactByBruteForce(baseUrl) {
   return null;
 }
 
-// 方法4: Google site:検索
+// 方法4: DuckDuckGo site:検索（Google代替・Bot検出なし）
 async function findContactByGoogleSearch(baseUrl) {
   const domain = new URL(baseUrl).hostname;
   const queries = [
     `site:${domain} お問い合わせ`,
-    `site:${domain} contact`,
+    `site:${domain} contact inquiry`,
     `site:${domain} 問い合わせ フォーム`
   ];
   for (const q of queries) {
     try {
-      const res = await fetch(`https://www.google.com/search?q=${encodeURIComponent(q)}&num=5&hl=ja`, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+      const res = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'ja,en;q=0.9'
+        }
       });
       const html = await res.text();
-      const matches = [...html.matchAll(/\/url\?q=(https?:\/\/[^&"' ]+)/g)];
-      for (const m of matches) {
+      // result__url クラスからURL抽出
+      const urlMatches = [...html.matchAll(/class="result__url[^"]*">([^<]+)</g)];
+      for (const m of urlMatches) {
+        const raw = m[1].trim().replace(/&amp;/g, '&');
+        const url = raw.startsWith('http') ? raw : 'https://' + raw;
         try {
-          const url = decodeURIComponent(m[1]);
-          if (new URL(url).hostname === domain && isContactUrlKeyword(url)) {
-            console.log('[Google] Found:', url);
+          const parsed = new URL(url);
+          if (parsed.hostname === domain && isContactUrlKeyword(url)) {
+            console.log('[DDG] Found:', url);
             return url;
           }
         } catch(e) {}
       }
-    } catch(e) { console.log('[Google] error:', e.message); }
+      // result__a リンクからも抽出
+      const linkMatches = [...html.matchAll(/result__a[^>]+href="(https?:\/\/[^"]+)"/g)];
+      for (const m of linkMatches) {
+        const url = m[1];
+        try {
+          if (new URL(url).hostname === domain && isContactUrlKeyword(url)) {
+            console.log('[DDG] Found via link:', url);
+            return url;
+          }
+        } catch(e) {}
+      }
+    } catch(e) { console.log('[DDG] error:', e.message); }
   }
   return null;
 }
