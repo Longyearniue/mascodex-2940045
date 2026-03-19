@@ -50,105 +50,90 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'aiClassifyFields') {
     (async () => {
       try {
-        const { fields, profile, pageTitle, formTitle } = message;
+        const { fields, profile, pageTitle, formTitle, screenshotDataUrl } = message;
         const apiKeyData = await chrome.storage.sync.get(['deepseekApiKey']);
         const apiKey = apiKeyData.deepseekApiKey;
-        if (!apiKey) {
-          sendResponse({ success: false, error: 'No Anthropic API key configured' });
-          return;
-        }
+        if (!apiKey) { sendResponse({ success: false, error: 'No DeepSeek API key' }); return; }
 
         const fieldList = fields.map((f, i) =>
-          `${i}: context="${f.context || f.label}" name="${f.name}" id="${f.id}" type="${f.type}" placeholder="${f.placeholder}"${f.htmlContext ? ' html_snippet="' + f.htmlContext.substring(0, 150) + '"' : ''}`
+          `[${i}] label="${f.label || f.context || ''}" name="${f.name}" id="${f.id}" type="${f.type}" placeholder="${f.placeholder}"${f.htmlContext ? ' html="' + f.htmlContext.replace(/"/g,'').substring(0, 200) + '"' : ''}`
         ).join('\n');
 
-        const fullName = profile.fullName || ((profile.lastName || '') + (profile.firstName ? ' ' + profile.firstName : '')).trim();
-        const fullNameKana = ((profile.lastNameKana || '') + (profile.firstNameKana ? ' ' + profile.firstNameKana : '')).trim();
-        const fullAddress = [profile.prefecture, profile.city, profile.street].filter(Boolean).join('');
+        const p = profile;
+        const fullName = p.name || ((p.last_name||'') + (p.first_name ? ' '+p.first_name : '')).trim();
+        const fullKana = p.name_kana || ((p.last_name_kana||'') + (p.first_name_kana ? ' '+p.first_name_kana : '')).trim();
+        const fullAddress = [p.prefecture, p.city, p.street].filter(Boolean).join('');
 
-        const prompt = `あなたは日本語フォーム自動入力AIです。以下のフォームフィールドに対して、ユーザープロフィールから適切な値を判定してください。
+        const profileText = [
+          '氏名（漢字）: ' + fullName,
+          '氏名（カナ全角）: ' + fullKana,
+          '姓: ' + (p.last_name||''), '名: ' + (p.first_name||''),
+          '姓カナ: ' + (p.last_name_kana||''), '名カナ: ' + (p.first_name_kana||''),
+          '会社名: ' + (p.company||''),
+          'メールアドレス: ' + (p.email||''),
+          '電話番号: ' + (p.phone||''),
+          '郵便番号: ' + (p.zipcode||''),
+          '住所（全体）: ' + fullAddress,
+          '都道府県: ' + (p.prefecture||''), '市区町村: ' + (p.city||''), '番地: ' + (p.street||''),
+          'メッセージ本文: ' + (p.message || p.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。よろしくお願いいたします。'),
+        ].join('\n');
 
-## フォームフィールド（空欄のもの）
+        const prompt = `あなたは日本のお問い合わせフォーム自動入力AIです。
+ページ: ${pageTitle || ''}
+
+【空欄フィールド一覧】
 ${fieldList}
 
-## ページ情報
-- ページタイトル: ${pageTitle || '(不明)'}
-- フォームタイトル: ${formTitle || '(不明)'}
+【入力プロフィール】
+${profileText}
 
-## ユーザープロフィール
-- 氏名（漢字）: ${fullName}
-- 氏名（カナ）: ${fullNameKana}
-- 姓: ${profile.lastName || ''}
-- 名: ${profile.firstName || ''}
-- 姓（カナ）: ${profile.lastNameKana || ''}
-- 名（カナ）: ${profile.firstNameKana || ''}
-- 会社名: ${profile.company || ''}
-- メールアドレス: ${profile.email || ''}
-- 電話番号: ${profile.phone || ''}
-- 郵便番号: ${profile.zipcode || ''}
-- 都道府県: ${profile.prefecture || ''}
-- 市区町村: ${profile.city || ''}
-- 番地: ${profile.street || ''}
-- 住所（全体）: ${fullAddress}
-- メッセージ: ${profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。お時間のある際にご返信いただけますと幸いです。'}
+【ルール】
+- 各フィールドのlabel/name/id/placeholder/htmlを総合的に判断し最適な値を入力する
+- フリガナ/カナ系は必ず全角カタカナ（ひらがな入力でもカタカナに変換）
+- メールアドレス確認欄はメールと同じ値
+- 電話番号分割欄（tel1/tel2/tel3等）は番号を3分割して入れる
+- 郵便番号分割欄（zip1/zip2等）は前3桁/後4桁に分割
+- 住所欄は都道府県＋市区町村＋番地をまとめて入れる（都道府県欄なら都道府県のみ）
+- radioやselectの場合はoptions値ではなく適切な選択肢番号か値を返す（不明なら null）
+- captcha・検索・日付・商品名などプロフィールに関係ないフィールドは null を返す
+- 絶対に余計な説明をせず、フィールド数と同じ要素数のJSON配列だけを返す
 
-## 判定ルール
-- context/nameから何のフィールドか推測する（例: "氏名"→氏名、"フリガナ"→カナ氏名、"住所"→住所全体、"メッセージ"→メッセージ）
-- フィールドが「確認用メール」「メールアドレス（確認）」ならメールアドレスと同じ値
-- フリガナ・カナは全角カタカナで返す
-- 電話番号はハイフンあり形式（例: 03-1234-5678）
-- 郵便番号はハイフンあり形式（例: 123-4567）
-- 入力不要（captcha, 検索欄など）はnullを返す
-- 各値にはフィールド特定の理由も考慮すること（デバッグ用）
+例（3フィールドの場合）: ["山田太郎", "ヤマダタロウ", "yamada@example.com"]`;
 
-フィールド数と同じ要素数のJSON配列のみを返してください（説明文不要）。`;
+        const contentArr = [{ type: 'text', text: prompt }];
+        // スクリーンショットがあれば追加（DeepSeek Vision対応モデル使用時）
+        if (screenshotDataUrl) {
+          const base64 = screenshotDataUrl.split(',')[1];
+          const mediaType = screenshotDataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+          contentArr.unshift({ type: 'image_url', image_url: { url: \`data:\${mediaType};base64,\${base64}\` } });
+        }
 
         let values = null;
         let lastError = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
+        const model = screenshotDataUrl ? 'deepseek-chat' : 'deepseek-chat';
+        for (let attempt = 0; attempt < 2; attempt++) {
           try {
-            const maxTokens = attempt === 0 ? 1024 : 2048;
             const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey,
-                'anthropic-version': '2023-06-01'
-              },
+              headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${apiKey}\` },
               body: JSON.stringify({
-                model: 'deepseek-chat',
-                max_tokens: maxTokens,
-                messages: [{ role: 'user', content: prompt }]
+                model,
+                max_tokens: 1024,
+                messages: [{ role: 'user', content: screenshotDataUrl ? contentArr : prompt }]
               })
             });
-
-            if (!resp.ok) {
-              lastError = await resp.text();
-              console.log(`🤖 [AI attempt ${attempt + 1}] HTTP error: ${resp.status}`);
-              continue;
-            }
+            if (!resp.ok) { lastError = await resp.text(); console.log('[AI] HTTP', resp.status, lastError.substring(0,100)); continue; }
             const data = await resp.json();
             const text = data.choices?.[0]?.message?.content || '';
-            const match = text.match(/\[.*\]/s);
-            if (!match) {
-              lastError = 'No JSON array in response';
-              console.log(`🤖 [AI attempt ${attempt + 1}] No JSON array, retrying...`);
-              continue;
-            }
+            console.log('[AI] Raw response:', text.substring(0, 200));
+            const match = text.match(/\[.*?\]/s);
+            if (!match) { lastError = 'No JSON array: ' + text.substring(0,100); continue; }
             values = JSON.parse(match[0]);
-            console.log(`🤖 [AI attempt ${attempt + 1}] Success: ${values.length} values`);
+            console.log(\`🤖 [AI attempt \${attempt+1}] Success: \${values.length} values\`);
             break;
-          } catch (e) {
-            lastError = e.message;
-            console.log(`🤖 [AI attempt ${attempt + 1}] Error: ${e.message}`);
-          }
+          } catch (e) { lastError = e.message; console.log('[AI] Error:', e.message); }
         }
-
-        if (values) {
-          sendResponse({ success: true, values });
-        } else {
-          sendResponse({ success: false, error: lastError || 'All retry attempts failed' });
-        }
+        sendResponse(values ? { success: true, values } : { success: false, error: lastError });
       } catch (e) {
         sendResponse({ success: false, error: e.message });
       }
@@ -168,82 +153,17 @@ ${fieldList}
     return true;
   }
 
-  // aiVisionClassifyFields — Claude Vision APIでフォームを画像解析
+  // aiVisionClassifyFields → aiClassifyFields に統合（スクリーンショット付き）
   if (message.action === 'aiVisionClassifyFields') {
-    (async () => {
-      try {
-        const { imageDataUrl, fields, profile, pageTitle } = message;
-        const apiKeyData = await chrome.storage.sync.get(['deepseekApiKey']);
-        const apiKey = apiKeyData.deepseekApiKey;
-        if (!apiKey) { sendResponse({ success: false, error: 'No API key' }); return; }
-
-        const base64 = imageDataUrl.split(',')[1];
-        const mediaType = imageDataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-
-        const fieldList = fields.map(f =>
-          `${f.index}: tag=${f.tag} name="${f.name}" id="${f.id}" context="${f.context}" type="${f.type}"`
-        ).join('\n');
-
-        const fullName = ((profile.lastName || profile.last_name || '') + ' ' + (profile.firstName || profile.first_name || '')).trim() || profile.name || '';
-        const fullNameKana = ((profile.lastNameKana || profile.last_name_kana || '') + ' ' + (profile.firstNameKana || profile.first_name_kana || '')).trim() || profile.name_kana || '';
-
-        const prompt = `このスクリーンショットはウェブページのお問い合わせフォームです。
-ページタイトル: ${pageTitle}
-
-以下のフォームフィールドはまだ空欄です。スクリーンショットを見て、各フィールドに何を入力すべきか判断してください。
-
-## 空欄フィールド
-${fieldList}
-
-## 入力するユーザープロフィール
-- 氏名: ${fullName}
-- フリガナ: ${fullNameKana}
-- 姓: ${profile.lastName || profile.last_name || ''}
-- 名: ${profile.firstName || profile.first_name || ''}
-- 会社名: ${profile.company || ''}
-- メール: ${profile.email || ''}
-- 電話: ${profile.phone || ''}
-- 郵便番号: ${profile.zipcode || ''}
-- 都道府県: ${profile.prefecture || ''}
-- 市区町村: ${profile.city || ''}
-- 番地: ${profile.street || ''}
-- メッセージ: ${profile.message || profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。'}
-
-## ルール
-- スクリーンショット上のラベルやレイアウトを参考にして判断する
-- フリガナは全角カタカナ
-- 確認用メールはメールと同じ値
-- 不明・入力不要なフィールドはnullを返す
-- フィールド数と同じ要素数のJSON配列のみ返す（説明不要）`;
-
-        const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-5-20250514',
-            max_tokens: 1024,
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-                { type: 'text', text: prompt }
-              ]
-            }]
-          })
-        });
-
-        if (!resp.ok) { sendResponse({ success: false, error: await resp.text() }); return; }
-        const result = await resp.json();
-        const text = result.content?.[0]?.text || '';
-        const match = text.match(/\[.*\]/s);
-        if (!match) { sendResponse({ success: false, error: 'No JSON in vision response' }); return; }
-        sendResponse({ success: true, values: JSON.parse(match[0]) });
-      } catch (e) {
-        sendResponse({ success: false, error: e.message });
-      }
-    })();
+    message.screenshotDataUrl = message.imageDataUrl;
+    message.action = 'aiClassifyFields';
+    // aiClassifyFields として再処理
+    const apiKeyData2 = await chrome.storage.sync.get(['deepseekApiKey']).catch(()=>({}));
+    // fallback: forward as new message
+    chrome.runtime.sendMessage(message, sendResponse);
     return true;
   }
+
 
   // saveInterceptedForm — 傍受したフォームパラメータを保存
   if (message.action === 'saveInterceptedForm') {

@@ -2106,13 +2106,16 @@ async function autoFillForm(profile) {
     }
   });
 
-  // D: AI fallback - 未入力の必須/可視フィールドをAIで補完
-  await aiFillUnknownFields(profile);
-
-  // Pass 4: Vision AI（空フィールドが残っている場合のみ）
-  if (getEmptyVisibleFields().length > 0) {
-    await pass4VisionAI(profile);
+  // D: AI補完 - Pass 1/2で埋まらなかった全フィールドをDeepSeekで補完
+  //    スクリーンショットも取得して視覚情報も合わせて送信（アグレッシブモード）
+  const emptyBeforeAI = getEmptyVisibleFields().length;
+  if (emptyBeforeAI > 0) {
+    console.log(`🤖 [AI Pass] ${emptyBeforeAI} fields still empty → calling DeepSeek with screenshot...`);
+    await aiFillUnknownFields(profile);
   }
+
+  // Pass 4: スクリーンショット付きAI補完（aiFillUnknownFieldsで統合処理）
+  // Note: aiFillUnknownFieldsがスクリーンショットを自動取得して送信するため別途呼び出し不要
 
   // Pass 5: ダミー送信バリデーション
   if (getEmptyVisibleFields().length > 0) {
@@ -5085,50 +5088,53 @@ function getFieldContext(el) {
   return unique.slice(0, 5).join(' | ');
 }
 
-async function aiFillUnknownFields(profile) {
-  // 未入力の可視フィールドを収集
+// ============================================================
+// AI自動入力: 未入力フィールドをDeepSeekで補完
+// screenshotDataUrl があれば画像も送信する
+// ============================================================
+async function aiFillUnknownFields(profile, screenshotDataUrl = null) {
   const unfilled = [];
-  document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]), textarea, select').forEach(el => {
+  document.querySelectorAll(
+    'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="search"]), textarea, select'
+  ).forEach(el => {
     if (!isVisible(el)) return;
-    if (el.value && el.value.trim()) return; // 既に入力済み
+    if (el.value && el.value.trim()) return; // 既入力済みはスキップ
 
-    const context = getFieldContext(el);
-    const label = getFieldLabel ? getFieldLabel(el) : (el.placeholder || el.name || el.id || '');
-    unfilled.push({
-      el,
-      label: label.trim(),
-      context: context,
-      name: el.name || '',
-      id: el.id || '',
-      placeholder: el.placeholder || '',
-      type: el.type || el.tagName.toLowerCase()
-    });
+    const label = (typeof getFieldLabel === 'function' ? getFieldLabel(el) : '') || el.placeholder || el.name || el.id || '';
+    // フォームコンテナの近傍HTML（最大400文字）
+    let htmlCtx = '';
+    try {
+      const container = el.closest('tr, .form-row, .field-wrap, .form-group, li') || el.parentElement;
+      if (container) htmlCtx = container.innerHTML.replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<style[^>]*>[\s\S]*?<\/style>/gi,'').replace(/\s+/g,' ').substring(0, 400);
+    } catch(e) {}
+
+    unfilled.push({ el, label: label.trim(), name: el.name||'', id: el.id||'', placeholder: el.placeholder||'', type: el.type||el.tagName.toLowerCase(), htmlCtx });
   });
 
-  if (unfilled.length === 0) return;
-  console.log(`🤖 [AI 2nd-pass] ${unfilled.length} unfilled fields → sending context to AI...`);
+  if (unfilled.length === 0) { console.log('🤖 [AI] No unfilled fields'); return 0; }
+  console.log(`🤖 [AI] ${unfilled.length} unfilled fields → calling DeepSeek...`);
+
+  // スクリーンショットがなければ取得試行
+  if (!screenshotDataUrl) {
+    try {
+      const ss = await new Promise((res, rej) => {
+        const t = setTimeout(() => rej(new Error('ss timeout')), 8000);
+        chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, r => { clearTimeout(t); res(r); });
+      });
+      if (ss?.dataUrl) screenshotDataUrl = ss.dataUrl;
+    } catch(e) { console.log('🤖 [AI] Screenshot failed:', e.message); }
+  }
 
   try {
     const fields = unfilled.map(f => ({
-      label: f.label, context: f.context, name: f.name, id: f.id,
-      placeholder: f.placeholder, type: f.type,
-      htmlContext: (() => {
-        try {
-          const container = f.el.closest('form, section, div');
-          return container ? container.innerHTML.substring(0, 300) : '';
-        } catch(e) { return ''; }
-      })()
+      label: f.label, name: f.name, id: f.id, placeholder: f.placeholder, type: f.type,
+      htmlContext: f.htmlCtx
     }));
 
-    const pageTitle = document.title;
-    const formEl = document.querySelector('form');
-    const formTitle = formEl ? (formEl.querySelector('h1, h2, h3')?.textContent?.trim() || '') : '';
-
-    // background.js経由でClaude APIを呼ぶ (Mixed Content回避)
     const data = await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('timeout')), 20000);
+      const timer = setTimeout(() => reject(new Error('AI timeout')), 30000);
       chrome.runtime.sendMessage(
-        { action: 'aiClassifyFields', fields, profile, pageTitle, formTitle },
+        { action: 'aiClassifyFields', fields, profile, pageTitle: document.title, screenshotDataUrl },
         (response) => {
           clearTimeout(timer);
           if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
@@ -5138,19 +5144,28 @@ async function aiFillUnknownFields(profile) {
     });
 
     if (!data.success || !Array.isArray(data.values)) {
-      console.log('🤖 [AI Fallback] Failed:', data.error);
-      return;
+      console.log('🤖 [AI] Failed:', data.error);
+      return 0;
     }
 
+    let filled = 0;
     data.values.forEach((value, i) => {
       if (value === null || value === undefined || value === '') return;
       const f = unfilled[i];
       if (!f) return;
-      fillField(f.el, String(value), f.type);
-      console.log(`🤖 [AI] Filled "${f.label || f.name}": ${String(value).substring(0, 30)}`);
+      const strVal = String(value);
+      fillField(f.el, strVal, f.el.type, f.name || f.id || f.type);
+      // Reactなど向けに change/input イベントも発火
+      f.el.dispatchEvent(new Event('input', { bubbles: true }));
+      f.el.dispatchEvent(new Event('change', { bubbles: true }));
+      filled++;
+      console.log(`🤖 [AI] Filled "${f.label||f.name}": "${strVal.substring(0,40)}"`);
     });
+    console.log(`🤖 [AI] Total filled: ${filled}/${unfilled.length}`);
+    return filled;
   } catch (e) {
-    console.log('🤖 [AI Fallback] Error:', e.message);
+    console.log('🤖 [AI] Error:', e.message);
+    return 0;
   }
 }
 
