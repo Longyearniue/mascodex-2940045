@@ -1391,21 +1391,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('saveTpl').addEventListener('click', saveTemplate);
   document.getElementById('resetTpl').addEventListener('click', resetTemplate);
 
-  // processUrl button
-  document.getElementById('processUrlBtn').addEventListener('click', async () => {
-    const url = document.getElementById('targetUrl').value.trim();
-    if (!url) { showProcessStatus('❌ URLを入力してください', 'error'); return; }
-    const storage = await chrome.storage.sync.get(['profile', 'tplSubject', 'tplBody', 'tplSelfDesc']);
-    const profile = storage.profile || {};
-    const template = {
-      subject: storage.tplSubject || '{{会社名}}様へのご提案',
-      body: storage.tplBody || DEFAULT_TPL_BODY,
-      selfDesc: storage.tplSelfDesc || ''
-    };
-    showProcessStatus('⏳ 処理を開始しています...', 'info');
-    chrome.runtime.sendMessage({ action: 'processUrl', url, profile, template });
-    startProcessStatusPolling();
-  });
 });
 
 const DEFAULT_TPL_BODY = `突然のご連絡失礼いたします。{{担当者名}}と申します。
