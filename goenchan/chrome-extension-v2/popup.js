@@ -54,7 +54,7 @@ async function restoreBatchModeState() {
     // Restore saved batch URLs and settings
     const storage = await chrome.storage.local.get(['batchUrls', 'batchAutoCloseEnabled']);
     if (storage.batchUrls) {
-      document.getElementById('batchUrls')?.value = storage.batchUrls;
+      const batchUrlsEl = document.getElementById('batchUrls'); if (batchUrlsEl) batchUrlsEl.value = storage.batchUrls;
     }
     // Restore auto-close setting (default to true)
     const autoCloseCheckbox = document.getElementById('autoCloseEnabled');
@@ -74,32 +74,32 @@ async function restoreBatchModeState() {
       batchToggle.textContent = '▼ Batch Mode (一括送信)';
 
       // Update button states
-      document.getElementById('startBatch')?.disabled = true;
-      document.getElementById('nextBatch')?.disabled = false;
-      document.getElementById('stopBatch')?.disabled = false;
-      document.getElementById('batchStatus')?.style.display = 'block';
+      { const _el_startBatch = document.getElementById('startBatch'); if (_el_startBatch) _el_startBatch.disabled = true; }
+      { const _el_nextBatch = document.getElementById('nextBatch'); if (_el_nextBatch) _el_nextBatch.disabled = false; }
+      { const _el_stopBatch = document.getElementById('stopBatch'); if (_el_stopBatch) _el_stopBatch.disabled = false; }
+      { const _s_batchStatus = document.getElementById('batchStatus'); if (_s_batchStatus) _s_batchStatus.style.display = 'block'; }
 
       // Show appropriate phase
       if (status.processingPhase === 'finding_contacts') {
-        document.getElementById('findingContactsPhase')?.style.display = 'block';
-        document.getElementById('openingTabsPhase')?.style.display = 'none';
+        { const _s_findingContactsPhase = document.getElementById('findingContactsPhase'); if (_s_findingContactsPhase) _s_findingContactsPhase.style.display = 'block'; }
+        { const _s_openingTabsPhase = document.getElementById('openingTabsPhase'); if (_s_openingTabsPhase) _s_openingTabsPhase.style.display = 'none'; }
 
         const processed = status.validCount + status.skippedCount;
-        document.getElementById('contactSearchProgress')?.textContent = `${processed}/${status.total}`;
-        document.getElementById('validUrlCount')?.textContent = status.validCount;
-        document.getElementById('skippedUrlCount')?.textContent = status.skippedCount;
+        { const _el_contactSearchProgress = document.getElementById('contactSearchProgress'); if (_el_contactSearchProgress) _el_contactSearchProgress.textContent = `${processed}/${status.total}`; }
+        { const _el_validUrlCount = document.getElementById('validUrlCount'); if (_el_validUrlCount) _el_validUrlCount.textContent = status.validCount; }
+        { const _el_skippedUrlCount = document.getElementById('skippedUrlCount'); if (_el_skippedUrlCount) _el_skippedUrlCount.textContent = status.skippedCount; }
 
         const percent = status.total > 0 ? (processed / status.total) * 100 : 0;
-        document.getElementById('contactSearchBar')?.style.width = `${percent}%`;
+        { const _s_contactSearchBar = document.getElementById('contactSearchBar'); if (_s_contactSearchBar) _s_contactSearchBar.style.width = `${percent}%`; }
       } else if (status.processingPhase === 'running' || status.processingPhase === 'ready') {
-        document.getElementById('findingContactsPhase')?.style.display = 'none';
-        document.getElementById('openingTabsPhase')?.style.display = 'block';
+        { const _s_findingContactsPhase = document.getElementById('findingContactsPhase'); if (_s_findingContactsPhase) _s_findingContactsPhase.style.display = 'none'; }
+        { const _s_openingTabsPhase = document.getElementById('openingTabsPhase'); if (_s_openingTabsPhase) _s_openingTabsPhase.style.display = 'block'; }
 
-        document.getElementById('batchProgress')?.textContent = `${status.currentIndex}/${status.validCount}`;
-        document.getElementById('openTabsCount')?.textContent = status.openTabs;
+        { const _el_batchProgress = document.getElementById('batchProgress'); if (_el_batchProgress) _el_batchProgress.textContent = `${status.currentIndex}/${status.validCount}`; }
+        { const _el_openTabsCount = document.getElementById('openTabsCount'); if (_el_openTabsCount) _el_openTabsCount.textContent = status.openTabs; }
 
         const percent = status.validCount > 0 ? (status.currentIndex / status.validCount) * 100 : 0;
-        document.getElementById('batchProgressBar')?.style.width = `${percent}%`;
+        { const _s_batchProgressBar = document.getElementById('batchProgressBar'); if (_s_batchProgressBar) _s_batchProgressBar.style.width = `${percent}%`; }
       }
 
       // Start status update interval
@@ -1135,10 +1135,10 @@ document.getElementById('startBatch')?.addEventListener('click', async () => {
     });
 
     // Update UI
-    document.getElementById('startBatch')?.disabled = true;
-    document.getElementById('nextBatch')?.disabled = false;
-    document.getElementById('stopBatch')?.disabled = false;
-    document.getElementById('batchStatus')?.style.display = 'block';
+    { const _el_startBatch = document.getElementById('startBatch'); if (_el_startBatch) _el_startBatch.disabled = true; }
+    { const _el_nextBatch = document.getElementById('nextBatch'); if (_el_nextBatch) _el_nextBatch.disabled = false; }
+    { const _el_stopBatch = document.getElementById('stopBatch'); if (_el_stopBatch) _el_stopBatch.disabled = false; }
+    { const _s_batchStatus = document.getElementById('batchStatus'); if (_s_batchStatus) _s_batchStatus.style.display = 'block'; }
 
     startBatchStatusInterval();
     showStatus(`🚀 バッチ開始: ${urls.length}件のURLを処理します`, 'success');
@@ -1177,10 +1177,10 @@ document.getElementById('stopBatch')?.addEventListener('click', async () => {
     await chrome.runtime.sendMessage({ action: 'stopBatch' });
 
     // Update UI
-    document.getElementById('startBatch')?.disabled = false;
-    document.getElementById('nextBatch')?.disabled = true;
-    document.getElementById('stopBatch')?.disabled = true;
-    document.getElementById('batchStatus')?.style.display = 'none';
+    { const _el_startBatch = document.getElementById('startBatch'); if (_el_startBatch) _el_startBatch.disabled = false; }
+    { const _el_nextBatch = document.getElementById('nextBatch'); if (_el_nextBatch) _el_nextBatch.disabled = true; }
+    { const _el_stopBatch = document.getElementById('stopBatch'); if (_el_stopBatch) _el_stopBatch.disabled = true; }
+    { const _s_batchStatus = document.getElementById('batchStatus'); if (_s_batchStatus) _s_batchStatus.style.display = 'none'; }
 
     // Clear saved URLs
     await chrome.storage.local.remove(['batchUrls']);
@@ -1219,11 +1219,11 @@ async function updateBatchStatus() {
         findingPhase.style.display = 'none';
         openingPhase.style.display = 'block';
 
-        document.getElementById('batchProgress')?.textContent = `${currentIndex}/${validCount}`;
-        document.getElementById('openTabsCount')?.textContent = openTabs;
+        { const _el_batchProgress = document.getElementById('batchProgress'); if (_el_batchProgress) _el_batchProgress.textContent = `${currentIndex}/${validCount}`; }
+        { const _el_openTabsCount = document.getElementById('openTabsCount'); if (_el_openTabsCount) _el_openTabsCount.textContent = openTabs; }
 
         const percentage = validCount > 0 ? (currentIndex / validCount) * 100 : 0;
-        document.getElementById('batchProgressBar')?.style.width = `${percentage}%`;
+        { const _s_batchProgressBar = document.getElementById('batchProgressBar'); if (_s_batchProgressBar) _s_batchProgressBar.style.width = `${percentage}%`; }
 
         if (skippedCount > 0) {
           summaryText.innerHTML = `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`;
@@ -1234,9 +1234,9 @@ async function updateBatchStatus() {
 
       if (!status.isRunning && phase === 'idle' && (validCount > 0 || skippedCount > 0)) {
         // Batch complete
-        document.getElementById('startBatch')?.disabled = false;
-        document.getElementById('nextBatch')?.disabled = true;
-        document.getElementById('stopBatch')?.disabled = true;
+        { const _el_startBatch = document.getElementById('startBatch'); if (_el_startBatch) _el_startBatch.disabled = false; }
+        { const _el_nextBatch = document.getElementById('nextBatch'); if (_el_nextBatch) _el_nextBatch.disabled = true; }
+        { const _el_stopBatch = document.getElementById('stopBatch'); if (_el_stopBatch) _el_stopBatch.disabled = true; }
       }
     }
   } catch (error) {
@@ -1277,23 +1277,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (elMain) elMain.textContent = `${message.label}  ―  ${message.url}`;
 
   } else if (message.action === 'batchPhaseUpdate') {
-    document.getElementById('batchStatus')?.style.display = 'block';
+    { const _s_batchStatus = document.getElementById('batchStatus'); if (_s_batchStatus) _s_batchStatus.style.display = 'block'; }
 
     if (message.phase === 'finding_contacts') {
-      document.getElementById('findingContactsPhase')?.style.display = 'block';
-      document.getElementById('openingTabsPhase')?.style.display = 'none';
+      { const _s_findingContactsPhase = document.getElementById('findingContactsPhase'); if (_s_findingContactsPhase) _s_findingContactsPhase.style.display = 'block'; }
+      { const _s_openingTabsPhase = document.getElementById('openingTabsPhase'); if (_s_openingTabsPhase) _s_openingTabsPhase.style.display = 'none'; }
 
       const total = message.total || 0;
       const processed = message.processed || 0;
       const validCount = message.validCount || 0;
       const skippedCount = message.skippedCount || 0;
 
-      document.getElementById('contactSearchProgress')?.textContent = `${processed}/${total}`;
-      document.getElementById('validUrlCount')?.textContent = validCount;
-      document.getElementById('skippedUrlCount')?.textContent = skippedCount;
+      { const _el_contactSearchProgress = document.getElementById('contactSearchProgress'); if (_el_contactSearchProgress) _el_contactSearchProgress.textContent = `${processed}/${total}`; }
+      { const _el_validUrlCount = document.getElementById('validUrlCount'); if (_el_validUrlCount) _el_validUrlCount.textContent = validCount; }
+      { const _el_skippedUrlCount = document.getElementById('skippedUrlCount'); if (_el_skippedUrlCount) _el_skippedUrlCount.textContent = skippedCount; }
 
       const percentage = total > 0 ? (processed / total) * 100 : 0;
-      document.getElementById('contactSearchBar')?.style.width = `${percentage}%`;
+      { const _s_contactSearchBar = document.getElementById('contactSearchBar'); if (_s_contactSearchBar) _s_contactSearchBar.style.width = `${percentage}%`; }
 
       // 現在処理中のURLとステップを表示
       const curUrl = message.currentUrl || '';
@@ -1302,19 +1302,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const el = document.getElementById('contactSearchCurrentUrl');
         if (el) el.textContent = curStep ? `${curStep}  ―  ${curUrl}` : curUrl;
       }
-      document.getElementById('batchSummaryText')?.textContent = `🔍 検索中... ${processed}/${total}件処理済み`;
+      { const _el_batchSummaryText = document.getElementById('batchSummaryText'); if (_el_batchSummaryText) _el_batchSummaryText.textContent = `🔍 検索中... ${processed}/${total}件処理済み`; }
     } else if (message.phase === 'ready') {
-      document.getElementById('findingContactsPhase')?.style.display = 'none';
-      document.getElementById('openingTabsPhase')?.style.display = 'block';
+      { const _s_findingContactsPhase = document.getElementById('findingContactsPhase'); if (_s_findingContactsPhase) _s_findingContactsPhase.style.display = 'none'; }
+      { const _s_openingTabsPhase = document.getElementById('openingTabsPhase'); if (_s_openingTabsPhase) _s_openingTabsPhase.style.display = 'block'; }
 
       const validCount = message.validCount || 0;
       const skippedCount = message.skippedCount || 0;
 
       if (skippedCount > 0) {
-        document.getElementById('batchSummaryText')?.innerHTML =
-          `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`;
+        { const _ml_batchSummaryText = document.getElementById('batchSummaryText'); if (_ml_batchSummaryText) _ml_batchSummaryText.innerHTML = `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`; }
       } else {
-        document.getElementById('batchSummaryText')?.innerHTML = `✅ 有効: <strong>${validCount}</strong>件`;
+        { const _el_batchSummaryText = document.getElementById('batchSummaryText'); if (_el_batchSummaryText) _el_batchSummaryText.innerHTML = `✅ 有効: <strong>${validCount}</strong>件`; }
       }
 
       if (validCount > 0) {
@@ -1324,9 +1323,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     }
   } else if (message.action === 'batchComplete') {
-    document.getElementById('startBatch')?.disabled = false;
-    document.getElementById('nextBatch')?.disabled = true;
-    document.getElementById('stopBatch')?.disabled = true;
+    { const _el_startBatch = document.getElementById('startBatch'); if (_el_startBatch) _el_startBatch.disabled = false; }
+    { const _el_nextBatch = document.getElementById('nextBatch'); if (_el_nextBatch) _el_nextBatch.disabled = true; }
+    { const _el_stopBatch = document.getElementById('stopBatch'); if (_el_stopBatch) _el_stopBatch.disabled = true; }
 
     stopBatchStatusInterval();
 
@@ -1343,8 +1342,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       showStatus(`✅ バッチ完了: ${validCount}件処理 (${skipped}件スキップ)`, 'success');
     }
 
-    document.getElementById('batchSummaryText')?.innerHTML =
-      `完了: <strong>${completed}</strong>件送信 / スキップ: <strong>${skipped}</strong>件`;
+    { const _ml_batchSummaryText = document.getElementById('batchSummaryText'); if (_ml_batchSummaryText) _ml_batchSummaryText.innerHTML = `完了: <strong>${completed}</strong>件送信 / スキップ: <strong>${skipped}</strong>件`; }
   }
 });
 
