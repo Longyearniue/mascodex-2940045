@@ -1436,7 +1436,8 @@ function detectPlatform() {
   const meta = document.querySelector('meta[name="generator"]')?.content || '';
   if (html.includes('ec-cube') || html.includes('eccube') || meta.includes('EC-CUBE')) return 'ec-cube';
   if (html.includes('makeshop') || html.includes('MakeShop')) return 'makeshop';
-  if (html.includes('shopify') || html.includes('Shopify')) return 'shopify';
+  if (html.includes('shopify') || html.includes('Shopify') ||
+      document.querySelector('input[name^="contact["]')) return 'shopify';
   if (html.includes('wix.com') || html.includes('wixstatic')) return 'wix';
   if (html.includes('wordpress') || meta.includes('WordPress')) return 'wordpress';
   if (html.includes('formzu') || html.includes('formzu.net')) return 'formzu';
@@ -1469,6 +1470,13 @@ function getPlatformMappings(platform) {
       email: ['input[name="email"]', 'input[type="email"]'],
       phone: ['input[name="phone"]', 'input[type="tel"]'],
       message: ['textarea']
+    },
+    'shopify': {
+      name: ['input[name="contact[name]"]'],
+      nameKana: ['input[name="contact[furigana]"]', 'input[name="contact[kana]"]'],
+      email: ['input[name="contact[email]"]'],
+      phone: ['input[name="contact[phone]"]', 'input[name="contact[tel]"]'],
+      message: ['textarea[name="contact[body]"]', 'textarea[name="contact[message]"]']
     }
   };
   return patterns[platform] || {};
@@ -2946,6 +2954,14 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="email"]', confidence: 100 },
     emailConfirm: { selector: 'input[name="email2"]', confidence: 100 },
     message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  'sakai-tohji.co.jp/pages/contact': {
+    company_url: 'https://sakai-tohji.co.jp/',
+    name: { selector: 'input[name="contact[name]"]', confidence: 100 },
+    nameKana: { selector: 'input[name="contact[furigana]"]', confidence: 100 },
+    email: { selector: 'input[name="contact[email]"]', confidence: 100 },
+    phone: { selector: 'input[name="contact[phone]"]', confidence: 100 },
+    message: { selector: 'textarea[name="contact[body]"]', confidence: 100 }
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
