@@ -46,7 +46,7 @@ fetch('/api/radio/JP${code}')
     if(eps.length>1){ar.innerHTML='<div style="font-size:.8rem;opacity:.45;margin-bottom:8px">📚 バックナンバー</div>'+eps.slice(1).map(function(ep){return'<div class="radio-archive-item"><span class="radio-date">'+ep.date+'</span><audio controls style="flex:1;height:32px" src="'+ep.audio_url+'"></audio></div>';}).join('');}
   })
   .catch(function(){document.getElementById('radio-player-area').innerHTML='<span style="opacity:.4;font-size:.85rem">ラジオを読み込めませんでした</span>';});
-})();</script>`;
+})();<\/script>`;
 
   html = html.replace('<div class="links">', radioSection + '<div class="links">');
 
