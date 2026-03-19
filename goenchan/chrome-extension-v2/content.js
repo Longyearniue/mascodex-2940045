@@ -2520,6 +2520,24 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
     message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
   },
+  'www.marunaka-shouyu.com/contact': {
+    company_url: 'https://www.marunaka-shouyu.com/',
+    name1: { selector: 'input[name="name01"]', confidence: 100 },
+    name2: { selector: 'input[name="name02"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="kana01"]', confidence: 100 },
+    name_kana2: { selector: 'input[name="kana02"]', confidence: 100 },
+    zipcode1: { selector: 'input[name="zip01"]', confidence: 100 },
+    zipcode2: { selector: 'input[name="zip02"]', confidence: 100 },
+    prefecture: { selector: 'select[name="pref"]', confidence: 100 },
+    city: { selector: 'input[name="addr01"]', confidence: 100 },
+    street: { selector: 'input[name="addr02"]', confidence: 100 },
+    tel1: { selector: 'input[name="tel01"]', confidence: 100 },
+    tel2: { selector: 'input[name="tel02"]', confidence: 100 },
+    tel3: { selector: 'input[name="tel03"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
+    message: { selector: 'textarea[name="contents"]', confidence: 100 }
+  },
   'www.katou-shouyu.co.jp/FORM/contact.cgi': {
     company_url: 'https://www.katou-shouyu.co.jp/',
     name1: { selector: 'input[name="Form01"]', confidence: 100 },
