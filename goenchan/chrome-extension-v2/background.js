@@ -1290,7 +1290,7 @@ async function handleVerificationResult(verification, url, tabId) {
 
   // If page is invalid (error page or no form), close immediately (if auto-close enabled)
   if (status === 'page_invalid') {
-    const shouldClose = batchState.autoCloseEnabled !== false;
+    const shouldClose = false; // 自動クローズ無効化
 
     if (shouldClose) {
       console.log(`[Batch] ❌ Tab ${tabId} CLOSING - Invalid page: ${pageInvalidReason}`);
@@ -1364,7 +1364,7 @@ async function handleVerificationResult(verification, url, tabId) {
     }
 
     // Check if auto-close is enabled
-    const shouldClose = batchState.autoCloseEnabled !== false;
+    const shouldClose = false; // 自動クローズ無効化
 
     if (shouldClose) {
       console.log(`[Batch] ❌ Tab ${tabId} CLOSING - Form not properly filled`);
