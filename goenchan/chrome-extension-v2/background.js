@@ -1099,6 +1099,8 @@ async function openNextBatch() {
       });
       firstTab = false;
       batchState.openTabs.push(tab.id);
+      // タブを1つずつ間隔を空けて開く（一気に大量タブが開くのを防ぐ）
+      await new Promise(r => setTimeout(r, 400));
 
       // Store tab info with both original and contact page URL
       await chrome.storage.local.set({
@@ -1834,13 +1836,7 @@ async function findContactPageEnhanced(baseUrl) {
   const short = baseUrl.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 40);
 
   const notify = (step, label) => {
-    chrome.runtime.sendMessage({
-      action: 'contactSearchStep',
-      url: short,
-      step,
-      label
-    }).catch(() => {});
-    // batchPhaseUpdate も同時送信して検索済みカウントをリアルタイム更新
+    chrome.runtime.sendMessage({ action: 'contactSearchStep', url: short, step, label }).catch(() => {});
     if (batchState && batchState.isRunning) {
       chrome.runtime.sendMessage({
         action: 'batchPhaseUpdate',
@@ -1855,52 +1851,58 @@ async function findContactPageEnhanced(baseUrl) {
     }
   };
 
-  // Step 1: 既存の高速チェック（サイトマップ + 並列HEAD）
-  notify(1, `📡 サイトマップ確認中`);
+  // URL全体に 12秒のハードタイムアウト
+  const withTimeout = (promise, ms) =>
+    Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('step timeout')), ms))]);
+
   let url = null;
-  try { url = await findContactPageClientSide(baseUrl); } catch(e) {}
+
+  // Step 1: 高速チェック（サイトマップ + 並列HEAD）— 5秒
+  notify(1, `📡 サイトマップ確認中`);
+  try { url = await withTimeout(findContactPageClientSide(baseUrl), 5000); } catch(e) {}
   if (url) { notify(1, `✅ サイトマップで発見`); return url; }
 
-  // Step 2: HTMLを1回取得して以降のステップで共有
-  notify(2, `🌐 HTMLを取得中`);
+  // Step 2: HTML取得 — 4秒
+  notify(2, `🌐 HTML取得中`);
   let html = '';
   try {
-    const res = await fetch(baseUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(6000) });
+    const res = await fetch(baseUrl, { signal: AbortSignal.timeout(4000) });
     html = await res.text();
   } catch(e) {}
 
-  // Step 3: header/footer DOM解析 + ブルートフォース を並列
-  notify(3, `🦶 header/footer + ブルートフォース`);
-  const [footerResult, bruteResult] = await Promise.allSettled([
-    findContactByFooterScan(html, baseUrl),
-    findContactByBruteForce(baseUrl),
-  ]);
-  url = (footerResult.status === 'fulfilled' ? footerResult.value : null)
-      || (bruteResult.status === 'fulfilled' ? bruteResult.value : null);
-  if (url) { notify(3, `✅ header/footer/brute で発見`); return url; }
+  // Step 3: footer + ブルートフォース 並列 — 6秒
+  notify(3, `🦶 footer/ブルートフォース`);
+  try {
+    const [fr, br] = await Promise.allSettled([
+      withTimeout(findContactByFooterScan(html, baseUrl), 5000),
+      withTimeout(findContactByBruteForce(baseUrl), 6000),
+    ]);
+    url = (fr.status === 'fulfilled' ? fr.value : null) || (br.status === 'fulfilled' ? br.value : null);
+  } catch(e) {}
+  if (url) { notify(3, `✅ footer/bruteで発見`); return url; }
 
-  // Step 4: Google site:検索
-  notify(4, `🔍 Google検索中`);
-  try { url = await findContactByGoogleSearch(baseUrl); } catch(e) {}
-  if (url) { notify(4, `✅ Googleで発見`); return url; }
+  // Step 4: DuckDuckGo検索 — 6秒
+  notify(4, `🔍 DuckDuckGo検索中`);
+  try { url = await withTimeout(findContactByGoogleSearch(baseUrl), 6000); } catch(e) {}
+  if (url) { notify(4, `✅ DDGで発見`); return url; }
 
-  // Step 5: Wayback Machine
-  notify(5, `🕰️ Wayback Machine 検索中`);
-  try { url = await findContactByWayback(baseUrl); } catch(e) {}
-  if (url) { notify(5, `✅ Wayback で発見`); return url; }
+  // Step 5: Wayback Machine — 8秒（並列だが全体を制限）
+  notify(5, `🕰️ Wayback検索中`);
+  try { url = await withTimeout(findContactByWayback(baseUrl), 8000); } catch(e) {}
+  if (url) { notify(5, `✅ Waybackで発見`); return url; }
 
-  // Step 6: AI リンクスコアリング
-  notify(6, `🤖 AI リンク解析中`);
+  // Step 6: AI リンクスコアリング — 10秒
+  notify(6, `🤖 AIリンク解析中`);
   try {
     const storage = await chrome.storage.sync.get(['deepseekApiKey']);
-    url = await findContactByAI(html, baseUrl, storage.deepseekApiKey);
+    url = await withTimeout(findContactByAI(html, baseUrl, storage.deepseekApiKey), 10000);
   } catch(e) {}
-  if (url) { notify(6, `✅ AI で発見`); return url; }
+  if (url) { notify(6, `✅ AIで発見`); return url; }
 
-  // Step 7: 既存の humanStyle フォールバック
-  notify(7, `🧭 ナビゲーション探索中`);
-  try { url = await findContactPageHumanStyle(baseUrl); } catch(e) {}
-  if (url) { notify(7, `✅ ナビゲーションで発見`); return url; }
+  // Step 7: humanStyle — 8秒（最後の手段）
+  notify(7, `🧭 ナビ探索中`);
+  try { url = await withTimeout(findContactPageHumanStyle(baseUrl), 8000); } catch(e) {}
+  if (url) { notify(7, `✅ ナビで発見`); return url; }
 
   notify(0, `❌ 未発見`);
   return null;
