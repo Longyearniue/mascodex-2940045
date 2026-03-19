@@ -4073,6 +4073,34 @@ function formatPhoneForField(phone, field) {
   return phone;
 }
 
+// カタカナ→ひらがな変換
+function toHiragana(str) {
+  return str.replace(/[ァ-ン]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+// フィールドがひらがなを期待しているか判定
+function expectsHiragana(field) {
+  const attrs = [
+    field.placeholder || '',
+    field.getAttribute('aria-label') || '',
+    field.name || '',
+    field.id || ''
+  ].join(' ');
+  // ラベルも確認
+  let labelText = '';
+  if (field.id) {
+    const lbl = document.querySelector('label[for="' + field.id + '"]');
+    if (lbl) labelText = lbl.textContent;
+  }
+  const combined = (attrs + ' ' + labelText).toLowerCase();
+  // placeholderにひらがなが含まれていればひらがなフィールド
+  if (/[ぁ-ん]/.test(combined)) return true;
+  // よみがな・ひらがなキーワード
+  if (/よみがな|ひらがな|yomigana/.test(combined)) return true;
+  return false;
+}
+
+
 function setNativeValue(el, value) {
   const inputProto = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');
   const textareaProto = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
@@ -4102,6 +4130,10 @@ function fillField(field, value, type, fieldType = null) {
     let formattedValue = value;
     if (type === 'tel' || fieldType === 'phone') {
       formattedValue = formatPhoneForField(value, field);
+    }
+    // ふりがなフィールドにカタカナを入力する場合、ひらがなに変換
+    if ((fieldType === 'name_kana' || fieldType === 'last_name_kana' || fieldType === 'first_name_kana' || fieldType === 'company_kana') && expectsHiragana(field)) {
+      formattedValue = toHiragana(formattedValue);
     }
     setNativeValue(field, formattedValue);
   }
