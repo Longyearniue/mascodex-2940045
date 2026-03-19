@@ -903,7 +903,12 @@ function analyzeFieldSemantics(field) {
     'カナ姓': 'name_kana1', 'カナ名': 'name_kana2',
     'メールアドレス': 'email', 'メール': 'email',
     '電話番号': 'phone', 'TEL': 'phone', '電話': 'phone',
+    '電話番号01': 'phone1', '電話番号1': 'phone1',
+    '電話番号02': 'phone2', '電話番号2': 'phone2',
+    '電話番号03': 'phone3', '電話番号3': 'phone3',
     '郵便番号': 'zipcode', '〒': 'zipcode',
+    '郵便番号01': 'zipcode1', '郵便番号1': 'zipcode1',
+    '郵便番号02': 'zipcode2', '郵便番号2': 'zipcode2',
     '都道府県': 'prefecture', '市区町村': 'city', '住所': 'address',
     'お問い合わせ内容': 'message', 'お問合せ内容': 'message',
   };
