@@ -1687,7 +1687,7 @@ async function autoFillForm(profile) {
     if (!isVisible(el) || isAlreadyFilled(el)) return;
     const label = getFieldLabel ? getFieldLabel(el) : '';
     const cleaned = label.replace(/[（）()\[\]【】*＊\s　必須required]/g, '').trim();
-    const attrs = (el.name + ' ' + el.id + ' ' + el.placeholder).toLowerCase();
+    const attrs = ((el.name||'') + ' ' + (el.id||'') + ' ' + (el.placeholder||'')).toLowerCase();
 
     let fieldType = null;
     // 姓判定
@@ -2086,7 +2086,7 @@ async function autoFillForm(profile) {
   if (profile.email) {
     document.querySelectorAll('input[type="text"], input[type="email"], input').forEach(el => {
       if (!isVisible(el)) return;
-      const attrs = [el.name, el.id, el.placeholder, el.getAttribute('aria-label')].join(' ').toLowerCase();
+      const attrs = [el.name||'', el.id||'', el.placeholder||'', el.getAttribute('aria-label')||''].join(' ').toLowerCase();
       if (/confirm|確認|再入力|check|verify|再度|もう一度/.test(attrs) && /mail|email/.test(attrs)) {
         if (!el.value) {
           setNativeValue(el, profile.email);
@@ -4473,7 +4473,7 @@ function generateRequiredMarksMapping(fields) {
   };
 
   fields.forEach(field => {
-    const name = field.getAttribute('name') || '';
+    const name = (field.getAttribute('name') || '').trim();
     // Strip required marks
     const cleanName = name.replace(requiredRegex, '').trim();
 
@@ -5242,6 +5242,7 @@ function setNativeValue(el, value) {
 }
 
 function fillField(field, value, type, fieldType = null) {
+  if (!field) return; // null guard
   // Layer 0b で姓/名分割済みフィールドは上書きしない
   if (field.dataset.autofilledSplit === '1') return;
   if (type === 'checkbox' || type === 'radio') {

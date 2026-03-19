@@ -1238,10 +1238,19 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
           };
           console.log('[Batch] Sending profile to tab, companyName:', profileWithMessage.companyName, 'prefecture:', profileWithMessage.prefecture);
 
-          await chrome.tabs.sendMessage(tabId, {
-            action: 'batchAutoFill',
-            profile: profileWithMessage
-          });
+          // content scriptが準備できるまでリトライ（最大3回）
+          for (let retry = 0; retry < 3; retry++) {
+            try {
+              await chrome.tabs.sendMessage(tabId, { action: 'batchAutoFill', profile: profileWithMessage });
+              break;
+            } catch (e) {
+              if (retry < 2) {
+                await new Promise(r => setTimeout(r, 1500));
+              } else {
+                console.error('[Batch] Error sending auto-fill message:', e);
+              }
+            }
+          }
         } catch (e) {
           console.error('[Batch] Error sending auto-fill message:', e);
         }
