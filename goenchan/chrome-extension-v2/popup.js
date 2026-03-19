@@ -1070,11 +1070,33 @@ function getCurrentProfile() {
 }
 
 async function getCurrentProfileWithTemplate() {
-  const profile = getCurrentProfile();
+  // storageから読む（UIフィールドが空でも確実に取得）
+  const data = await chrome.storage.sync.get(['profile', 'tplBody', 'tplSubject', 'deepseekApiKey']);
+  const saved = data.profile || {};
+  // UIフィールドが埋まっていればそちらを優先、なければstorage値
+  const get = id => { const el = document.getElementById(id); return (el && el.value) ? el.value : ''; };
+  const profile = {
+    company:          get('company')          || saved.company          || '',
+    name:             get('name')             || saved.name             || '',
+    name_kana:        get('name_kana')        || saved.name_kana        || '',
+    last_name:        get('last_name')        || saved.last_name        || '',
+    first_name:       get('first_name')       || saved.first_name       || '',
+    last_name_kana:   get('last_name_kana')   || saved.last_name_kana   || '',
+    first_name_kana:  get('first_name_kana')  || saved.first_name_kana  || '',
+    email:            get('email')            || saved.email            || '',
+    phone:            get('phone')            || saved.phone            || '',
+    zipcode:          get('zipcode')          || saved.zipcode          || '',
+    address:          get('address')          || saved.address          || '',
+    prefecture:       get('prefecture')       || saved.prefecture       || '',
+    city:             get('city')             || saved.city             || '',
+    street:           get('street')           || saved.street           || '',
+    department:       get('department')       || saved.department       || '',
+    subject:          get('subject')          || saved.subject          || '',
+    message:          get('message')          || saved.message          || ''
+  };
   // 原稿タブのテンプレートをmessageとして使用
-  const data = await chrome.storage.sync.get(['tplBody', 'tplSubject', 'tplSelfDesc']);
   if (data.tplBody) profile.message = data.tplBody;
-  if (data.tplSubject) profile.subject = profile.subject || data.tplSubject;
+  if (data.tplSubject && !profile.subject) profile.subject = data.tplSubject;
   return profile;
 }
 
@@ -1514,13 +1536,18 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) { alert('バッチ開始エラー: ' + e.message); console.error(e); }
   });
 
-  document.getElementById('nextBatchMain')?.addEventListener('click', () => {
-    document.getElementById('nextBatch')?.click();
+  document.getElementById('nextBatchMain')?.addEventListener('click', async () => {
+    const resp = await chrome.runtime.sendMessage({ action: 'nextBatch' });
+    console.log('[Batch] nextBatch:', resp);
   });
 
-  document.getElementById('stopBatchMain')?.addEventListener('click', () => {
-    document.getElementById('stopBatch')?.click();
+  document.getElementById('stopBatchMain')?.addEventListener('click', async () => {
+    const resp = await chrome.runtime.sendMessage({ action: 'stopBatch' });
+    console.log('[Batch] stopBatch:', resp);
     stopBatchMainPolling();
+    document.getElementById('startBatchMain').disabled = false;
+    document.getElementById('nextBatchMain').disabled = true;
+    document.getElementById('stopBatchMain').disabled = true;
   });
 });
 
