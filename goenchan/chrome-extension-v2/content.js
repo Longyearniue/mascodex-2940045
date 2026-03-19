@@ -1720,7 +1720,7 @@ async function autoFillForm(profile) {
         if (element && isVisible(element)) {
           // Use fieldConfig.type if specified, otherwise use element.type
           const fieldType = fieldConfig.type || element.type;
-          fillField(element, value, fieldType);
+          fillField(element, value, fieldType, key);  // key を fieldType として渡しひらがな/カタカナ変換に使う
           filledFields.add(element);
           debugInfo.fieldsFilled++;
 
@@ -2970,6 +2970,15 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="your-email"]', confidence: 100 },
     phone: { selector: 'input[name="tel-386"]', confidence: 100 },
     message: { selector: 'textarea', confidence: 90 }
+  },
+  'www.niigata-nosho.com/login/inquiryedit': {
+    company_url: 'https://www.niigata-nosho.com/',
+    name1: { selector: 'input[name="lastName1"]', confidence: 100 },
+    name2: { selector: 'input[name="firstName1"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="lastKanaName1"]', confidence: 100 },
+    name_kana2: { selector: 'input[name="firstKanaName1"]', confidence: 100 },
+    email: { selector: 'input[name="mail2"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="confirm2"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
@@ -5030,7 +5039,7 @@ function fillField(field, value, type, fieldType = null) {
       formattedValue = formatPhoneForField(value, field);
     }
     // ふりがなフィールド: ひらがな期待→カタカナをひらがなに変換、カタカナ期待→ひらがなをカタカナに変換
-    if (fieldType === 'name_kana' || fieldType === 'last_name_kana' || fieldType === 'first_name_kana' || fieldType === 'company_kana') {
+    if (fieldType && (fieldType === 'name_kana' || fieldType === 'last_name_kana' || fieldType === 'first_name_kana' || fieldType === 'company_kana' || fieldType === 'nameKana' || /name_kana[12]|kana/.test(fieldType))) {
       if (expectsHiragana(field)) {
         formattedValue = toHiragana(formattedValue);
       } else if (expectsKatakana(field)) {
