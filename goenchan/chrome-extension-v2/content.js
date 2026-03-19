@@ -825,7 +825,7 @@ function analyzeFieldSemantics(field) {
   // This is highest priority because these short labels are often right before the input
   const immediateText = getImmediatePrecedingText(field);
   if (immediateText) {
-    const cleanImmediate = immediateText.replace(/[※＊\*\s（）()]/g, '').trim();
+    const cleanImmediate = (immediateText||'').replace(/[※＊\*\s（）()]/g, '').trim();
     // Check for split name field patterns - exact match OR ends with pattern
     const splitNamePatterns = {
       'name_sei': { exact: ['姓'], endsWith: ['姓', '氏名姓'] },
@@ -1686,7 +1686,7 @@ async function autoFillForm(profile) {
   document.querySelectorAll('input[type="text"], input:not([type])').forEach(el => {
     if (!isVisible(el) || isAlreadyFilled(el)) return;
     const label = getFieldLabel ? getFieldLabel(el) : '';
-    const cleaned = label.replace(/[（）()\[\]【】*＊\s　必須required]/g, '').trim();
+    const cleaned = (label||'').replace(/[（）()\[\]【】*＊\s　必須required]/g, '').trim();
     const attrs = ((el.name||'') + ' ' + (el.id||'') + ' ' + (el.placeholder||'')).toLowerCase();
 
     let fieldType = null;
@@ -6074,9 +6074,9 @@ async function pass7AIVerify(profile) {
     max-width:360px; box-shadow:0 4px 16px rgba(0,0,0,0.4);
     font-family:sans-serif; font-size:12px; line-height:1.5;
   `;
-  document.body.appendChild(banner);
+  if (document.body) document.body.appendChild(banner);
   // 20秒後に自動消去
-  setTimeout(() => banner.remove(), 20000);
+  setTimeout(() => banner?.remove(), 20000);
 }
 
 // ==================== フォーム検証ボタン ====================
@@ -6181,7 +6181,7 @@ function injectVerifyButton() {
     });
   });
 
-  document.body.appendChild(btn);
+  if (document.body) document.body.appendChild(btn);
 }
 
 // DOMロード後1.5秒でボタン注入
