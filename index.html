@@ -208,7 +208,7 @@
     async function loadLiveFeed() {
       try {
         // フィードから最新50件取得
-        const res = await fetch(SOCIAL + '/feed?limit=50').catch(() => null);
+        const res = await fetch(SOCIAL + '/feed?limit=50&_t=' + Date.now(), {cache:'no-store'}).catch(() => null);
         if (!res?.ok) return;
         const data = await res.json();
         const posts = Array.isArray(data) ? data : (data.posts || []);
@@ -240,7 +240,7 @@
     let _lastTickerId = null;
     async function updateTicker() {
       try {
-        const res = await fetch(SOCIAL + '/feed?limit=1').catch(()=>null);
+        const res = await fetch(SOCIAL + '/feed?limit=1&_t=' + Date.now(), {cache:'no-store'}).catch(()=>null);
         if (!res || !res.ok) return;
         const data = await res.json();
         const posts = Array.isArray(data) ? data : (data.posts || []);
@@ -266,11 +266,11 @@
       } catch(e) {}
     }
     updateTicker();
-    setInterval(updateTicker, 30000);
+    setInterval(updateTicker, 10000);
 
     loadLiveFeed();
     // 3分ごとに更新
-    setInterval(loadLiveFeed, 30000);
+    setInterval(loadLiveFeed, 20000);
   })();
   </script>
 
