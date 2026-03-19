@@ -252,8 +252,16 @@
       <div class="collapsible-content" id="profileContent">
         <div class="form-group"><label for="company">Company / 会社名</label><input type="text" id="company" placeholder="株式会社サンプル"></div>
         <div class="form-group"><label for="company_kana">Company Kana / 会社名フリガナ</label><input type="text" id="company_kana" placeholder="カブシキガイシャサンプル"></div>
-        <div class="form-group"><label for="name">Name / 氏名</label><input type="text" id="name" placeholder="山田太郎"></div>
-        <div class="form-group"><label for="name_kana">Name Kana / フリガナ</label><input type="text" id="name_kana" placeholder="ヤマダタロウ"></div>
+        <div class="form-group"><label for="name">Name / 氏名（フルネーム）</label><input type="text" id="name" placeholder="山田太郎"></div>
+        <div style="display:flex;gap:6px;">
+          <div class="form-group" style="flex:1"><label for="last_name">姓（Last Name）</label><input type="text" id="last_name" placeholder="山田"></div>
+          <div class="form-group" style="flex:1"><label for="first_name">名（First Name）</label><input type="text" id="first_name" placeholder="太郎"></div>
+        </div>
+        <div class="form-group"><label for="name_kana">Name Kana / フリガナ（フル）</label><input type="text" id="name_kana" placeholder="ヤマダタロウ"></div>
+        <div style="display:flex;gap:6px;">
+          <div class="form-group" style="flex:1"><label for="last_name_kana">姓カナ</label><input type="text" id="last_name_kana" placeholder="ヤマダ"></div>
+          <div class="form-group" style="flex:1"><label for="first_name_kana">名カナ</label><input type="text" id="first_name_kana" placeholder="タロウ"></div>
+        </div>
         <div class="form-group"><label for="email">Email</label><input type="email" id="email" placeholder="yamada@example.com"></div>
         <div class="form-group"><label for="phone">Phone / 電話番号</label><input type="text" id="phone" placeholder="03-1234-5678"></div>
         <div class="form-group"><label for="zipcode">Zipcode / 郵便番号</label><input type="text" id="zipcode" placeholder="294-0045"></div>

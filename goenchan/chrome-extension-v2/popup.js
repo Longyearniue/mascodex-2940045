@@ -169,6 +169,10 @@ async function loadProfile() {
     document.getElementById('company_kana').value = data.profile.company_kana || '';
     document.getElementById('name').value = data.profile.name || '';
     document.getElementById('name_kana').value = data.profile.name_kana || '';
+    document.getElementById('last_name').value = data.profile.last_name || '';
+    document.getElementById('first_name').value = data.profile.first_name || '';
+    document.getElementById('last_name_kana').value = data.profile.last_name_kana || '';
+    document.getElementById('first_name_kana').value = data.profile.first_name_kana || '';
     document.getElementById('email').value = data.profile.email || '';
     document.getElementById('phone').value = data.profile.phone || '';
     document.getElementById('zipcode').value = data.profile.zipcode || '';
@@ -190,6 +194,10 @@ document.getElementById('saveProfile').addEventListener('click', async () => {
     company_kana: document.getElementById('company_kana').value,
     name: document.getElementById('name').value,
     name_kana: document.getElementById('name_kana').value,
+    last_name: document.getElementById('last_name').value,
+    first_name: document.getElementById('first_name').value,
+    last_name_kana: document.getElementById('last_name_kana').value,
+    first_name_kana: document.getElementById('first_name_kana').value,
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     zipcode: document.getElementById('zipcode').value,
@@ -983,6 +991,10 @@ function getCurrentProfile() {
     company: document.getElementById('company').value,
     name: document.getElementById('name').value,
     name_kana: document.getElementById('name_kana').value,
+    last_name: document.getElementById('last_name').value,
+    first_name: document.getElementById('first_name').value,
+    last_name_kana: document.getElementById('last_name_kana').value,
+    first_name_kana: document.getElementById('first_name_kana').value,
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     zipcode: document.getElementById('zipcode').value,

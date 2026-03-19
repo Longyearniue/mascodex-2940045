@@ -1161,8 +1161,14 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
 // ===== FINGERPRINT ENGINE =====
 function inferFieldTypeFromLabel(label) {
   const l = label.toLowerCase().replace(/[（）()【】\s　]/g, '');
-  if (/フリガナ|ふりがな|かな|kana/.test(l)) return 'name_kana';
+  if (/フリガナ|ふりがな|かな|kana/.test(l)) {
+    if (/姓|せい|last|surname|family/.test(l)) return 'last_name_kana';
+    if (/名|めい|first|given/.test(l)) return 'first_name_kana';
+    return 'name_kana';
+  }
   if (/会社|企業|法人|company|corporation/.test(l)) return 'company';
+  if (/^姓$|^せい$|last.*name|surname|family.*name|名字|みょうじ/.test(l)) return 'last_name';
+  if (/^名$|^めい$|first.*name|given.*name|^名前$/.test(l)) return 'first_name';
   if (/名前|氏名|お名前|姓名|fullname|yourname/.test(l)) return 'name';
   if (/メール|email|mail/.test(l)) return 'email';
   if (/電話|tel|phone|携帯/.test(l)) return 'phone';
@@ -4252,31 +4258,34 @@ function parseAddress(fullAddress) {
 
 function getProfileValue(profile, key) {
   // Handle split name fields (姓/名)
-  if (key === 'name1' || key === 'name2' || key === 'name_sei' || key === 'name_mei') {
+  if (key === 'name1' || key === 'name2' || key === 'name_sei' || key === 'name_mei' || key === 'last_name' || key === 'first_name') {
+    const isSei = (key === 'name1' || key === 'name_sei' || key === 'last_name');
+    // 直接入力された姓/名を優先
+    if (isSei && profile.last_name) return profile.last_name;
+    if (!isSei && profile.first_name) return profile.first_name;
+    // スペース区切りでフルネームを分割
     const fullName = profile.name || '';
-    // Split by whitespace (half-width or full-width)
     const parts = fullName.split(/[\s　]+/).filter(p => p.length > 0);
-    const isSei = (key === 'name1' || key === 'name_sei');
     if (parts.length >= 2) {
       return isSei ? parts[0] : parts.slice(1).join(' ');
     }
-    // If no space, return full name for sei, empty for mei
-    // User should add a space between surname and given name
-    console.log(`[Profile] Name "${fullName}" has no space separator - returning ${isSei ? 'full name as sei' : 'empty for mei'}`);
+    console.log(`[Profile] Name "${fullName}" has no space separator`);
     return isSei ? fullName : '';
   }
 
   // Handle split name_kana fields (セイ/メイ)
-  if (key === 'name_kana1' || key === 'name_kana2' || key === 'name_sei_kana' || key === 'name_mei_kana') {
+  if (key === 'name_kana1' || key === 'name_kana2' || key === 'name_sei_kana' || key === 'name_mei_kana' || key === 'last_name_kana' || key === 'first_name_kana') {
+    const isSei = (key === 'name_kana1' || key === 'name_sei_kana' || key === 'last_name_kana');
+    // 直接入力されたカナ姓/名を優先
+    if (isSei && profile.last_name_kana) return profile.last_name_kana;
+    if (!isSei && profile.first_name_kana) return profile.first_name_kana;
+    // スペース区切りでフルカナを分割
     const fullKana = profile.name_kana || '';
-    // Split by whitespace (half-width or full-width)
     const parts = fullKana.split(/[\s　]+/).filter(p => p.length > 0);
-    const isSei = (key === 'name_kana1' || key === 'name_sei_kana');
     if (parts.length >= 2) {
       return isSei ? parts[0] : parts.slice(1).join(' ');
     }
-    // If no space, return full kana for sei, empty for mei
-    console.log(`[Profile] Name kana "${fullKana}" has no space separator - returning ${isSei ? 'full kana as sei' : 'empty for mei'}`);
+    console.log(`[Profile] Name kana "${fullKana}" has no space separator`);
     return isSei ? fullKana : '';
   }
 
