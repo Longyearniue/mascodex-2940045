@@ -2550,6 +2550,14 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'www.yokoo.co.jp': {
+    company_url: 'https://www.yokoo.co.jp/',
+    name1: { selector: 'input[name="氏名"]', confidence: 100 },
+    company: { selector: 'input[name="会社名"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    phone: { selector: 'input[name="phone"]', confidence: 100 },
+    message: { selector: '#textarea_comp-lnv5tx9e4', confidence: 100 }
+  },
   'suigei.co.jp/contact': {
     company_url: 'https://suigei.co.jp/',
     name1: { selector: 'input[name="text-name"]', confidence: 100 },
