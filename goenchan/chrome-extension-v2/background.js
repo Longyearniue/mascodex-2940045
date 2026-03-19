@@ -289,6 +289,18 @@ ${profileText}
     // Store verification result for batch mode
     handleVerificationResult(message.verification, message.url, sender.tab?.id);
     sendResponse({ success: true });
+  } else if (message.action === 'verifyForm') {
+    // フォーム検証: ローカルサーバー(7788)にPOSTしてClaude Codeを起動
+    fetch('http://localhost:7788/verify-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message.data || message)
+    }).then(r => r.json()).then(res => {
+      sendResponse({ success: true, message: res.message });
+    }).catch(err => {
+      sendResponse({ success: false, error: err.message });
+    });
+    return true;
   }
   return true;
 });

@@ -6065,3 +6065,124 @@ async function pass7AIVerify(profile) {
   // 20秒後に自動消去
   setTimeout(() => banner.remove(), 20000);
 }
+
+// ==================== フォーム検証ボタン ====================
+function injectVerifyButton() {
+  if (document.getElementById('goen-verify-btn')) return;
+  if (!document.querySelector('form')) return;
+
+  const btn = document.createElement('button');
+  btn.id = 'goen-verify-btn';
+  btn.textContent = '🔍 フォーム検証';
+  btn.style.cssText = `
+    position: fixed;
+    top: 60px;
+    right: 12px;
+    z-index: 2147483647;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-family: sans-serif;
+    line-height: 1.4;
+  `;
+
+  btn.addEventListener('click', () => {
+    btn.textContent = '⏳ 収集中...';
+    btn.disabled = true;
+
+    const fields = [];
+    document.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.type === 'hidden' || el.type === 'submit' || el.type === 'button' || el.type === 'image' || el.type === 'reset') return;
+      let label = '';
+      if (el.id) {
+        const l = document.querySelector(`label[for="${el.id}"]`);
+        if (l) label = l.textContent.trim();
+      }
+      if (!label) {
+        const p = el.closest('label');
+        if (p) label = p.textContent.replace(el.value, '').trim();
+      }
+      if (!label) {
+        const prev = el.previousElementSibling;
+        if (prev && ['LABEL','SPAN','DT','TH','P'].includes(prev.tagName)) label = prev.textContent.trim();
+      }
+      fields.push({
+        name: el.name || '',
+        id: el.id || '',
+        type: el.type || el.tagName.toLowerCase(),
+        label: label.substring(0, 80),
+        placeholder: (el.placeholder || '').substring(0, 80),
+        value: el.value || '',
+        filled: !!(el.value && el.value.trim()),
+        ariaLabel: (el.getAttribute('aria-label') || '').substring(0, 80),
+        classes: el.className ? el.className.substring(0, 100) : ''
+      });
+    });
+
+    const formEl = document.forms[0];
+    const formHtml = formEl ? formEl.outerHTML.substring(0, 8000) : '';
+
+    chrome.runtime.sendMessage({
+      action: 'verifyForm',
+      data: {
+        url: location.href,
+        title: document.title,
+        formHtml,
+        fields,
+        profileUsed: window.__goenProfile || null,
+        passCount: window.__goenPassCount || null,
+        timestamp: new Date().toISOString()
+      }
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        btn.textContent = '❌ 拡張エラー';
+        btn.style.background = '#dc2626';
+        btn.disabled = false;
+        return;
+      }
+      if (response && response.success) {
+        btn.textContent = '✅ Claude Code起動中';
+        btn.style.background = '#2563eb';
+        setTimeout(() => {
+          btn.textContent = '🔍 フォーム検証';
+          btn.style.background = '#16a34a';
+          btn.disabled = false;
+        }, 8000);
+      } else {
+        btn.textContent = '❌ サーバー未起動';
+        btn.style.background = '#dc2626';
+        btn.title = 'node form-verifier-server.js を起動してください\ncd ~/mascodex-2940045/goenchan/chrome-extension-v2\nnode form-verifier-server.js';
+        btn.disabled = false;
+        setTimeout(() => {
+          btn.textContent = '🔍 フォーム検証';
+          btn.style.background = '#16a34a';
+          btn.removeAttribute('title');
+        }, 5000);
+      }
+    });
+  });
+
+  document.body.appendChild(btn);
+}
+
+// DOMロード後1.5秒でボタン注入
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(injectVerifyButton, 1500));
+} else {
+  setTimeout(injectVerifyButton, 1500);
+}
+// SPA対応: URL変化を監視
+let _lastVerifyUrl = location.href;
+setInterval(() => {
+  if (location.href !== _lastVerifyUrl) {
+    _lastVerifyUrl = location.href;
+    document.getElementById('goen-verify-btn')?.remove();
+    setTimeout(injectVerifyButton, 1500);
+  }
+}, 2000);
