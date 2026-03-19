@@ -2550,6 +2550,18 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'www.noridouraku.com/f/toiawase': {
+    company_url: 'https://www.noridouraku.com/',
+    name1: { selector: 'input[name="field_20570_sei"]', confidence: 100 },
+    name2: { selector: 'input[name="field_20570_mei"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="field_38319_sei"]', confidence: 100 },
+    name_kana2: { selector: 'input[name="field_38319_mei"]', confidence: 100 },
+    email: { selector: 'input[name="field_20571"]', confidence: 100 },
+    tel1: { selector: 'input[name="field_20577_1"]', confidence: 100 },
+    tel2: { selector: 'input[name="field_20577_2"]', confidence: 100 },
+    tel3: { selector: 'input[name="field_20577_3"]', confidence: 100 },
+    message: { selector: 'textarea[name="field_20576"]', confidence: 100 }
+  },
   'www.katou-shouyu.co.jp/FORM/contact.cgi': {
     company_url: 'https://www.katou-shouyu.co.jp/',
     name1: { selector: 'input[name="Form01"]', confidence: 100 },
