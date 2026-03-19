@@ -798,7 +798,7 @@ function analyzeFieldSemantics(field) {
     },
     message: {
       ja: ['内容', 'メッセージ', '本文', 'お問い合わせ内容', '詳細', 'ご質問', 'ご相談', '事業内容'],
-      en: ['message', 'content', 'details', 'inquiry', 'comment', 'question']
+      en: ['message', 'content', 'details', 'inquiry', 'comment', 'question', 'body', 'text', 'memo', 'remarks', 'note']
     },
     // Split name fields
     name_sei: {
@@ -3092,6 +3092,15 @@ const SITE_MAPPINGS = {
     city: { selector: 'input[name="市区郡・町村"]', confidence: 100 },
     street: { selector: 'input[name="番地・アパート・マンション等"]', confidence: 100 },
     message: { selector: 'textarea[name="お問い合わせ内容"], select[name="お問い合わせ内容"]', confidence: 100 },
+  },
+  'www.rokkomiso.co.jp/contact': {
+    company_url: 'https://www.rokkomiso.co.jp/',
+    name: { selector: 'input[name="name"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    prefecture: { selector: 'select[name="prefecture"]', confidence: 100 },
+    phone: { selector: 'input[name="phone"]', confidence: 100 },
+    subject: { selector: 'input[name="subject"]', confidence: 100 },
+    message: { selector: 'textarea[name="body"], select[name="body"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
