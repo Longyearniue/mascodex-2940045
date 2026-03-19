@@ -373,7 +373,15 @@ async function startBatchProcess(urls, profile, tabsPerBatch, autoCloseEnabled =
   await chrome.storage.local.set({
     batchProfile: profile,
     batchMode: true,
-    batchGeneratedMessages: {}
+    batchGeneratedMessages: {},
+    // batchState永続化（SW再起動対策）
+    batchStateSnapshot: {
+      isRunning: true,
+      urls: urls,
+      entries: entries,
+      tabsPerBatch: tabsPerBatch,
+      autoCloseEnabled: autoCloseEnabled
+    }
   });
 
   // Notify popup that we're finding contact pages
@@ -1156,6 +1164,8 @@ async function openNextBatch() {
   }
 
   batchState.currentIndex = endIndex;
+  // currentIndexを永続化
+  chrome.storage.local.set({ batchCurrentIndex: endIndex, batchValidUrls: batchState.validUrls, batchContactPages: batchState.contactPages });
 }
 
 // Mark a tab as completed (form submitted)
@@ -1473,8 +1483,23 @@ async function fetchSalesLetterFromBackground(companyUrl, companyInfo = null) {
 // This fixes the issue where windows are closed outside of batch mode
 // if the browser was closed unexpectedly during batch processing
 
-chrome.storage.local.get(['batchMode'], (result) => {
-  if (result.batchMode && !batchState.isRunning) {
+chrome.storage.local.get(['batchMode', 'batchStateSnapshot', 'batchCurrentIndex', 'batchValidUrls', 'batchContactPages', 'batchProfile'], (result) => {
+  if (result.batchMode && result.batchValidUrls && result.batchValidUrls.length > 0) {
+    // SW再起動後もbatchStateを復元
+    console.log('[Batch] ♻️ Restoring batch state after SW restart');
+    const snap = result.batchStateSnapshot || {};
+    batchState.isRunning = true;
+    batchState.urls = snap.urls || result.batchValidUrls || [];
+    batchState.validUrls = result.batchValidUrls || [];
+    batchState.contactPages = result.batchContactPages || {};
+    batchState.currentIndex = result.batchCurrentIndex || 0;
+    batchState.tabsPerBatch = snap.tabsPerBatch || 20;
+    batchState.profile = result.batchProfile || null;
+    batchState.processingPhase = 'running';
+    batchState.openTabs = [];
+    console.log('[Batch] ♻️ Restored: validUrls=' + batchState.validUrls.length + ' currentIndex=' + batchState.currentIndex);
+    startKeepAlive();
+  } else if (result.batchMode && !batchState.isRunning) {
     console.log('[Batch] ⚠️ Clearing stale batchMode flag on startup');
     chrome.storage.local.set({ batchMode: false });
   }
