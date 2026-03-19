@@ -59,27 +59,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const fieldList = fields.map((f, i) =>
-          `${i}: label="${f.label}" name="${f.name}" type="${f.type}" placeholder="${f.placeholder}"`
+          `${i}: context="${f.context || f.label}" name="${f.name}" id="${f.id}" type="${f.type}" placeholder="${f.placeholder}"`
         ).join('\n');
 
-        const prompt = `You are a form-filling assistant. Given these form fields and a user profile, determine what value to fill in each field.
+        const fullName = profile.fullName || ((profile.lastName || '') + (profile.firstName ? ' ' + profile.firstName : '')).trim();
+        const fullNameKana = ((profile.lastNameKana || '') + (profile.firstNameKana ? ' ' + profile.firstNameKana : '')).trim();
+        const fullAddress = [profile.prefecture, profile.city, profile.street].filter(Boolean).join('');
 
-Fields:
+        const prompt = `あなたは日本語フォーム自動入力AIです。以下のフォームフィールドに対して、ユーザープロフィールから適切な値を判定してください。
+
+## フォームフィールド（空欄のもの）
 ${fieldList}
 
-Profile:
-- Full name: ${profile.fullName || (profile.lastName || '') + ' ' + (profile.firstName || '')}
-- Name kana: ${profile.lastNameKana || ''} ${profile.firstNameKana || ''}
-- Company: ${profile.company || ''}
-- Email: ${profile.email || ''}
-- Phone: ${profile.phone || ''}
-- Zipcode: ${profile.zipcode || ''}
-- Prefecture: ${profile.prefecture || ''}
-- City: ${profile.city || ''}
-- Street: ${profile.street || ''}
-- Message: ${profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。'}
+## ユーザープロフィール
+- 氏名（漢字）: ${fullName}
+- 氏名（カナ）: ${fullNameKana}
+- 姓: ${profile.lastName || ''}
+- 名: ${profile.firstName || ''}
+- 姓（カナ）: ${profile.lastNameKana || ''}
+- 名（カナ）: ${profile.firstNameKana || ''}
+- 会社名: ${profile.company || ''}
+- メールアドレス: ${profile.email || ''}
+- 電話番号: ${profile.phone || ''}
+- 郵便番号: ${profile.zipcode || ''}
+- 都道府県: ${profile.prefecture || ''}
+- 市区町村: ${profile.city || ''}
+- 番地: ${profile.street || ''}
+- 住所（全体）: ${fullAddress}
+- メッセージ: ${profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。お時間のある際にご返信いただけますと幸いです。'}
 
-Reply with a JSON array of values, one per field (same order). Use null if the field should not be filled (e.g. checkboxes, radio buttons, privacy policy). For select/dropdown fields, provide the option value or label text. Keep values concise.`;
+## 判定ルール
+- context/nameから何のフィールドか推測する（例: "氏名"→氏名、"フリガナ"→カナ氏名、"住所"→住所全体、"メッセージ"→メッセージ）
+- フィールドが「確認用メール」「メールアドレス（確認）」ならメールアドレスと同じ値
+- フリガナ・カナは全角カタカナで返す
+- 電話番号はハイフンあり形式（例: 03-1234-5678）
+- 郵便番号はハイフンあり形式（例: 123-4567）
+- 入力不要（captcha, 検索欄など）はnullを返す
+
+フィールド数と同じ要素数のJSON配列のみを返してください（説明文不要）。`;
 
         const resp = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -89,7 +106,7 @@ Reply with a JSON array of values, one per field (same order). Use null if the f
             'anthropic-version': '2023-06-01'
           },
           body: JSON.stringify({
-            model: 'claude-haiku-20240307',
+            model: 'claude-haiku-4-5',
             max_tokens: 1024,
             messages: [{ role: 'user', content: prompt }]
           })

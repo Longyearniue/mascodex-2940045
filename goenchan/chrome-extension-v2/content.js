@@ -4458,6 +4458,53 @@ function expectsHiragana(field) {
 // =============================================================================
 const AI_SERVER = 'http://216.9.225.55:8888/classify-field';
 
+/**
+ * 周辺HTMLからフィールドのコンテキストテキストを取得する
+ * ラベル・前後テキスト・aria-labelなどを収集して返す
+ */
+function getFieldContext(el) {
+  const parts = [];
+
+  // 1. <label for="id"> テキスト
+  if (el.id) {
+    const lbl = document.querySelector(`label[for="${el.id}"]`);
+    if (lbl) parts.push(lbl.innerText.trim());
+  }
+
+  // 2. aria-label / aria-labelledby
+  const ariaLabel = el.getAttribute('aria-label');
+  if (ariaLabel) parts.push(ariaLabel);
+  const labelledById = el.getAttribute('aria-labelledby');
+  if (labelledById) {
+    const lblEl = document.getElementById(labelledById);
+    if (lblEl) parts.push(lblEl.innerText.trim());
+  }
+
+  // 3. placeholder / name / id
+  if (el.placeholder) parts.push(el.placeholder);
+  if (el.name) parts.push(el.name);
+  if (el.id) parts.push(el.id);
+
+  // 4. 親要素内の近くのテキストノード（ラベル的な要素）
+  const parent = el.closest('div, li, tr, td, p, section, fieldset') || el.parentElement;
+  if (parent) {
+    const textEls = parent.querySelectorAll('label, span, dt, th, legend, .label, [class*="label"], [class*="title"]');
+    textEls.forEach(t => {
+      const txt = t.innerText ? t.innerText.trim() : '';
+      if (txt && txt.length < 50) parts.push(txt);
+    });
+    Array.from(parent.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const txt = node.textContent.trim();
+        if (txt && txt.length < 50) parts.push(txt);
+      }
+    });
+  }
+
+  const unique = [...new Set(parts.filter(Boolean))];
+  return unique.slice(0, 5).join(' | ');
+}
+
 async function aiFillUnknownFields(profile) {
   // 未入力の可視フィールドを収集
   const unfilled = [];
@@ -4465,10 +4512,12 @@ async function aiFillUnknownFields(profile) {
     if (!isVisible(el)) return;
     if (el.value && el.value.trim()) return; // 既に入力済み
 
+    const context = getFieldContext(el);
     const label = getFieldLabel ? getFieldLabel(el) : (el.placeholder || el.name || el.id || '');
     unfilled.push({
       el,
       label: label.trim(),
+      context: context,
       name: el.name || '',
       id: el.id || '',
       placeholder: el.placeholder || '',
@@ -4477,11 +4526,11 @@ async function aiFillUnknownFields(profile) {
   });
 
   if (unfilled.length === 0) return;
-  console.log(`🤖 [AI Fallback] ${unfilled.length} unfilled fields, asking AI...`);
+  console.log(`🤖 [AI 2nd-pass] ${unfilled.length} unfilled fields → sending context to AI...`);
 
   try {
     const fields = unfilled.map(f => ({
-      label: f.label, name: f.name, id: f.id,
+      label: f.label, context: f.context, name: f.name, id: f.id,
       placeholder: f.placeholder, type: f.type
     }));
 
