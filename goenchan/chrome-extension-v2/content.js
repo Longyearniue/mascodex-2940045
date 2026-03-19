@@ -5776,19 +5776,19 @@ async function pass7AIVerify(profile) {
   // APIキーがあれば AI に何を入れるべきか聞く
   let aiSuggestions = [];
   try {
-    const storage = await new Promise(r => chrome.storage.sync.get(['anthropicApiKey'], r));
-    const apiKey = storage.anthropicApiKey;
+    const storage = await new Promise(r => chrome.storage.sync.get(['deepseekApiKey'], r));
+    const apiKey = storage.deepseekApiKey;
     if (apiKey && fieldInfos.length > 0) {
       const fieldList = fieldInfos.map(f => `- ${f.label}（name="${f.name}"）${f.required ? ' ※必須' : ''}`).join('\n');
       const profileSummary = `名前: ${profile.name || ''}, 会社: ${profile.company || ''}, メール: ${profile.email || ''}, 電話: ${profile.phone || ''}, 住所: ${profile.prefecture || ''}${profile.city || ''}`;
       const prompt = `フォームに以下の空フィールドが残っています。プロフィール情報をもとに、各フィールドに何を入力すべきか日本語で短く説明してください（入力値候補も）。\n\nプロフィール: ${profileSummary}\n\n空フィールド:\n${fieldList}\n\n各フィールドを「フィールド名: 説明（候補値）」形式で返してください。`;
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
-        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: 'deepseek-chat', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
       });
       const data = await res.json();
-      const text = data.content?.[0]?.text || '';
+      const text = data.choices?.[0]?.message?.content || '';
       if (text) aiSuggestions = text.split('\n').filter(l => l.trim());
     }
   } catch(e) {}

@@ -51,8 +51,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       try {
         const { fields, profile, pageTitle, formTitle } = message;
-        const apiKeyData = await chrome.storage.sync.get(['anthropicApiKey']);
-        const apiKey = apiKeyData.anthropicApiKey;
+        const apiKeyData = await chrome.storage.sync.get(['deepseekApiKey']);
+        const apiKey = apiKeyData.deepseekApiKey;
         if (!apiKey) {
           sendResponse({ success: false, error: 'No Anthropic API key configured' });
           return;
@@ -108,7 +108,7 @@ ${fieldList}
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             const maxTokens = attempt === 0 ? 1024 : 2048;
-            const resp = await fetch('https://api.anthropic.com/v1/messages', {
+            const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ ${fieldList}
                 'anthropic-version': '2023-06-01'
               },
               body: JSON.stringify({
-                model: 'claude-haiku-4-5',
+                model: 'deepseek-chat',
                 max_tokens: maxTokens,
                 messages: [{ role: 'user', content: prompt }]
               })
@@ -128,7 +128,7 @@ ${fieldList}
               continue;
             }
             const data = await resp.json();
-            const text = data.content?.[0]?.text || '';
+            const text = data.choices?.[0]?.message?.content || '';
             const match = text.match(/\[.*\]/s);
             if (!match) {
               lastError = 'No JSON array in response';
@@ -173,8 +173,8 @@ ${fieldList}
     (async () => {
       try {
         const { imageDataUrl, fields, profile, pageTitle } = message;
-        const apiKeyData = await chrome.storage.sync.get(['anthropicApiKey']);
-        const apiKey = apiKeyData.anthropicApiKey;
+        const apiKeyData = await chrome.storage.sync.get(['deepseekApiKey']);
+        const apiKey = apiKeyData.deepseekApiKey;
         if (!apiKey) { sendResponse({ success: false, error: 'No API key' }); return; }
 
         const base64 = imageDataUrl.split(',')[1];
@@ -216,9 +216,9 @@ ${fieldList}
 - 不明・入力不要なフィールドはnullを返す
 - フィールド数と同じ要素数のJSON配列のみ返す（説明不要）`;
 
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
           body: JSON.stringify({
             model: 'claude-sonnet-4-5-20250514',
             max_tokens: 1024,
@@ -1859,13 +1859,13 @@ async function findContactByAI(html, baseUrl, apiKey) {
   if (links.length === 0) return null;
   const prompt = `以下はウェブサイトのリンク一覧です。お問い合わせフォームページのURLを1つ選んでURLだけ返してください。見つからない場合は "none" とだけ返してください。\n\n${links.map(l => `${l.url} [${l.text}]`).join('\n')}`;
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 200, messages: [{ role: 'user', content: prompt }] })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({ model: 'deepseek-chat', max_tokens: 200, messages: [{ role: 'user', content: prompt }] })
     });
     const data = await res.json();
-    const answer = (data.content?.[0]?.text || '').trim();
+    const answer = (data.choices?.[0]?.message?.content || '').trim();
     if (answer && answer !== 'none' && answer.startsWith('http')) return answer;
   } catch(e) {}
   return null;
@@ -1934,8 +1934,8 @@ async function findContactPageEnhanced(baseUrl) {
   // Step 6: AI リンクスコアリング
   notify(6, `🤖 AI リンク解析中`);
   try {
-    const storage = await chrome.storage.sync.get(['anthropicApiKey']);
-    url = await findContactByAI(html, baseUrl, storage.anthropicApiKey);
+    const storage = await chrome.storage.sync.get(['deepseekApiKey']);
+    url = await findContactByAI(html, baseUrl, storage.deepseekApiKey);
   } catch(e) {}
   if (url) { notify(6, `✅ AI で発見`); return url; }
 

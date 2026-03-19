@@ -163,9 +163,9 @@ async function loadCurrentUrl() {
 
 // Load profile data
 async function loadProfile() {
-  const data = await chrome.storage.sync.get(['profile', 'autoFillEnabled', 'anthropicApiKey']);
-  if (data.anthropicApiKey) {
-    document.getElementById('anthropicApiKey').value = data.anthropicApiKey;
+  const data = await chrome.storage.sync.get(['profile', 'autoFillEnabled', 'deepseekApiKey']);
+  if (data.deepseekApiKey) {
+    document.getElementById('deepseekApiKey').value = data.deepseekApiKey;
   }
   if (data.profile) {
     document.getElementById('company').value = data.profile.company || '';
@@ -262,8 +262,8 @@ document.getElementById('saveProfile').addEventListener('click', async () => {
   // Get auto-fill setting
   const autoFillEnabled = document.getElementById('autoFillEnabled').checked;
 
-  const anthropicApiKey = document.getElementById('anthropicApiKey').value.trim();
-  await chrome.storage.sync.set({ profile, autoFillEnabled, anthropicApiKey });
+  const deepseekApiKey = document.getElementById('deepseekApiKey').value.trim();
+  await chrome.storage.sync.set({ profile, autoFillEnabled, deepseekApiKey });
   showStatus('✅ プロフィールを保存しました！', 'success');
 });
 
