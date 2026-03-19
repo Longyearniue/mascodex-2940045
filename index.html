@@ -217,8 +217,17 @@
         const data = await res.json();
         const posts = Array.isArray(data) ? data : (data.posts || []);
 
+        // 重複除去: 同じzipは最新1件のみ
+        const seen = new Set();
+        const deduped = posts.filter(p => {
+          const key = p.zip || p.id;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+
         const jpPosts = [], usPosts = [], inPosts = [], auPosts = [];
-        for (const p of posts) {
+        for (const p of deduped) {
           const zip = p.zip || '';
           if (isJP(zip)) jpPosts.push(p);
           else if (isAU(zip)) auPosts.push(p);
