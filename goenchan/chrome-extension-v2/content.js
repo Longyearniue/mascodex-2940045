@@ -915,6 +915,24 @@ function analyzeFieldSemantics(field) {
   if (jaNameMap[fieldName]) {
     return { type: jaNameMap[fieldName], confidence: CONFIDENCE_LABEL + 10, source: 'ja-name-attr' };
   }
+  // {prefix}-name / {prefix}_name パターン（末尾マッチ）
+  const nameSuffixMap = [
+    [/-name$|_name$/i, 'name'],
+    [/-furigana$|_furigana$|-kana$|_kana$|-yomi$|_yomi$/i, 'nameKana'],
+    [/-mail$|_mail$|-email$|_email$/i, 'email'],
+    [/-phone$|_phone$|-tel$|_tel$|-telephone$|_telephone$/i, 'phone'],
+    [/-post$|_post$|-zip$|_zip$|-postal$|_postal$/i, 'zipcode'],
+    [/-detail$|_detail$|-body$|_body$|-message$|_message$|-content$|_content$|-inquiry$|_inquiry$/i, 'message'],
+    [/-subject$|_subject$|-title$|_title$/i, 'subject'],
+    [/-company$|_company$|-corp$|_corp$/i, 'company'],
+    [/-address$|_address$|-addr$|_addr$/i, 'address'],
+    [/-pref$|_pref$|-prefecture$|_prefecture$/i, 'prefecture'],
+  ];
+  for (const [regex, type] of nameSuffixMap) {
+    if (regex.test(fieldName)) {
+      return { type, confidence: CONFIDENCE_LABEL, source: 'name-suffix' };
+    }
+  }
   // id属性でも確認（name_sei/name_mei/name_kna_sei/name_kna_mei 等）
   const idMap = {
     'name_sei': 'name1', 'name_mei': 'name2',
@@ -3101,6 +3119,15 @@ const SITE_MAPPINGS = {
     phone: { selector: 'input[name="phone"]', confidence: 100 },
     subject: { selector: 'input[name="subject"]', confidence: 100 },
     message: { selector: 'textarea[name="body"], select[name="body"]', confidence: 100 },
+  },
+  'www.ichibiki.co.jp/support/homeuse-inquiry': {
+    company_url: 'https://www.ichibiki.co.jp/',
+    name: { selector: 'input[name="ichibiki-form-name"]', confidence: 100 },
+    nameKana: { selector: 'input[name="ichibiki-form-furigana"]', confidence: 100 },
+    email: { selector: 'input[name="ichibiki-form-mail"]', confidence: 100 },
+    phone: { selector: 'input[name="ichibiki-form-phone"]', confidence: 100 },
+    zipcode: { selector: 'input[name="ichibiki-form-post"]', confidence: 100 },
+    message: { selector: 'textarea[name="ichibiki-form-detail"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
