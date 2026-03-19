@@ -381,6 +381,7 @@ async function startBatchProcess(urls, profile, tabsPerBatch, autoCloseEnabled =
     profile: profile,
     generatedMessages: {},
     processingPhase: 'finding_contacts',
+    startedCount: 0,
     verificationResults: {},
     successfulTabs: [],
     failedTabs: [],
@@ -1007,7 +1008,7 @@ async function tryWorkerAPIWithRetry(url, maxRetries = 0, entry = null) {
 
 // Find contact pages using multiple methods (Worker API + client-side fallback)
 // 並列数（10件同時）
-const CONTACT_SEARCH_CONCURRENCY = 10;
+const CONTACT_SEARCH_CONCURRENCY = 3;
 
 async function findContactPagesForBatch(urls) {
   console.log('[Batch] Finding contact pages for', urls.length, 'URLs (concurrency:', CONTACT_SEARCH_CONCURRENCY, ')');
@@ -1025,9 +1026,23 @@ async function findContactPagesForBatch(urls) {
       let salesLetter = null;
       let foundVia = null;
 
+      // 処理開始を即座に通知（ゲージをリアルタイム更新）
+      batchState.startedCount = (batchState.startedCount || 0) + 1;
+      const short = url.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 40);
+      chrome.runtime.sendMessage({
+        action: 'batchPhaseUpdate',
+        phase: 'finding_contacts',
+        total,
+        processed: batchState.startedCount,
+        validCount: batchState.validUrls.length,
+        skippedCount: batchState.skippedUrls.length,
+        currentUrl: short,
+        currentStep: '🔍 検索開始'
+      }).catch(() => {});
+
       // Method 1: Worker API
       const entry = batchState.urlEntryMap ? batchState.urlEntryMap[url] : null;
-      const workerResult = await tryWorkerAPIWithRetry(url, 2, entry).catch(() => ({ success: false, reason: 'error' }));
+      const workerResult = await tryWorkerAPIWithRetry(url, 0, entry).catch(() => ({ success: false, reason: 'error' }));
       if (workerResult.success) {
         contactPageUrl = workerResult.contactPageUrl;
         salesLetter = workerResult.salesLetter;
@@ -1888,7 +1903,7 @@ async function findContactPageEnhanced(baseUrl) {
         action: 'batchPhaseUpdate',
         phase: 'finding_contacts',
         total: batchState.urls ? batchState.urls.length : 0,
-        processed: batchState.validUrls.length + batchState.skippedUrls.length,
+        processed: batchState.startedCount || 0,
         validCount: batchState.validUrls.length,
         skippedCount: batchState.skippedUrls.length,
         currentUrl: short,
