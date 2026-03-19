@@ -2550,6 +2550,20 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'www.cha-tsuhan.co.jp/contact': {
+    company_url: 'https://www.cha-tsuhan.co.jp/',
+    name1: { selector: 'input[name="contact[name][name01]"]', confidence: 100 },
+    name2: { selector: 'input[name="contact[name][name02]"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="contact[kana][kana01]"]', confidence: 100 },
+    name_kana2: { selector: 'input[name="contact[kana][kana02]"]', confidence: 100 },
+    zipcode: { selector: 'input[name="contact[postal_code]"]', confidence: 100 },
+    prefecture: { selector: 'select[name="contact[address][pref]"]', confidence: 100 },
+    city: { selector: 'input[name="contact[address][addr01]"]', confidence: 100 },
+    street: { selector: 'input[name="contact[address][addr02]"]', confidence: 100 },
+    phone: { selector: 'input[name="contact[phone_number]"]', confidence: 100 },
+    email: { selector: 'input[name="contact[email]"]', confidence: 100 },
+    message: { selector: 'textarea[name="contact[contents]"]', confidence: 100 }
+  },
   'www.yamadaen.co.jp/contact': {
     company_url: 'https://www.yamadaen.co.jp/',
     name1: { selector: 'input[name="your-name"]', confidence: 100 },
