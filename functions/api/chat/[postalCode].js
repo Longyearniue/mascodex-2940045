@@ -297,7 +297,7 @@ export async function onRequest(context) {
     messages.push({ role: 'user', content: message });
 
     // --- Call DeepSeek V3.2 API with retry ---
-    const DEEPSEEK_API_KEY = 'sk-15629e0d2d9d46bcb8e39c8e037e0ad4';
+    const DEEPSEEK_API_KEY = (typeof env !== 'undefined' && env.DEEPSEEK_API_KEY) || process.env.DEEPSEEK_API_KEY || '';
     let responseText = null;
     let lastError = null;
 
