@@ -19,3 +19,9 @@ bulk-post.sh
 0010010_01.png
 1000001_01.png
 japan-bars-combined.csv
+
+# 環境変数・シークレット
+.env
+.env.local
+.env.production
+*.secret
