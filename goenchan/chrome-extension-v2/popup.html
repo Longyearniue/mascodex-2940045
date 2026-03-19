@@ -271,7 +271,12 @@
         <div class="form-group"><label for="email">Email</label><input type="email" id="email" placeholder="yamada@example.com"></div>
         <div class="form-group"><label for="phone">Phone / 電話番号</label><input type="text" id="phone" placeholder="03-1234-5678"></div>
         <div class="form-group"><label for="zipcode">Zipcode / 郵便番号</label><input type="text" id="zipcode" placeholder="294-0045"></div>
-        <div class="form-group"><label for="address">Address / 住所</label><input type="text" id="address" placeholder="東京都千代田区丸の内1-1-1"></div>
+        <div class="form-group"><label for="address">住所（フル）</label><input type="text" id="address" placeholder="東京都千代田区丸の内1-1-1"></div>
+        <div style="display:flex;gap:8px">
+          <div class="form-group" style="flex:1"><label for="prefecture">都道府県</label><input type="text" id="prefecture" placeholder="東京都"></div>
+          <div class="form-group" style="flex:2"><label for="city">市区町村</label><input type="text" id="city" placeholder="千代田区丸の内"></div>
+        </div>
+        <div class="form-group"><label for="street">番地・建物名</label><input type="text" id="street" placeholder="1-1-1 OOビル"></div>
         <div class="form-group"><label for="department">Department / 部署</label><input type="text" id="department" placeholder="営業部"></div>
         <div class="form-group"><label for="subject">Subject / 件名</label><input type="text" id="subject" placeholder="お問い合わせ"></div>
         <div class="pattern-option" style="margin-top: 12px; padding: 10px; background: #e8f5e9; border-radius: 6px; border: 2px solid #34a853;">

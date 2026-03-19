@@ -180,6 +180,9 @@ async function loadProfile() {
     document.getElementById('phone').value = data.profile.phone || '';
     document.getElementById('zipcode').value = data.profile.zipcode || '';
     document.getElementById('address').value = data.profile.address || '';
+    document.getElementById('prefecture').value = data.profile.prefecture || '';
+    document.getElementById('city').value = data.profile.city || '';
+    document.getElementById('street').value = data.profile.street || '';
     document.getElementById('department').value = data.profile.department || '';
     document.getElementById('subject').value = data.profile.subject || '';
     document.getElementById('message').value = data.profile.message || '';
@@ -205,6 +208,9 @@ document.getElementById('saveProfile').addEventListener('click', async () => {
     phone: document.getElementById('phone').value,
     zipcode: document.getElementById('zipcode').value,
     address: document.getElementById('address').value,
+    prefecture: document.getElementById('prefecture').value,
+    city: document.getElementById('city').value,
+    street: document.getElementById('street').value,
     department: document.getElementById('department').value,
     subject: document.getElementById('subject').value,
     message: document.getElementById('message').value
