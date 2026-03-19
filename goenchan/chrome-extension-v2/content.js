@@ -894,6 +894,35 @@ function analyzeFieldSemantics(field) {
   const CONFIDENCE_ATTR = 12;
   const fieldName = field.getAttribute('name') || '';
   const fieldId = field.getAttribute('id') || '';
+
+  // 日本語name属性の即時マッチ（セイ/メイ/姓/名/メールアドレス/電話番号 等）
+  const jaNameMap = {
+    '姓': 'name1', '名': 'name2', 'お名前': 'name', '氏名': 'name', '名前': 'name',
+    'セイ': 'name_kana1', 'メイ': 'name_kana2',
+    'フリガナ姓': 'name_kana1', 'フリガナ名': 'name_kana2',
+    'カナ姓': 'name_kana1', 'カナ名': 'name_kana2',
+    'メールアドレス': 'email', 'メール': 'email',
+    '電話番号': 'phone', 'TEL': 'phone', '電話': 'phone',
+    '郵便番号': 'zipcode', '〒': 'zipcode',
+    '都道府県': 'prefecture', '市区町村': 'city', '住所': 'address',
+    'お問い合わせ内容': 'message', 'お問合せ内容': 'message',
+  };
+  if (jaNameMap[fieldName]) {
+    return { type: jaNameMap[fieldName], confidence: CONFIDENCE_LABEL + 10, source: 'ja-name-attr' };
+  }
+  // id属性でも確認（name_sei/name_mei/name_kna_sei/name_kna_mei 等）
+  const idMap = {
+    'name_sei': 'name1', 'name_mei': 'name2',
+    'name_kna_sei': 'name_kana1', 'name_kna_mei': 'name_kana2',
+    'name_kana_sei': 'name_kana1', 'name_kana_mei': 'name_kana2',
+    'mail': 'email', 'pref': 'prefecture', 'city': 'city',
+    'tel01': 'phone1', 'tel02': 'phone2', 'tel03': 'phone3',
+    'post_code01': 'zipcode1', 'post_code02': 'zipcode2',
+  };
+  if (idMap[fieldId]) {
+    return { type: idMap[fieldId], confidence: CONFIDENCE_LABEL + 8, source: 'id-map' };
+  }
+
   if (fieldName) sources.push({ text: fieldName, type: 'name-attr', confidence: CONFIDENCE_ATTR });
   if (fieldId && fieldId !== fieldName) sources.push({ text: fieldId, type: 'id-attr', confidence: CONFIDENCE_ATTR });
 
@@ -3041,6 +3070,23 @@ const SITE_MAPPINGS = {
     phone: { selector: 'input[name="tel"]', confidence: 100 },
     email: { selector: 'input[name="mail"]', confidence: 100 },
     message: { selector: 'textarea[name="message"]', confidence: 100 },
+  },
+  'www.higeta.co.jp/contact': {
+    company_url: 'https://www.higeta.co.jp/',
+    name1: { selector: 'input[name="姓"]', confidence: 100 },
+    name2: { selector: 'input[name="名"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="セイ"]', confidence: 100 },
+    name_kana2: { selector: 'input[name="メイ"]', confidence: 100 },
+    email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
+    phone1: { selector: 'input[name="電話番号01"]', confidence: 100 },
+    phone2: { selector: 'input[name="電話番号02"]', confidence: 100 },
+    phone3: { selector: 'input[name="電話番号03"]', confidence: 100 },
+    zipcode1: { selector: 'input[name="郵便番号01"]', confidence: 100 },
+    zipcode2: { selector: 'input[name="郵便番号02"]', confidence: 100 },
+    prefecture: { selector: 'select[name="都道府県"]', confidence: 100 },
+    city: { selector: 'input[name="市区郡・町村"]', confidence: 100 },
+    street: { selector: 'input[name="番地・アパート・マンション等"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問い合わせ内容"], select[name="お問い合わせ内容"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
