@@ -1404,7 +1404,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (subTabs) subTabs.value = tabs;
     if (subClose) subClose.checked = autoClose;
     document.getElementById('startBatch')?.click();
-    document.getElementById('batchStatusMain').style.display = 'block';
     startBatchMainPolling();
   });
 
@@ -1430,6 +1429,11 @@ function stopBatchMainPolling() {
 }
 
 function syncBatchMainUI() {
+  // batchStatusMain の表示はsrcに合わせる
+  const srcStatus = document.getElementById('batchStatus');
+  const dstStatus = document.getElementById('batchStatusMain');
+  if (srcStatus && dstStatus) dstStatus.style.display = srcStatus.style.display;
+
   const copyText = (srcId, dstId) => {
     const s = document.getElementById(srcId);
     const d = document.getElementById(dstId);
