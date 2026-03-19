@@ -1506,6 +1506,19 @@ document.addEventListener('DOMContentLoaded', () => {
       if (stopBtn)  stopBtn.disabled  = false;
       const statusDiv = document.getElementById('batchStatusMain');
       if (statusDiv) statusDiv.style.display = 'block';
+      const fp = document.getElementById('findingContactsPhaseMain');
+      const op = document.getElementById('openingTabsPhaseMain');
+      const st = document.getElementById('batchSummaryTextMain');
+      if (status.processingPhase === 'finding_contacts') {
+        if (fp) fp.style.display = 'block';
+        if (op) op.style.display = 'none';
+        const done = (status.validCount||0) + (status.skippedCount||0);
+        if (st) st.textContent = '🔍 コンタクトページ検索中... ' + done + '/' + (status.total||0) + '件';
+      } else if (status.processingPhase === 'running' || status.processingPhase === 'opening_tabs') {
+        if (fp) fp.style.display = 'none';
+        if (op) op.style.display = 'block';
+        if (st) st.textContent = '📨 タブ送信中... ' + (status.currentIndex||0) + '/' + (status.validCount||0) + '件';
+      }
       startBatchMainPolling();
     }
   });
@@ -1562,6 +1575,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('startBatchMain').disabled = true;
     document.getElementById('nextBatchMain').disabled = false;
     document.getElementById('stopBatchMain').disabled = false;
+    // 即座にステータス表示
+    const _sd = document.getElementById('batchStatusMain');
+    if (_sd) _sd.style.display = 'block';
+    const _fp = document.getElementById('findingContactsPhaseMain');
+    if (_fp) _fp.style.display = 'block';
+    const _st = document.getElementById('batchSummaryTextMain');
+    if (_st) _st.textContent = '🔍 コンタクトページ検索中... 0/' + entries.length + '件';
     startBatchMainPolling();
     } catch(e) { alert('バッチ開始エラー: ' + e.message); console.error(e); }
   });
@@ -1632,6 +1652,11 @@ function syncBatchMainUI() {
       document.getElementById('nextBatchMain').disabled = true;
       document.getElementById('stopBatchMain').disabled = true;
       setText('batchSummaryTextMain', '✅ バッチ完了 (有効: ' + (status.validCount||0) + '件 / スキップ: ' + (status.skippedCount||0) + '件)');
+      const _sd2 = document.getElementById('batchStatusMain');
+      if (_sd2) _sd2.style.display = 'none';
+    } else if (status.processingPhase === 'idle') {
+      // 開始直後・まだフェーズが設定されていない
+      setText('batchSummaryTextMain', '🔍 準備中...');
     }
   });
 }
