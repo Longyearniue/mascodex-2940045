@@ -18,37 +18,11 @@ export async function onRequestGet(context) {
   // Inject product preview section before the links section,
   // and the shop-widget floating banner before </body>
   const productSection = buildProductSection(code);
+  const radioSection = '<div class="section" id="mascot-radio" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px">' + '<h2 style="font-size:1.1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px">&#127908; \u3075\u308B\u3055\u3068\u30E9\u30B8\u30AA' + '<a href="https://mascodex.com/radio" target="_blank" style="font-size:.7rem;opacity:.35;text-decoration:none;margin-left:auto">&#8599;</a></h2>' + '<div id="r-now"><div style="opacity:.4;font-size:.84rem">\u8AAD\u307F\u8FBC\u307F\u4E2D...</div></div>' + '<div id="r-arc"></div></div>' + '<script src="/js/radio-embed.js" data-code="' + code + '"><\/script>';
   html = html.replace(
     '<div class="links">',
-    productSection + '<div class="links">'
+    radioSection + productSection + '<div class="links">'
   );
-  // Radio player injection
-  const radioSection = `<style>
-.radio-player audio{width:100%;border-radius:8px}
-.radio-archive-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-.radio-archive-item:last-child{border-bottom:none}
-.radio-date{font-size:.75rem;opacity:.4;min-width:80px;flex-shrink:0}
-</style>
-<div class="section" id="mascot-radio" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px">
-  <h2 style="font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px">🎙️ ふるさとラジオ<a href="https://mascodex.com/radio" target="_blank" style="font-size:.7rem;font-weight:400;opacity:.4;text-decoration:none;margin-left:auto">すべて見る ↗</a></h2>
-  <div id="radio-player-area"><div style="opacity:.4;font-size:.85rem">読み込み中...</div></div>
-  <div id="radio-archive"></div>
-</div>
-<script>(function(){
-fetch('/api/radio/JP${code}')
-  .then(function(r){return r.ok?r.json():null})
-  .then(function(d){
-    var el=document.getElementById('radio-player-area');
-    var ar=document.getElementById('radio-archive');
-    if(!d||!d.episodes||!d.episodes.length){el.innerHTML='<span style="opacity:.4;font-size:.85rem">まだラジオがありません</span>';return;}
-    var eps=d.episodes, lat=eps[0];
-    el.innerHTML='<div class="radio-player" style="background:rgba(255,255,255,.06);border-radius:12px;padding:16px;margin-bottom:12px"><div style="font-size:.8rem;opacity:.5;margin-bottom:6px">📅 '+lat.date+'</div>'+(lat.title?'<div style="font-size:.92rem;font-weight:600;margin-bottom:10px">'+lat.title+'</div>':'')+'<audio controls src="'+lat.audio_url+'"></audio>'+(lat.script_text?'<details style="margin-top:10px"><summary style="font-size:.76rem;opacity:.5;cursor:pointer">台本を読む</summary><p style="font-size:.76rem;opacity:.7;line-height:1.7;margin-top:8px;white-space:pre-wrap">'+lat.script_text.substring(0,600)+(lat.script_text.length>600?'…':'')+'</p></details>':'')+'</div>';
-    if(eps.length>1){ar.innerHTML='<div style="font-size:.8rem;opacity:.45;margin-bottom:8px">📚 バックナンバー</div>'+eps.slice(1).map(function(ep){return'<div class="radio-archive-item"><span class="radio-date">'+ep.date+'</span><audio controls style="flex:1;height:32px" src="'+ep.audio_url+'"></audio></div>';}).join('');}
-  })
-  .catch(function(){document.getElementById('radio-player-area').innerHTML='<span style="opacity:.4;font-size:.85rem">ラジオを読み込めませんでした</span>';});
-})();<\/script>`;
-
-  html = html.replace('<div class="links">', radioSection + '<div class="links">');
 
   // Social feed injection
   const jpZip = 'JP' + code;
