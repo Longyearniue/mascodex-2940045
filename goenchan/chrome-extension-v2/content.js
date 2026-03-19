@@ -1775,8 +1775,8 @@ async function autoFillForm(profile) {
       }
 
       if (!value) {
-        console.log('⚠️ No value for field:', key);
-        continue;
+        console.log('⚠️ No value for field:', key, '(will try AI fallback)');
+        continue;  // AI fallback (aiFillUnknownFields) で補完
       }
 
       console.log(`🔄 Processing field: ${key}, value: ${typeof value === 'string' ? value.substring(0, 20) : value}`);
@@ -1789,6 +1789,7 @@ async function autoFillForm(profile) {
           // Use fieldConfig.type if specified, otherwise use element.type
           const fieldType = fieldConfig.type || element.type;
           fillField(element, value, fieldType, key);  // key を fieldType として渡しひらがな/カタカナ変換に使う
+          element.dataset.aiSkip = '1';  // AI passでスキップ
           filledFields.add(element);
           debugInfo.fieldsFilled++;
 
@@ -5099,6 +5100,7 @@ async function aiFillUnknownFields(profile, screenshotDataUrl = null) {
   ).forEach(el => {
     if (!isVisible(el)) return;
     if (el.value && el.value.trim()) return; // 既入力済みはスキップ
+    if (el.dataset.aiSkip === '1') return; // サイトマッピング済みはスキップ
 
     const label = (typeof getFieldLabel === 'function' ? getFieldLabel(el) : '') || el.placeholder || el.name || el.id || '';
     // フォームコンテナの近傍HTML（最大400文字）

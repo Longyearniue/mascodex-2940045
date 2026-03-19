@@ -53,7 +53,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const { fields, profile, pageTitle, formTitle, screenshotDataUrl } = message;
         const apiKeyData = await chrome.storage.sync.get(['deepseekApiKey']);
         const apiKey = apiKeyData.deepseekApiKey;
-        if (!apiKey) { sendResponse({ success: false, error: 'No DeepSeek API key' }); return; }
+        if (!apiKey) {
+          // APIキー未設定でも name属性ベースのシンプルマッピングでフォールバック
+          const p = profile;
+          const fullName = p.name || ((p.last_name||'') + (p.first_name ? ' '+p.first_name : '')).trim();
+          const fullKana = p.name_kana || ((p.last_name_kana||'') + (p.first_name_kana ? ' '+p.first_name_kana : '')).trim();
+          const fallbackValues = fields.map(f => {
+            const n = (f.name||'').toLowerCase();
+            const l = (f.label||f.placeholder||'').toLowerCase();
+            const combined = n + ' ' + l;
+            if (/kana|furigana|yomi|カナ|フリガナ/.test(combined)) return fullKana || null;
+            if (/name|氏名|お名前|担当/.test(combined)) return fullName || null;
+            if (/email|mail|メール/.test(combined)) return p.email || null;
+            if (/phone|tel|電話/.test(combined)) return p.phone || null;
+            if (/zip|postal|郵便/.test(combined)) return p.zipcode || null;
+            if (/pref|都道府県/.test(combined)) return p.prefecture || null;
+            if (/city|市区町村/.test(combined)) return p.city || null;
+            if (/address|住所/.test(combined)) return [p.prefecture,p.city,p.street].filter(Boolean).join('') || null;
+            if (/company|会社|企業/.test(combined)) return p.company || null;
+            if (/message|content|body|inquiry|detail|内容|お問/.test(combined)) return p.message || null;
+            return null;
+          });
+          sendResponse({ success: true, values: fallbackValues, fallback: true });
+          return;
+        }
 
         const fieldList = fields.map((f, i) =>
           `[${i}] label="${f.label || f.context || ''}" name="${f.name}" id="${f.id}" type="${f.type}" placeholder="${f.placeholder}"${f.htmlContext ? ' html="' + f.htmlContext.replace(/"/g,'').substring(0, 200) + '"' : ''}`
