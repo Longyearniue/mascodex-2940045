@@ -2520,6 +2520,14 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
     message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
   },
+  'www.katou-shouyu.co.jp/FORM/contact.cgi': {
+    company_url: 'https://www.katou-shouyu.co.jp/',
+    name1: { selector: 'input[name="Form01"]', confidence: 100 },
+    phone: { selector: 'input[name="Form02"]', confidence: 100 },
+    email: { selector: 'input[name="YourMail1"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="YourMail2"]', confidence: 100 },
+    message: { selector: 'textarea[name="Naiyo"]', confidence: 100 }
+  },
   'www.hoshisan.jp/contact': {
     company_url: 'https://www.hoshisan.jp/',
     name1: { selector: 'input[name="contact[name][name01]"]', confidence: 100 },
