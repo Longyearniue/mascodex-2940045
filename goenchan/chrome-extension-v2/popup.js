@@ -987,22 +987,32 @@ document.getElementById('uploadToCloud').addEventListener('click', async () => {
 
 // Get current profile data
 function getCurrentProfile() {
+  const get = id => { const el = document.getElementById(id); return el ? el.value : ''; };
   return {
-    company: document.getElementById('company').value,
-    name: document.getElementById('name').value,
-    name_kana: document.getElementById('name_kana').value,
-    last_name: document.getElementById('last_name').value,
-    first_name: document.getElementById('first_name').value,
-    last_name_kana: document.getElementById('last_name_kana').value,
-    first_name_kana: document.getElementById('first_name_kana').value,
-    email: document.getElementById('email').value,
-    phone: document.getElementById('phone').value,
-    zipcode: document.getElementById('zipcode').value,
-    address: document.getElementById('address').value,
-    department: document.getElementById('department').value,
-    subject: document.getElementById('subject').value,
-    message: document.getElementById('message').value
+    company: get('company'),
+    name: get('name'),
+    name_kana: get('name_kana'),
+    last_name: get('last_name'),
+    first_name: get('first_name'),
+    last_name_kana: get('last_name_kana'),
+    first_name_kana: get('first_name_kana'),
+    email: get('email'),
+    phone: get('phone'),
+    zipcode: get('zipcode'),
+    address: get('address'),
+    department: get('department'),
+    subject: get('subject'),
+    message: get('message') // messageフィールドがない場合は空文字
   };
+}
+
+async function getCurrentProfileWithTemplate() {
+  const profile = getCurrentProfile();
+  // 原稿タブのテンプレートをmessageとして使用
+  const data = await chrome.storage.sync.get(['tplBody', 'tplSubject', 'tplSelfDesc']);
+  if (data.tplBody) profile.message = data.tplBody;
+  if (data.tplSubject) profile.subject = profile.subject || data.tplSubject;
+  return profile;
 }
 
 // Start batch button handler
@@ -1051,7 +1061,7 @@ document.getElementById('startBatch').addEventListener('click', async () => {
     batchAutoCloseEnabled: autoCloseEnabled
   });
 
-  const profile = getCurrentProfile();
+  const profile = await getCurrentProfileWithTemplate();
   const tabsPerBatch = parseInt(document.getElementById('tabsPerBatch').value);
 
   try {
@@ -1409,7 +1419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tabsPerBatch = parseInt(document.getElementById('tabsPerBatchMain')?.value || '20');
     const autoClose = document.getElementById('autoCloseEnabledMain')?.checked ?? true;
-    const profile = getCurrentProfile();
+    const profile = await getCurrentProfileWithTemplate();
 
     await chrome.storage.local.set({ batchUrls: urlsText, batchAutoCloseEnabled: autoClose });
 
