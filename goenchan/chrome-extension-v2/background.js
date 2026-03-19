@@ -1777,6 +1777,35 @@ async function findContactByBruteForce(baseUrl) {
   return null;
 }
 
+// 方法4: Google site:検索
+async function findContactByGoogleSearch(baseUrl) {
+  const domain = new URL(baseUrl).hostname;
+  const queries = [
+    `site:${domain} お問い合わせ`,
+    `site:${domain} contact`,
+    `site:${domain} 問い合わせ フォーム`
+  ];
+  for (const q of queries) {
+    try {
+      const res = await fetch(`https://www.google.com/search?q=${encodeURIComponent(q)}&num=5&hl=ja`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+      });
+      const html = await res.text();
+      const matches = [...html.matchAll(/\/url\?q=(https?:\/\/[^&"' ]+)/g)];
+      for (const m of matches) {
+        try {
+          const url = decodeURIComponent(m[1]);
+          if (new URL(url).hostname === domain && isContactUrlKeyword(url)) {
+            console.log('[Google] Found:', url);
+            return url;
+          }
+        } catch(e) {}
+      }
+    } catch(e) { console.log('[Google] error:', e.message); }
+  }
+  return null;
+}
+
 // 方法5: Wayback Machine
 async function findContactByWayback(baseUrl) {
   let domain;
@@ -1862,23 +1891,28 @@ async function findContactPageEnhanced(baseUrl) {
       || (bruteResult.status === 'fulfilled' ? bruteResult.value : null);
   if (url) { notify(3, `✅ header/footer/brute で発見`); return url; }
 
-  // Step 4: Wayback Machine
-  notify(4, `🕰️ Wayback Machine 検索中`);
-  try { url = await findContactByWayback(baseUrl); } catch(e) {}
-  if (url) { notify(4, `✅ Wayback で発見`); return url; }
+  // Step 4: Google site:検索
+  notify(4, `🔍 Google検索中`);
+  try { url = await findContactByGoogleSearch(baseUrl); } catch(e) {}
+  if (url) { notify(4, `✅ Googleで発見`); return url; }
 
-  // Step 5: AI リンクスコアリング
-  notify(5, `🤖 AI リンク解析中`);
+  // Step 5: Wayback Machine
+  notify(5, `🕰️ Wayback Machine 検索中`);
+  try { url = await findContactByWayback(baseUrl); } catch(e) {}
+  if (url) { notify(5, `✅ Wayback で発見`); return url; }
+
+  // Step 6: AI リンクスコアリング
+  notify(6, `🤖 AI リンク解析中`);
   try {
     const storage = await chrome.storage.sync.get(['anthropicApiKey']);
     url = await findContactByAI(html, baseUrl, storage.anthropicApiKey);
   } catch(e) {}
-  if (url) { notify(5, `✅ AI で発見`); return url; }
+  if (url) { notify(6, `✅ AI で発見`); return url; }
 
-  // Step 6: 既存の humanStyle フォールバック
-  notify(6, `🧭 ナビゲーション探索中`);
+  // Step 7: 既存の humanStyle フォールバック
+  notify(7, `🧭 ナビゲーション探索中`);
   try { url = await findContactPageHumanStyle(baseUrl); } catch(e) {}
-  if (url) { notify(6, `✅ ナビゲーションで発見`); return url; }
+  if (url) { notify(7, `✅ ナビゲーションで発見`); return url; }
 
   notify(0, `❌ 未発見`);
   return null;
