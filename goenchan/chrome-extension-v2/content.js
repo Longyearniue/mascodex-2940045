@@ -2794,6 +2794,132 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  // ===== 日本酒蔵元 =====
+  'www.urakasumi.com/contact/form': {
+    company_url: 'https://www.urakasumi.com/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    email: { selector: 'input[name="mail"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="confirm-mail"]', confidence: 100 },
+    zipcode: { selector: 'input[name="postcode"]', confidence: 100 },
+    prefecture: { selector: 'select[name="pref"]', confidence: 100 },
+    address: { selector: 'input[name="address"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    message: { selector: 'textarea[name="content"]', confidence: 100 }
+  },
+  'www.daishichi.com/contact': {
+    company_url: 'https://www.daishichi.com/',
+    name1: { selector: 'input[name="mail_author"]', confidence: 100 },
+    email: { selector: 'input[name="mail_email"]', confidence: 100 },
+    message: { selector: 'textarea[name="mail_text"]', confidence: 100 }
+  },
+  'www.nanbubijin.co.jp/contact': {
+    company_url: 'https://www.nanbubijin.co.jp/',
+    name1: { selector: 'input[name="contact_name"]', confidence: 100 },
+    phone: { selector: 'input[name="contact_tel"]', confidence: 100 },
+    email: { selector: 'input[name="contact_email"]', confidence: 100 },
+    message: { selector: 'textarea[name="contact_textarea"]', confidence: 100 }
+  },
+  'kuheiji.co.jp/contact': {
+    company_url: 'https://www.kuheiji.co.jp/',
+    name1: { selector: 'input[name="お名前"]', confidence: 100 },
+    nameKana: { selector: 'input[name="フリガナ"]', confidence: 100 },
+    phone: { selector: 'input[name="電話番号"]', confidence: 100 },
+    email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="メールアドレス（確認）"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
+  },
+  'www.asahishuzo.ne.jp/contact': {
+    company_url: 'https://www.asahishuzo.ne.jp/',
+    name1: { selector: 'input[name="お名前"]', confidence: 100 },
+    nameKana: { selector: 'input[name="フリガナ"]', confidence: 100 },
+    email: { selector: 'input[name="Email"]', confidence: 100 },
+    phone: { selector: 'input[name="電話番号"]', confidence: 100 },
+    zipcode: { selector: 'input[name="郵便番号"]', confidence: 100 },
+    prefecture: { selector: 'select[name="都道府県"]', confidence: 100 },
+    city: { selector: 'input[name="市区町村"]', confidence: 100 },
+    street: { selector: 'input[name="建物名等"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問合わせ内容"]', confidence: 100 }
+  },
+  'amabuki.co.jp/contact': {
+    company_url: 'https://amabuki.co.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    zipcode1: { selector: 'input[name="zipcode1"]', confidence: 100 },
+    zipcode2: { selector: 'input[name="zipcode2"]', confidence: 100 },
+    address: { selector: 'input[name="address"]', confidence: 100 },
+    phone1: { selector: 'input[name="tel1"]', confidence: 100 },
+    phone2: { selector: 'input[name="tel2"]', confidence: 100 },
+    phone3: { selector: 'input[name="tel3"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    message: { selector: 'textarea[name="note"]', confidence: 100 }
+  },
+  'www.hombo.co.jp/contact': {
+    company_url: 'https://www.hombo.co.jp/',
+    name1: { selector: 'input[name="your-name"]', confidence: 100 },
+    company: { selector: 'input[name="company"]', confidence: 100 },
+    email: { selector: 'input[name="your-email"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    zipcode: { selector: 'input[name="zip"]', confidence: 100 },
+    address: { selector: 'input[name="address"]', confidence: 100 },
+    message: { selector: 'textarea[name="your-message"]', confidence: 100 }
+  },
+  'taikai-shuzo.shop-pro.jp/customer/inquiries': {
+    company_url: 'https://taikai-shop.com/',
+    name1: { selector: 'input[name="inquiry_answer[name]"]', confidence: 100 },
+    email: { selector: 'input[name="inquiry_answer[email]"]', confidence: 100 },
+    message: { selector: 'textarea[name="inquiry_answer[comment]"]', confidence: 100 }
+  },
+  // ===== 和菓子・食品 =====
+  'www.awashimado.co.jp/contact': {
+    company_url: 'https://www.awashimado.co.jp/',
+    name1: { selector: 'input[name="AW_T_CON_MEI"]', confidence: 100 },
+    nameKana: { selector: 'input[name="AW_T_CON_KNA"]', confidence: 100 },
+    address: { selector: 'input[name="AW_T_CON_ADR"]', confidence: 100 },
+    phone: { selector: 'input[name="AM_T_CON_TEL"]', confidence: 100 },
+    email: { selector: 'input[name="AW_T_CON_EML"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="AW_T_CON_EML2"]', confidence: 100 },
+    message: { selector: 'textarea[name="AW_T_CON_TOI"]', confidence: 100 }
+  },
+  'kitchoan.jp/shop/contact': {
+    company_url: 'https://kitchoan.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    email: { selector: 'input[name="mail"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="cmail"]', confidence: 100 },
+    message: { selector: 'textarea[name="body"]', confidence: 100 }
+  },
+  'www.ogurasansou.co.jp/shop/contact': {
+    company_url: 'https://www.ogurasansou.co.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    email: { selector: 'input[name="mail"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="cmail"]', confidence: 100 },
+    message: { selector: 'textarea[name="body"]', confidence: 100 }
+  },
+  'www.ajinoren.co.jp/shop/contact': {
+    company_url: 'https://www.ajinoren.co.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    email: { selector: 'input[name="mail"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="cmail"]', confidence: 100 },
+    message: { selector: 'textarea[name="body"]', confidence: 100 }
+  },
+  'shop.taneya.co.jp/contact': {
+    company_url: 'https://taneya.jp/',
+    lastName: { selector: 'input[name="dwfrm_contact_customer_lastname"]', confidence: 100 },
+    firstName: { selector: 'input[name="dwfrm_contact_customer_firstname"]', confidence: 100 },
+    email: { selector: 'input[name="dwfrm_contact_customer_email"]', confidence: 100 },
+    phone1: { selector: 'input[name="dwfrm_contact_customer_phone1"]', confidence: 100 },
+    phone2: { selector: 'input[name="dwfrm_contact_customer_phone2"]', confidence: 100 },
+    phone3: { selector: 'input[name="dwfrm_contact_customer_phone3"]', confidence: 100 },
+    message: { selector: 'textarea[name="dwfrm_contact_contact_inquiry"]', confidence: 100 }
+  },
+  'tabigarasuhonpo.jp/toiawase': {
+    company_url: 'https://www.seigetsudo.co.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    emailConfirm: { selector: 'input[name="email2"]', confidence: 100 },
+    message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
+  },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
     name1: { selector: 'input[name="氏名"]', confidence: 100 },
