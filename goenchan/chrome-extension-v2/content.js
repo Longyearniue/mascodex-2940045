@@ -2550,6 +2550,14 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'www.katsuobushi.shop/ssl/enquete': {
+    company_url: 'https://www.katsuobushi.shop/',
+    name1: { selector: 'input[name="t_00"]', confidence: 100 },
+    phone: { selector: 'input[name="t_01"]', confidence: 100 },
+    email: { selector: 'input[name="t_02"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="t_conf_02"]', confidence: 100 },
+    message: { selector: 'textarea[name="t_03"]', confidence: 100 }
+  },
   'katsuobushiou.com/contact': {
     company_url: 'https://katsuobushiou.com/',
     email: { selector: "input[name='email-1']", confidence: 100 },
