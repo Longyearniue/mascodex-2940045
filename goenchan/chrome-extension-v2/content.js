@@ -2550,6 +2550,20 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'www.kobayashi-foods.co.jp/inquiry': {
+    company_url: 'https://www.kobayashi-foods.co.jp/',
+    name1: { selector: 'input[name="your-name"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="kana"]', confidence: 100 },
+    company: { selector: 'input[name="company"]', confidence: 100 },
+    department: { selector: 'input[name="busho"]', confidence: 100 },
+    tel1: { selector: 'input[name="tell1"]', confidence: 100 },
+    tel2: { selector: 'input[name="tell2"]', confidence: 100 },
+    tel3: { selector: 'input[name="tell3"]', confidence: 100 },
+    address: { selector: 'input[name="address"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="email_confirm"]', confidence: 100 },
+    message: { selector: 'textarea[name="message"]', confidence: 100 }
+  },
   'kansou.co.jp/f/contact': {
     company_url: 'https://kansou.co.jp/',
     name1: { selector: 'input[name="field_14682_sei"]', confidence: 100 },
