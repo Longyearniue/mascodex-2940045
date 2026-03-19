@@ -4387,13 +4387,21 @@ function getProfileValue(profile, key) {
     // 直接入力された姓/名を優先
     if (isSei && profile.last_name) return profile.last_name;
     if (!isSei && profile.first_name) return profile.first_name;
-    // スペース区切りでフルネームを分割
     const fullName = profile.name || '';
-    const parts = fullName.split(/[\s　]+/).filter(p => p.length > 0);
-    if (parts.length >= 2) {
-      return isSei ? parts[0] : parts.slice(1).join(' ');
+    // スペース区切り
+    const spaceParts = fullName.split(/[\s　]+/).filter(p => p.length > 0);
+    if (spaceParts.length >= 2) return isSei ? spaceParts[0] : spaceParts.slice(1).join('');
+    // 漢字→ひらがな/カタカナ境界で分割（例: 松本まみ → 松本 / まみ）
+    const kanjiKanaBoundary = fullName.match(/^([\u4e00-\u9fff\u3400-\u4dbf]+)([\u3040-\u309f\u30a0-\u30ff\u4e00-\u9fff].*)$/);
+    if (kanjiKanaBoundary) {
+      return isSei ? kanjiKanaBoundary[1] : kanjiKanaBoundary[2];
     }
-    console.log(`[Profile] Name "${fullName}" has no space separator`);
+    // ひらがな→漢字境界
+    const kanaKanjiBoundary = fullName.match(/^([\u3040-\u309f\u30a0-\u30ff]+)([\u4e00-\u9fff].*)$/);
+    if (kanaKanjiBoundary) {
+      return isSei ? kanaKanjiBoundary[1] : kanaKanjiBoundary[2];
+    }
+    // 分割できない場合: 姓=フル、名=空
     return isSei ? fullName : '';
   }
 
@@ -4403,13 +4411,25 @@ function getProfileValue(profile, key) {
     // 直接入力されたカナ姓/名を優先
     if (isSei && profile.last_name_kana) return profile.last_name_kana;
     if (!isSei && profile.first_name_kana) return profile.first_name_kana;
-    // スペース区切りでフルカナを分割
     const fullKana = profile.name_kana || '';
-    const parts = fullKana.split(/[\s　]+/).filter(p => p.length > 0);
-    if (parts.length >= 2) {
-      return isSei ? parts[0] : parts.slice(1).join(' ');
+    // スペース区切り
+    const spaceParts = fullKana.split(/[\s　]+/).filter(p => p.length > 0);
+    if (spaceParts.length >= 2) return isSei ? spaceParts[0] : spaceParts.slice(1).join('');
+    // 漢字の姓の長さを参考にカナを分割
+    const fullName = profile.name || '';
+    const kanjiMatch = fullName.match(/^([\u4e00-\u9fff\u3400-\u4dbf]+)/);
+    if (kanjiMatch && fullKana.length > kanjiMatch[1].length) {
+      // 姓の漢字文字数×2がカナの姓の長さの目安（1漢字≒2カナ）
+      // ただし実際のカナ長で切る（マツモト=4, マミ=2 など）
+      // 姓漢字数と名から推定: 姓漢字数を使ってカナを前後に分割
+      const seiLen = kanjiMatch[1].length;
+      // カナ長を比率で分割: 姓カナ = 全カナ × (姓漢字数 / 全漢字数)
+      const totalKanjiMatch = fullName.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g);
+      const totalKanji = totalKanjiMatch ? totalKanjiMatch.length : fullName.length;
+      const splitPos = Math.round(fullKana.length * seiLen / Math.max(totalKanji, 1));
+      const clampedPos = Math.max(1, Math.min(splitPos, fullKana.length - 1));
+      return isSei ? fullKana.slice(0, clampedPos) : fullKana.slice(clampedPos);
     }
-    console.log(`[Profile] Name kana "${fullKana}" has no space separator`);
     return isSei ? fullKana : '';
   }
 
