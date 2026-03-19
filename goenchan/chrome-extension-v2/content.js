@@ -2984,7 +2984,7 @@ const SITE_MAPPINGS = {
   'www.yamadaen.co.jp/contact': {
     company_url: 'https://www.yamadaen.co.jp/',
     name1: { selector: 'input[name="your-name"]', confidence: 100 },
-    name_kana1: { selector: 'input[name="your-kana"]', confidence: 100 },
+    nameKana: { selector: 'input[name="your-kana"]', confidence: 100 },
     email: { selector: 'input[name="your-email"]', confidence: 100 },
     phone: { selector: 'input[name="your-tel"]', confidence: 100 },
     company: { selector: 'input[name="your-company"]', confidence: 100 }
@@ -2992,7 +2992,7 @@ const SITE_MAPPINGS = {
   'shop.satoen.co.jp/shop/info': {
     company_url: 'https://shop.satoen.co.jp/',
     name1: { selector: 'input[name="name"]', confidence: 100 },
-    name_kana1: { selector: 'input[name="kana"]', confidence: 100 },
+    nameKana: { selector: 'input[name="kana"]', confidence: 100 },
     email: { selector: 'input[name="address"]', confidence: 100 },
     email_confirm: { selector: 'input[name="address2"]', confidence: 100 },
     tel1: { selector: 'input[name="tel1"]', confidence: 100 },
@@ -3045,7 +3045,7 @@ const SITE_MAPPINGS = {
   'www.kyoto-uchida.ne.jp/contact/': {
     company_url: 'https://www.kyoto-uchida.ne.jp/',
     name1: { selector: 'input[name="name"]', confidence: 100 },
-    name_kana1: { selector: 'input[name="kana"]', confidence: 100 },
+    nameKana: { selector: 'input[name="kana"]', confidence: 100 },
     phone: { selector: 'input[name="tel"]', confidence: 100 },
     email: { selector: 'input[name="email"]', confidence: 100 },
     email_confirm: { selector: 'input[name="email2"]', confidence: 100 },
@@ -3133,7 +3133,7 @@ const SITE_MAPPINGS = {
   'www.kobayashi-foods.co.jp/inquiry': {
     company_url: 'https://www.kobayashi-foods.co.jp/',
     name1: { selector: 'input[name="your-name"]', confidence: 100 },
-    name_kana1: { selector: 'input[name="kana"]', confidence: 100 },
+    nameKana: { selector: 'input[name="kana"]', confidence: 100 },
     company: { selector: 'input[name="company"]', confidence: 100 },
     department: { selector: 'input[name="busho"]', confidence: 100 },
     tel1: { selector: 'input[name="tell1"]', confidence: 100 },
@@ -5172,6 +5172,12 @@ function parseAddress(fullAddress) {
 }
 
 function getProfileValue(profile, key) {
+  // nameKana: 全体フリガナ（姓名一体）
+  if (key === 'nameKana' || key === 'name_kana' || key === 'kana') {
+    const fullKana = ((profile.lastNameKana || profile.last_name_kana || '') + ' ' + (profile.firstNameKana || profile.first_name_kana || '')).trim();
+    return profile.nameKana || profile.name_kana || fullKana || '';
+  }
+
   // Handle split name fields (姓/名)
   if (key === 'name1' || key === 'name2' || key === 'name_sei' || key === 'name_mei' || key === 'last_name' || key === 'first_name') {
     const isSei = (key === 'name1' || key === 'name_sei' || key === 'last_name');
