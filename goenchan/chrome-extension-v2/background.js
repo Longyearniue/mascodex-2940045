@@ -1234,8 +1234,17 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
           // Create profile with custom message
           // 原稿はcontent.jsがchrome.storage.syncから直接読む。ここでは上書きしない
-          const profileWithMessage = { ...storage.batchProfile };
-          console.log('[Batch] Sending profile to tab (message overriding disabled)');
+          // ただし会社名・都道府県・商品名はCSVエントリから注入する
+          const entry = batchState.urlEntryMap ? batchState.urlEntryMap[originalUrl] : null;
+          const profileWithMessage = {
+            ...storage.batchProfile,
+            ...(entry ? {
+              companyName: entry.companyName || storage.batchProfile?.companyName || '',
+              prefecture: entry.prefecture || storage.batchProfile?.prefecture || '',
+              city: entry.city || storage.batchProfile?.city || '',
+            } : {})
+          };
+          console.log('[Batch] Sending profile to tab, companyName:', profileWithMessage.companyName, 'prefecture:', profileWithMessage.prefecture);
 
           await chrome.tabs.sendMessage(tabId, {
             action: 'batchAutoFill',
