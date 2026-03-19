@@ -1434,7 +1434,7 @@ function buildStableSelector(el) {
 function detectPlatform() {
   const html = document.documentElement.innerHTML;
   const meta = document.querySelector('meta[name="generator"]')?.content || '';
-  if (html.includes('ec-cube') || html.includes('eccube') || meta.includes('EC-CUBE')) return 'ec-cube';
+  if (html.includes('ec-cube') || html.includes('eccube') || meta.includes('EC-CUBE') || document.querySelector('input[name="name01"], input[name="kana01"], input[name="zip01"]')) return 'ec-cube';
   if (html.includes('makeshop') || html.includes('MakeShop')) return 'makeshop';
   if (html.includes('shopify') || html.includes('Shopify') ||
       document.querySelector('input[name^="contact["]')) return 'shopify';
@@ -1448,15 +1448,22 @@ function detectPlatform() {
 function getPlatformMappings(platform) {
   const patterns = {
     'ec-cube': {
-      last_name: ['input[name*="name01"]'],
-      first_name: ['input[name*="name02"]'],
-      last_name_kana: ['input[name*="kana01"]'],
-      first_name_kana: ['input[name*="kana02"]'],
-      zipcode: ['input[name*="postal_code"]', 'input[name*="zip01"]'],
+      name1: ['input[name="name01"]'],
+      name2: ['input[name="name02"]'],
+      name_kana1: ['input[name="kana01"]'],
+      name_kana2: ['input[name="kana02"]'],
+      zipcode1: ['input[name="zip01"]'],
+      zipcode2: ['input[name="zip02"]'],
+      zipcode: ['input[name*="postal_code"]'],
       prefecture: ['select[name*="pref"]'],
-      address: ['input[name*="addr01"]'],
-      phone: ['input[name*="phone_number"]', 'input[name*="tel01"]'],
-      email: ['input[name*="email"]'],
+      city: ['input[name="addr01"]'],
+      street: ['input[name="addr02"]'],
+      phone1: ['input[name="tel01"]'],
+      phone2: ['input[name="tel02"]'],
+      phone3: ['input[name="tel03"]'],
+      phone: ['input[name*="phone_number"]'],
+      email: ['input[name="email"]', 'input[name*="email01"]'],
+      email_confirm: ['input[name="email02"]'],
       message: ['textarea[name*="contents"]', 'textarea[name*="body"]']
     },
     'wordpress': {
@@ -2979,6 +2986,24 @@ const SITE_MAPPINGS = {
     name_kana2: { selector: 'input[name="firstKanaName1"]', confidence: 100 },
     email: { selector: 'input[name="mail2"]', confidence: 100 },
     email_confirm: { selector: 'input[name="confirm2"]', confidence: 100 },
+  },
+  'niigata-rice.com/contact': {
+    company_url: 'https://niigata-rice.com/',
+    name1: { selector: 'input[name="name01"]', confidence: 100 },
+    name2: { selector: 'input[name="name02"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="kana01"]', confidence: 100 },
+    name_kana2: { selector: 'input[name="kana02"]', confidence: 100 },
+    zipcode1: { selector: 'input[name="zip01"]', confidence: 100 },
+    zipcode2: { selector: 'input[name="zip02"]', confidence: 100 },
+    prefecture: { selector: 'select[name="pref"]', confidence: 100 },
+    city: { selector: 'input[name="addr01"]', confidence: 100 },
+    street: { selector: 'input[name="addr02"]', confidence: 100 },
+    phone1: { selector: 'input[name="tel01"]', confidence: 100 },
+    phone2: { selector: 'input[name="tel02"]', confidence: 100 },
+    phone3: { selector: 'input[name="tel03"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
+    message: { selector: 'textarea[name="contents"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
