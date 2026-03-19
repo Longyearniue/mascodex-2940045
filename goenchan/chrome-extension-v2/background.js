@@ -1018,11 +1018,15 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
           // Create profile with custom message
           const profileWithMessage = { ...storage.batchProfile };
-          if (customMessage) {
+          // ユーザーが原稿タブでテンプレートを設定している場合は優先する
+          const userHasTemplate = profileWithMessage.message && profileWithMessage.message.trim().length > 0;
+          if (customMessage && !userHasTemplate) {
             profileWithMessage.message = customMessage;
-            console.log('[Batch] Using generated message for:', originalUrl);
+            console.log('[Batch] Using Worker API generated message for:', originalUrl);
+          } else if (userHasTemplate) {
+            console.log('[Batch] Using user template (原稿タブ), skipping API message');
           } else {
-            console.log('[Batch] No generated message found, using default profile message');
+            console.log('[Batch] No message available');
           }
 
           await chrome.tabs.sendMessage(tabId, {
