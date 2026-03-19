@@ -1605,7 +1605,8 @@ async function autoFillForm(profile) {
     fieldsProcessed: 0,
     fieldsFilled: 0,
     errors: [],
-    detailedResults: []
+    detailedResults: [],
+    passCounts: { pass0: 0, pass1: 0, pass2: 0, pass3: 0, pass4: 0, pass5: 0, pass6: 0, passAI: 0, passType: 0 }
   };
 
   // =============================================================================
@@ -2141,7 +2142,9 @@ async function autoFillForm(profile) {
   // D: AI補完 - 必ず DeepSeek を呼ぶ（スクリーンショット付き）
   const emptyBeforeAI = getEmptyVisibleFields().length;
   console.log(`🤖 [AI Pass] ${emptyBeforeAI} empty fields → calling DeepSeek...`);
+  const filledBeforeAI = debugInfo.fieldsFilled;
   await aiFillUnknownFields(profile);
+  debugInfo.passCounts.passAI = debugInfo.fieldsFilled - filledBeforeAI;
 
   // Pass 4: スクリーンショット付きAI補完（aiFillUnknownFieldsで統合処理）
   // Note: aiFillUnknownFieldsがスクリーンショットを自動取得して送信するため別途呼び出し不要

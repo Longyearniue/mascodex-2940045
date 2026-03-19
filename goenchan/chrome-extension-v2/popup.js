@@ -289,7 +289,14 @@ document.getElementById('autoFill').addEventListener('click', async () => {
   if (response && response.success) {
     displayResults(response.results);
     debugData = response.debug;
-    showStatus(`Filled ${response.results.length} field(s)!`, 'success');
+    if (response.results.length === 0) {
+      const pl = (debugData && debugData.platform) || '?';
+      const sm = (debugData && debugData.siteMapping) || 'なし';
+      showStatus('⚠️ 0件入力 | platform:' + pl + ' | siteMap:' + sm, 'error');
+    } else {
+      const pc = (debugData && debugData.passCounts) || {};
+      showStatus('✅ ' + response.results.length + 'フィールド入力 [AI:' + (pc.passAI||0) + ' type:' + (pc.passType||0) + ']', 'success');
+    }
 
     // Show debug section if available
     if (debugData) {
