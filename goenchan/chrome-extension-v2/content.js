@@ -2041,6 +2041,37 @@ async function autoFillForm(profile) {
     console.log(`✨ [FALLBACK] ${fallbackCount} additional fields filled as last resort`);
   }
 
+  // =============================================================================
+  // LAYER 7: type属性ベース最強フォールバック（何も入らなかった場合の最終手段）
+  // =============================================================================
+  const typeBasedFills = [
+    ['input[type="email"]', profile.email],
+    ['input[type="tel"]', profile.phone],
+    ['input[type="url"]', profile.website || ''],
+  ];
+  for (const [sel, val] of typeBasedFills) {
+    if (!val) continue;
+    document.querySelectorAll(sel).forEach(el => {
+      if (!isVisible(el) || filledFields.has(el) || (el.value && el.value.trim())) return;
+      setNativeValue(el, val);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+      filledFields.add(el);
+      debugInfo.fieldsFilled++;
+      console.log(`💪 [TypeFallback] ${sel} → "${String(val).substring(0,30)}"`);
+    });
+  }
+  // textarea が1つだけで空なら必ずメッセージを入れる
+  const emptyTextareas = Array.from(document.querySelectorAll('textarea')).filter(el => isVisible(el) && !filledFields.has(el) && !el.value.trim());
+  if (emptyTextareas.length === 1 && profile.message) {
+    setNativeValue(emptyTextareas[0], profile.message);
+    emptyTextareas[0].dispatchEvent(new Event('input', { bubbles: true }));
+    emptyTextareas[0].dispatchEvent(new Event('change', { bubbles: true }));
+    filledFields.add(emptyTextareas[0]);
+    debugInfo.fieldsFilled++;
+    console.log(`💪 [TypeFallback] single textarea → message`);
+  }
+
   console.log(`📊 Total filled: ${debugInfo.fieldsFilled}/${debugInfo.fieldsProcessed} fields`);
   console.log(`📊 [SUMMARY] Layers used:`);
   console.log(`  - SITE_MAPPINGS: ${siteMapping ? Object.keys(siteMapping).length : 0} fields`);
@@ -2107,13 +2138,10 @@ async function autoFillForm(profile) {
     }
   });
 
-  // D: AI補完 - Pass 1/2で埋まらなかった全フィールドをDeepSeekで補完
-  //    スクリーンショットも取得して視覚情報も合わせて送信（アグレッシブモード）
+  // D: AI補完 - 必ず DeepSeek を呼ぶ（スクリーンショット付き）
   const emptyBeforeAI = getEmptyVisibleFields().length;
-  if (emptyBeforeAI > 0) {
-    console.log(`🤖 [AI Pass] ${emptyBeforeAI} fields still empty → calling DeepSeek with screenshot...`);
-    await aiFillUnknownFields(profile);
-  }
+  console.log(`🤖 [AI Pass] ${emptyBeforeAI} empty fields → calling DeepSeek...`);
+  await aiFillUnknownFields(profile);
 
   // Pass 4: スクリーンショット付きAI補完（aiFillUnknownFieldsで統合処理）
   // Note: aiFillUnknownFieldsがスクリーンショットを自動取得して送信するため別途呼び出し不要
@@ -2130,6 +2158,21 @@ async function autoFillForm(profile) {
 
   // Pass 7: AI最終確認 — 空の必須フィールドをAIが検出してバナー表示
   await pass7AIVerify(profile);
+
+  // 診断: 0フィールドしか入らなかった場合の警告バナー
+  const totalFilled = debugInfo.fieldsFilled;
+  if (totalFilled === 0) {
+    showDiagnosticBanner(profile);
+  }
+
+  // JS遅延レンダリング対応: 2秒後にフォームが増えていれば再トライ
+  setTimeout(async () => {
+    const newEmpty = getEmptyVisibleFields();
+    if (newEmpty.length > 0 && newEmpty.length > totalFilled) {
+      console.log(`⏰ [Delayed] ${newEmpty.length} new empty fields found → re-running AI fill`);
+      await aiFillUnknownFields(profile);
+    }
+  }, 2000);
 
   // Record learning data for future visits
   await recordLearning(profile);
@@ -5901,6 +5944,46 @@ async function pass6FillFromIntercepted(profile) {
 // =============================================================================
 // PASS 7: AI最終確認 — 空フィールドを検出してバナーで警告
 // =============================================================================
+// ============================================================
+// 診断バナー: 0フィールド時に原因と対処法を表示
+// ============================================================
+function showDiagnosticBanner(profile) {
+  const existing = document.getElementById('goen-diagnostic');
+  if (existing) existing.remove();
+
+  const issues = [];
+  if (!profile.name && !profile.last_name) issues.push('⚠️ プロフィールに名前が未設定');
+  if (!profile.email) issues.push('⚠️ プロフィールにメールアドレスが未設定');
+  if (!profile.phone) issues.push('⚠️ プロフィールに電話番号が未設定');
+
+  const allFields = document.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]), textarea, select');
+  const visibleFields = Array.from(allFields).filter(el => {
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  });
+
+  if (visibleFields.length === 0) issues.push('⚠️ フォームフィールドが見つかりません（JS遅延またはiframe）');
+
+  const banner = document.createElement('div');
+  banner.id = 'goen-diagnostic';
+  banner.style.cssText = `
+    position:fixed;bottom:20px;left:20px;z-index:2147483647;
+    background:#c62828;color:#fff;padding:12px 16px;border-radius:8px;
+    font-size:13px;max-width:360px;box-shadow:0 4px 16px rgba(0,0,0,.4);
+    font-family:sans-serif;line-height:1.6;
+  `;
+  banner.innerHTML = `<b>🔴 ごえんちゃん: 0フィールド入力</b><br>
+    ${issues.length > 0 ? issues.join('<br>') : '原因不明 — コンソールログを確認してください'}<br>
+    <small style="opacity:.8">フィールド数: ${visibleFields.length} / プロフィール: name=${profile.name||'未設定'} email=${profile.email||'未設定'}</small>`;
+  const close = document.createElement('span');
+  close.textContent = ' ✕';
+  close.style.cssText = 'cursor:pointer;margin-left:8px;font-size:16px;';
+  close.onclick = () => banner.remove();
+  banner.appendChild(close);
+  document.body.appendChild(banner);
+  setTimeout(() => banner?.remove(), 15000);
+}
+
 async function pass7AIVerify(profile) {
   // 全可視フィールドを収集
   const allFields = Array.from(document.querySelectorAll(
