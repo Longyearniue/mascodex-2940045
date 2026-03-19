@@ -890,6 +890,13 @@ function analyzeFieldSemantics(field) {
     sources.push({ text: nearbyText.substring(0, 50), type: 'nearby-text', confidence: CONFIDENCE_NEARBY });
   }
 
+  // 4. name属性 / id属性（ラベルがない場合のフォールバック）
+  const CONFIDENCE_ATTR = 12;
+  const fieldName = field.getAttribute('name') || '';
+  const fieldId = field.getAttribute('id') || '';
+  if (fieldName) sources.push({ text: fieldName, type: 'name-attr', confidence: CONFIDENCE_ATTR });
+  if (fieldId && fieldId !== fieldName) sources.push({ text: fieldId, type: 'id-attr', confidence: CONFIDENCE_ATTR });
+
   if (sources.length === 0) {
     return null;
   }
@@ -3024,6 +3031,16 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="mail_check"]', confidence: 100 },
     prefecture: { selector: 'select[name="prefectures"]', confidence: 100 },
     message: { selector: 'textarea[name="content"]', confidence: 100 },
+  },
+  'www.nakamo.co.jp/contact': {
+    company_url: 'https://www.nakamo.co.jp/',
+    name: { selector: 'input[name="name"]', confidence: 100 },
+    nameKana: { selector: 'input[name="name_kana"]', confidence: 100 },
+    zipcode: { selector: 'input[name="zip"]', confidence: 100 },
+    address: { selector: 'input[name="address"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    email: { selector: 'input[name="mail"]', confidence: 100 },
+    message: { selector: 'textarea[name="message"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
