@@ -163,7 +163,10 @@ async function loadCurrentUrl() {
 
 // Load profile data
 async function loadProfile() {
-  const data = await chrome.storage.sync.get(['profile', 'autoFillEnabled']);
+  const data = await chrome.storage.sync.get(['profile', 'autoFillEnabled', 'anthropicApiKey']);
+  if (data.anthropicApiKey) {
+    document.getElementById('anthropicApiKey').value = data.anthropicApiKey;
+  }
   if (data.profile) {
     document.getElementById('company').value = data.profile.company || '';
     document.getElementById('company_kana').value = data.profile.company_kana || '';
@@ -210,7 +213,8 @@ document.getElementById('saveProfile').addEventListener('click', async () => {
   // Get auto-fill setting
   const autoFillEnabled = document.getElementById('autoFillEnabled').checked;
 
-  await chrome.storage.sync.set({ profile, autoFillEnabled });
+  const anthropicApiKey = document.getElementById('anthropicApiKey').value.trim();
+  await chrome.storage.sync.set({ profile, autoFillEnabled, anthropicApiKey });
   showStatus('✅ プロフィールを保存しました！', 'success');
 });
 

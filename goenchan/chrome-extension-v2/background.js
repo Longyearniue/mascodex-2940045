@@ -46,6 +46,76 @@ let batchState = {
 // Listen for messages from popup and content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle sales letter fetch request from content script (avoids CORS issues)
+  // AI field classification via Claude API (bypasses Mixed Content restriction)
+  if (message.action === 'aiClassifyFields') {
+    (async () => {
+      try {
+        const { fields, profile } = message;
+        const apiKeyData = await chrome.storage.sync.get(['anthropicApiKey']);
+        const apiKey = apiKeyData.anthropicApiKey;
+        if (!apiKey) {
+          sendResponse({ success: false, error: 'No Anthropic API key configured' });
+          return;
+        }
+
+        const fieldList = fields.map((f, i) =>
+          `${i}: label="${f.label}" name="${f.name}" type="${f.type}" placeholder="${f.placeholder}"`
+        ).join('\n');
+
+        const prompt = `You are a form-filling assistant. Given these form fields and a user profile, determine what value to fill in each field.
+
+Fields:
+${fieldList}
+
+Profile:
+- Full name: ${profile.fullName || (profile.lastName || '') + ' ' + (profile.firstName || '')}
+- Name kana: ${profile.lastNameKana || ''} ${profile.firstNameKana || ''}
+- Company: ${profile.company || ''}
+- Email: ${profile.email || ''}
+- Phone: ${profile.phone || ''}
+- Zipcode: ${profile.zipcode || ''}
+- Prefecture: ${profile.prefecture || ''}
+- City: ${profile.city || ''}
+- Street: ${profile.street || ''}
+- Message: ${profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。'}
+
+Reply with a JSON array of values, one per field (same order). Use null if the field should not be filled (e.g. checkboxes, radio buttons, privacy policy). For select/dropdown fields, provide the option value or label text. Keep values concise.`;
+
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-20240307',
+            max_tokens: 1024,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+
+        if (!resp.ok) {
+          const err = await resp.text();
+          sendResponse({ success: false, error: err });
+          return;
+        }
+        const data = await resp.json();
+        const text = data.content?.[0]?.text || '';
+        const match = text.match(/\[.*\]/s);
+        if (!match) {
+          sendResponse({ success: false, error: 'No JSON array in response' });
+          return;
+        }
+        const values = JSON.parse(match[0]);
+        sendResponse({ success: true, values });
+      } catch (e) {
+        sendResponse({ success: false, error: e.message });
+      }
+    })();
+    return true;
+  }
+
   if (message.action === 'fetchSalesLetter') {
     console.log('[Background] Fetching sales letter for:', message.companyUrl);
     fetchSalesLetterFromBackground(message.companyUrl)

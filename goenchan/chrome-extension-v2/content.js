@@ -4235,18 +4235,23 @@ async function aiFillUnknownFields(profile) {
       placeholder: f.placeholder, type: f.type
     }));
 
-    const resp = await Promise.race([
-      fetch(AI_SERVER, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields, profile })
-      }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000))
-    ]);
+    // background.js経由でClaude APIを呼ぶ (Mixed Content回避)
+    const data = await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('timeout')), 20000);
+      chrome.runtime.sendMessage(
+        { action: 'aiClassifyFields', fields, profile },
+        (response) => {
+          clearTimeout(timer);
+          if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+          else resolve(response || { success: false });
+        }
+      );
+    });
 
-    if (!resp.ok) return;
-    const data = await resp.json();
-    if (!data.success || !Array.isArray(data.values)) return;
+    if (!data.success || !Array.isArray(data.values)) {
+      console.log('🤖 [AI Fallback] Failed:', data.error);
+      return;
+    }
 
     data.values.forEach((value, i) => {
       if (value === null || value === undefined || value === '') return;
