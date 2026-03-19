@@ -1483,6 +1483,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el && d.batchUrls) el.value = d.batchUrls;
   });
 
+  // textarea 変更時に自動保存
+  const _ta = document.getElementById('batchUrlsMain');
+  if (_ta) {
+    _ta.addEventListener('input', () => {
+      chrome.storage.local.set({ batchUrls: _ta.value });
+    });
+  }
+
+  // ポップアップ復帰時: バッチ実行中なら状態を復元してポーリング再開
+  chrome.runtime.sendMessage({ action: 'getBatchStatus' }, status => {
+    if (chrome.runtime.lastError || !status) return;
+    if (status.isRunning) {
+      console.log('[Popup] Batch is running, restoring UI state...');
+      const startBtn = document.getElementById('startBatchMain');
+      const nextBtn  = document.getElementById('nextBatchMain');
+      const stopBtn  = document.getElementById('stopBatchMain');
+      if (startBtn) startBtn.disabled = true;
+      if (nextBtn)  nextBtn.disabled  = false;
+      if (stopBtn)  stopBtn.disabled  = false;
+      const statusDiv = document.getElementById('batchStatusMain');
+      if (statusDiv) statusDiv.style.display = 'block';
+      startBatchMainPolling();
+    }
+  });
+
   // バッチ開始（二重登録防止）
   const _startBtn = document.getElementById('startBatchMain');
   if (_startBtn && !_startBtn._bound) {
