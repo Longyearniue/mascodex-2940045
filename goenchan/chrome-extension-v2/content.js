@@ -2550,6 +2550,17 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'shop.satoen.co.jp/shop/info': {
+    company_url: 'https://shop.satoen.co.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="kana"]', confidence: 100 },
+    email: { selector: 'input[name="address"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="address2"]', confidence: 100 },
+    tel1: { selector: 'input[name="tel1"]', confidence: 100 },
+    tel2: { selector: 'input[name="tel2"]', confidence: 100 },
+    tel3: { selector: 'input[name="tel3"]', confidence: 100 },
+    message: { selector: 'textarea[name="contact"]', confidence: 100 }
+  },
   'www.katsuobushi.shop/ssl/enquete': {
     company_url: 'https://www.katsuobushi.shop/',
     name1: { selector: 'input[name="t_00"]', confidence: 100 },
