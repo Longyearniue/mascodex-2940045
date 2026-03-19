@@ -831,15 +831,8 @@ async function findContactPagesForBatch(urls) {
         batchState.contactPages[url] = contactPageUrl;
         batchState.validUrls.push(url);
         console.log(`[Batch] ✅ ${url} → ${contactPageUrl} (${foundVia})`);
-        if (salesLetter) {
-          batchState.generatedMessages[url] = salesLetter;
-          batchState.generatedMessages[contactPageUrl] = salesLetter;
-          const stored = await chrome.storage.local.get(['batchGeneratedMessages']);
-          const messages = stored.batchGeneratedMessages || {};
-          messages[url] = salesLetter;
-          messages[contactPageUrl] = salesLetter;
-          await chrome.storage.local.set({ batchGeneratedMessages: messages });
-        }
+        // salesLetter保存を無効化（原稿タブのテンプレートを使用）
+        // if (salesLetter) { ... }
       } else {
         batchState.skippedUrls.push(url);
         console.log(`[Batch] ❌ No contact page: ${url}`);
@@ -1017,17 +1010,9 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
           }
 
           // Create profile with custom message
+          // 原稿はcontent.jsがchrome.storage.syncから直接読む。ここでは上書きしない
           const profileWithMessage = { ...storage.batchProfile };
-          // ユーザーが原稿タブでテンプレートを設定している場合は優先する
-          const userHasTemplate = profileWithMessage.message && profileWithMessage.message.trim().length > 0;
-          if (customMessage && !userHasTemplate) {
-            profileWithMessage.message = customMessage;
-            console.log('[Batch] Using Worker API generated message for:', originalUrl);
-          } else if (userHasTemplate) {
-            console.log('[Batch] Using user template (原稿タブ), skipping API message');
-          } else {
-            console.log('[Batch] No message available');
-          }
+          console.log('[Batch] Sending profile to tab (message overriding disabled)');
 
           await chrome.tabs.sendMessage(tabId, {
             action: 'batchAutoFill',
