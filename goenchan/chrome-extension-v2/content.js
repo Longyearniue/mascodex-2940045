@@ -2550,6 +2550,12 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'shop.sakekaika.co.jp/ssl/contact': {
+    company_url: 'https://shop.sakekaika.co.jp/',
+    name1: { selector: 'input[name="name"]', confidence: 100 },
+    email: { selector: 'input[name="email"]', confidence: 100 },
+    message: { selector: 'textarea[name="content"]', confidence: 100 }
+  },
   'www.cha-tsuhan.co.jp/contact': {
     company_url: 'https://www.cha-tsuhan.co.jp/',
     name1: { selector: 'input[name="contact[name][name01]"]', confidence: 100 },
