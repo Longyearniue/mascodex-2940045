@@ -1759,6 +1759,9 @@ async function autoFillForm(profile) {
     }
   });
 
+  // D: AI fallback - 未入力の必須/可視フィールドをAIで補完
+  await aiFillUnknownFields(profile);
+
   // Run verification after auto-fill
   const verification = verifyFormFill();
   debugInfo.verification = verification;
@@ -4123,6 +4126,64 @@ function expectsHiragana(field) {
   // よみがな・ひらがなキーワード
   if (/よみがな|ひらがな|yomigana/.test(combined)) return true;
   return false;
+}
+
+
+// =============================================================================
+// AI FIELD FALLBACK
+// =============================================================================
+const AI_SERVER = 'http://216.9.225.55:8888/classify-field';
+
+async function aiFillUnknownFields(profile) {
+  // 未入力の可視フィールドを収集
+  const unfilled = [];
+  document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]), textarea, select').forEach(el => {
+    if (!isVisible(el)) return;
+    if (el.value && el.value.trim()) return; // 既に入力済み
+
+    const label = getFieldLabel ? getFieldLabel(el) : (el.placeholder || el.name || el.id || '');
+    unfilled.push({
+      el,
+      label: label.trim(),
+      name: el.name || '',
+      id: el.id || '',
+      placeholder: el.placeholder || '',
+      type: el.type || el.tagName.toLowerCase()
+    });
+  });
+
+  if (unfilled.length === 0) return;
+  console.log(`🤖 [AI Fallback] ${unfilled.length} unfilled fields, asking AI...`);
+
+  try {
+    const fields = unfilled.map(f => ({
+      label: f.label, name: f.name, id: f.id,
+      placeholder: f.placeholder, type: f.type
+    }));
+
+    const resp = await Promise.race([
+      fetch(AI_SERVER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields, profile })
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000))
+    ]);
+
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (!data.success || !Array.isArray(data.values)) return;
+
+    data.values.forEach((value, i) => {
+      if (value === null || value === undefined || value === '') return;
+      const f = unfilled[i];
+      if (!f) return;
+      fillField(f.el, String(value), f.type);
+      console.log(`🤖 [AI] Filled "${f.label || f.name}": ${String(value).substring(0, 30)}`);
+    });
+  } catch (e) {
+    console.log('🤖 [AI Fallback] Error:', e.message);
+  }
 }
 
 
