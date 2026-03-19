@@ -1027,7 +1027,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 // Minimum fields required to consider form as "successfully filled"
-const MIN_FILLED_FIELDS = 2;  // Changed from 3 to 2 for simpler forms
+const MIN_FILLED_FIELDS = 1;  // 1つでも入力できればキープ（全く入らなかった場合のみクローズ）
 
 // Handle verification result from content script
 async function handleVerificationResult(verification, url, tabId) {
@@ -1100,7 +1100,7 @@ async function handleVerificationResult(verification, url, tabId) {
   // Determine if this tab should be kept or closed
   // メッセージ欄がない場合は、メッセージ入力を必須としない
   const messageOk = !hasMessageField || messageFieldFilled;
-  const shouldKeep = filledFields >= MIN_FILLED_FIELDS && messageOk;
+  const shouldKeep = filledFields >= MIN_FILLED_FIELDS;  // 1つでも入ればキープ
 
   if (shouldKeep) {
     console.log(`[Batch] ✅ Tab ${tabId} KEPT - Form properly filled`);
