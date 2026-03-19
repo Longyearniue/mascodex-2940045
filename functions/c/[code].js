@@ -22,9 +22,37 @@ export async function onRequestGet(context) {
     '<div class="links">',
     productSection + '<div class="links">'
   );
+  // Radio player injection
+  const radioSection = `<style>
+.radio-player audio{width:100%;border-radius:8px}
+.radio-archive-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.radio-archive-item:last-child{border-bottom:none}
+.radio-date{font-size:.75rem;opacity:.4;min-width:80px;flex-shrink:0}
+</style>
+<div class="section" id="mascot-radio" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px">
+  <h2 style="font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px">🎙️ ふるさとラジオ<a href="https://mascodex.com/radio" target="_blank" style="font-size:.7rem;font-weight:400;opacity:.4;text-decoration:none;margin-left:auto">すべて見る ↗</a></h2>
+  <div id="radio-player-area"><div style="opacity:.4;font-size:.85rem">読み込み中...</div></div>
+  <div id="radio-archive"></div>
+</div>
+<script>(function(){
+fetch('/api/radio/JP${code}')
+  .then(function(r){return r.ok?r.json():null})
+  .then(function(d){
+    var el=document.getElementById('radio-player-area');
+    var ar=document.getElementById('radio-archive');
+    if(!d||!d.episodes||!d.episodes.length){el.innerHTML='<span style="opacity:.4;font-size:.85rem">まだラジオがありません</span>';return;}
+    var eps=d.episodes, lat=eps[0];
+    el.innerHTML='<div class="radio-player" style="background:rgba(255,255,255,.06);border-radius:12px;padding:16px;margin-bottom:12px"><div style="font-size:.8rem;opacity:.5;margin-bottom:6px">📅 '+lat.date+'</div>'+(lat.title?'<div style="font-size:.92rem;font-weight:600;margin-bottom:10px">'+lat.title+'</div>':'')+'<audio controls src="'+lat.audio_url+'"></audio>'+(lat.script_text?'<details style="margin-top:10px"><summary style="font-size:.76rem;opacity:.5;cursor:pointer">台本を読む</summary><p style="font-size:.76rem;opacity:.7;line-height:1.7;margin-top:8px;white-space:pre-wrap">'+lat.script_text.substring(0,600)+(lat.script_text.length>600?'…':'')+'</p></details>':'')+'</div>';
+    if(eps.length>1){ar.innerHTML='<div style="font-size:.8rem;opacity:.45;margin-bottom:8px">📚 バックナンバー</div>'+eps.slice(1).map(function(ep){return'<div class="radio-archive-item"><span class="radio-date">'+ep.date+'</span><audio controls style="flex:1;height:32px" src="'+ep.audio_url+'"></audio></div>';}).join('');}
+  })
+  .catch(function(){document.getElementById('radio-player-area').innerHTML='<span style="opacity:.4;font-size:.85rem">ラジオを読み込めませんでした</span>';});
+})();</script>`;
+
+  html = html.replace('<div class="links">', radioSection + '<div class="links">');
+
   // Social feed injection
   const jpZip = 'JP' + code;
-  const socialScript = `<style>.social-post{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);}.social-post:last-child{border-bottom:none;}.social-post-content{font-size:.88rem;line-height:1.6;opacity:.88;}.social-post-meta{font-size:.7rem;opacity:.38;margin-top:4px;}</style><div class="section" id="mascot-social" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px"><h2 style="font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px">💬 最近のつぶやき<a href="https://social.mascodex.com/users/JP${code}" target="_blank" style="font-size:.7rem;font-weight:400;opacity:.4;text-decoration:none;margin-left:auto">@JP${code}@social.mascodex.com ↗</a></h2><div id="social-feed-posts"><div style="opacity:.4;font-size:.85rem">読み込み中...</div></div></div><script>(function(){fetch('https://social.mascodex.com/users/JP${code}/outbox').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;var items=(d.orderedItems||[]);var el=document.getElementById('social-feed-posts');if(!items.length){el.innerHTML='<div style="opacity:.4;font-size:.85rem">まだ投稿がありません</div>';return;}el.innerHTML=items.slice(0,5).map(function(p){var raw=(p.object&&p.object.content)||p.content||'';var c=raw.replace(/^#[^\\n]+\\n*/,'').substring(0,140);var t=p.published?new Date(p.published).toLocaleDateString('ja-JP'):'';return '<div class="social-post"><div class="social-post-content">'+c+(c.length>=140?'…':'')+'</div><div class="social-post-meta">'+t+'</div></div>';}).join('');}).catch(function(){});})();</script>`;
+  const socialScript =`<style>.social-post{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);}.social-post:last-child{border-bottom:none;}.social-post-content{font-size:.88rem;line-height:1.6;opacity:.88;}.social-post-meta{font-size:.7rem;opacity:.38;margin-top:4px;}</style><div class="section" id="mascot-social" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px"><h2 style="font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px">💬 最近のつぶやき<a href="https://social.mascodex.com/users/JP${code}" target="_blank" style="font-size:.7rem;font-weight:400;opacity:.4;text-decoration:none;margin-left:auto">@JP${code}@social.mascodex.com ↗</a></h2><div id="social-feed-posts"><div style="opacity:.4;font-size:.85rem">読み込み中...</div></div></div><script>(function(){fetch('https://social.mascodex.com/users/JP${code}/outbox').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;var items=(d.orderedItems||[]);var el=document.getElementById('social-feed-posts');if(!items.length){el.innerHTML='<div style="opacity:.4;font-size:.85rem">まだ投稿がありません</div>';return;}el.innerHTML=items.slice(0,5).map(function(p){var raw=(p.object&&p.object.content)||p.content||'';var c=raw.replace(/^#[^\\n]+\\n*/,'').substring(0,140);var t=p.published?new Date(p.published).toLocaleDateString('ja-JP'):'';return '<div class="social-post"><div class="social-post-content">'+c+(c.length>=140?'…':'')+'</div><div class="social-post-meta">'+t+'</div></div>';}).join('');}).catch(function(){});})();</script>`;
 
 
   // SNSシェアボタン注入
