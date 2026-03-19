@@ -744,7 +744,7 @@ function analyzeFieldSemantics(field) {
     },
     name_kana: {
       ja: ['カナ', 'フリガナ', 'ふりがな', 'よみがな', 'ヨミガナ'],
-      en: ['kana', 'furigana', 'reading']
+      en: ['kana', 'furigana', 'reading', 'your-kana', 'yomi', 'ruby']
     },
     email: {
       ja: ['メール', 'Eメール', 'メールアドレス', 'eメール'],
@@ -2550,6 +2550,14 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'www.yamadaen.co.jp/contact': {
+    company_url: 'https://www.yamadaen.co.jp/',
+    name1: { selector: 'input[name="your-name"]', confidence: 100 },
+    name_kana1: { selector: 'input[name="your-kana"]', confidence: 100 },
+    email: { selector: 'input[name="your-email"]', confidence: 100 },
+    phone: { selector: 'input[name="your-tel"]', confidence: 100 },
+    company: { selector: 'input[name="your-company"]', confidence: 100 }
+  },
   'shop.satoen.co.jp/shop/info': {
     company_url: 'https://shop.satoen.co.jp/',
     name1: { selector: 'input[name="name"]', confidence: 100 },
@@ -4250,6 +4258,30 @@ function formatPhoneForField(phone, field) {
 function toHiragana(str) {
   return str.replace(/[ァ-ン]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0x60));
 }
+// ひらがな→カタカナ変換
+function toKatakana(str) {
+  return str.replace(/[ぁ-ん]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60));
+}
+// フィールドがカタカナを期待しているか判定
+function expectsKatakana(field) {
+  const attrs = [
+    field.placeholder || '',
+    field.getAttribute('aria-label') || '',
+    field.name || '',
+    field.id || ''
+  ].join(' ');
+  let labelText = '';
+  if (field.id) {
+    const lbl = document.querySelector('label[for="' + field.id + '"]');
+    if (lbl) labelText = lbl.textContent;
+  }
+  const combined = attrs + ' ' + labelText;
+  // placeholderにカタカナが含まれていればカタカナフィールド
+  if (/[ァ-ヶ]/.test(combined)) return true;
+  // カタカナキーワード
+  if (/カタカナ|全角カナ|katakana/i.test(combined)) return true;
+  return false;
+}
 
 // フィールドがひらがなを期待しているか判定
 function expectsHiragana(field) {
@@ -4369,9 +4401,16 @@ function fillField(field, value, type, fieldType = null) {
     if (type === 'tel' || fieldType === 'phone') {
       formattedValue = formatPhoneForField(value, field);
     }
-    // ふりがなフィールドにカタカナを入力する場合、ひらがなに変換
-    if ((fieldType === 'name_kana' || fieldType === 'last_name_kana' || fieldType === 'first_name_kana' || fieldType === 'company_kana') && expectsHiragana(field)) {
-      formattedValue = toHiragana(formattedValue);
+    // ふりがなフィールド: ひらがな期待→カタカナをひらがなに変換、カタカナ期待→ひらがなをカタカナに変換
+    if (fieldType === 'name_kana' || fieldType === 'last_name_kana' || fieldType === 'first_name_kana' || fieldType === 'company_kana') {
+      if (expectsHiragana(field)) {
+        formattedValue = toHiragana(formattedValue);
+      } else if (expectsKatakana(field)) {
+        formattedValue = toKatakana(formattedValue);
+      } else {
+        // デフォルト: カタカナに統一（フリガナの標準形式）
+        formattedValue = toKatakana(formattedValue);
+      }
     }
     setNativeValue(field, formattedValue);
   }
