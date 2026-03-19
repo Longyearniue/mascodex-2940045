@@ -2963,6 +2963,14 @@ const SITE_MAPPINGS = {
     phone: { selector: 'input[name="contact[phone]"]', confidence: 100 },
     message: { selector: 'textarea[name="contact[body]"]', confidence: 100 }
   },
+  'shitsurindo.com/contact': {
+    company_url: 'https://shitsurindo.com/',
+    name: { selector: 'input[name="your-name"]', confidence: 100 },
+    company: { selector: 'input[name="company"]', confidence: 100 },
+    email: { selector: 'input[name="your-email"]', confidence: 100 },
+    phone: { selector: 'input[name="tel-386"]', confidence: 100 },
+    message: { selector: 'textarea', confidence: 90 }
+  },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
     name1: { selector: 'input[name="氏名"]', confidence: 100 },
