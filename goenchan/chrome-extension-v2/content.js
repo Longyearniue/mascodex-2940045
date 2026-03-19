@@ -1311,11 +1311,31 @@ async function autoFillForm(profile) {
   const filledFields = new Set();
 
   // =============================================================================
-  // MESSAGE: 原稿タブのテンプレートを使用（Worker APIは使わない）
+  // MESSAGE: 原稿タブのテンプレートをストレージから直接読み込む
   // =============================================================================
-  const globalSalesLetter = null; // Worker API無効化
-  if (profile.message) {
-    console.log('📝 Using message from profile/原稿 tab, length:', profile.message.length);
+  const globalSalesLetter = null; // Worker API完全無効化
+  try {
+    const tplData = await chrome.storage.sync.get(['tplBody', 'tplSubject', 'tplSelfDesc']);
+    if (tplData.tplBody && tplData.tplBody.trim()) {
+      // 変数置換
+      const today = new Date();
+      const dateStr = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
+      const companyName = profile.companyName || profile.company || '';
+      let msg = tplData.tplBody
+        .replace(/\{\{会社名\}\}/g, companyName)
+        .replace(/\{\{商品名\}\}/g, profile.productName || '')
+        .replace(/\{\{都道府県\}\}/g, profile.prefecture || '')
+        .replace(/\{\{担当者名\}\}/g, profile.name || '')
+        .replace(/\{\{URL\}\}/g, window.location.origin)
+        .replace(/\{\{日付\}\}/g, dateStr)
+        .replace(/\{\{自社説明\}\}/g, tplData.tplSelfDesc || '');
+      profile = { ...profile, message: msg };
+      console.log('📝 Template loaded from 原稿 tab, length:', msg.length);
+    } else if (profile.message) {
+      console.log('📝 Using profile.message, length:', profile.message.length);
+    }
+  } catch(e) {
+    console.log('📝 Template load error:', e.message);
   }
 
   // Layer 0: Fingerprint engine
