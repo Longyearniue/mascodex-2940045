@@ -206,8 +206,10 @@ document.getElementById('saveProfile').addEventListener('click', async () => {
   let _autoLastKana = document.getElementById('last_name_kana').value.trim();
   let _autoFirstKana = document.getElementById('first_name_kana').value.trim();
 
-  // フルネームがあり姓/名が空なら自動分割
-  if (_fullName && (!_autoLastName || !_autoFirstName)) {
+  // フルネームがあり姓/名が空 or 姓==名==フルネームなら自動分割
+  const _needsSplit = !_autoLastName || !_autoFirstName ||
+    (_autoLastName === _fullName && _autoFirstName === _fullName);
+  if (_fullName && _needsSplit) {
     const spaceParts = _fullName.split(/[\s\u3000]+/).filter(p => p.length > 0);
     if (spaceParts.length >= 2) {
       if (!_autoLastName) _autoLastName = spaceParts[0];
