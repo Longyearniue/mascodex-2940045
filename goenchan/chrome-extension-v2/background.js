@@ -156,6 +156,119 @@ ${fieldList}
     return true;
   }
 
+  // captureVisibleTab — タブのスクリーンショットを取得
+  if (message.action === 'captureVisibleTab') {
+    chrome.tabs.captureVisibleTab(null, { format: 'jpeg', quality: 85 }, (dataUrl) => {
+      if (chrome.runtime.lastError) {
+        sendResponse({ success: false, error: chrome.runtime.lastError.message });
+      } else {
+        sendResponse({ success: true, dataUrl });
+      }
+    });
+    return true;
+  }
+
+  // aiVisionClassifyFields — Claude Vision APIでフォームを画像解析
+  if (message.action === 'aiVisionClassifyFields') {
+    (async () => {
+      try {
+        const { imageDataUrl, fields, profile, pageTitle } = message;
+        const apiKeyData = await chrome.storage.sync.get(['anthropicApiKey']);
+        const apiKey = apiKeyData.anthropicApiKey;
+        if (!apiKey) { sendResponse({ success: false, error: 'No API key' }); return; }
+
+        const base64 = imageDataUrl.split(',')[1];
+        const mediaType = imageDataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+
+        const fieldList = fields.map(f =>
+          `${f.index}: tag=${f.tag} name="${f.name}" id="${f.id}" context="${f.context}" type="${f.type}"`
+        ).join('\n');
+
+        const fullName = ((profile.lastName || profile.last_name || '') + ' ' + (profile.firstName || profile.first_name || '')).trim() || profile.name || '';
+        const fullNameKana = ((profile.lastNameKana || profile.last_name_kana || '') + ' ' + (profile.firstNameKana || profile.first_name_kana || '')).trim() || profile.name_kana || '';
+
+        const prompt = `このスクリーンショットはウェブページのお問い合わせフォームです。
+ページタイトル: ${pageTitle}
+
+以下のフォームフィールドはまだ空欄です。スクリーンショットを見て、各フィールドに何を入力すべきか判断してください。
+
+## 空欄フィールド
+${fieldList}
+
+## 入力するユーザープロフィール
+- 氏名: ${fullName}
+- フリガナ: ${fullNameKana}
+- 姓: ${profile.lastName || profile.last_name || ''}
+- 名: ${profile.firstName || profile.first_name || ''}
+- 会社名: ${profile.company || ''}
+- メール: ${profile.email || ''}
+- 電話: ${profile.phone || ''}
+- 郵便番号: ${profile.zipcode || ''}
+- 都道府県: ${profile.prefecture || ''}
+- 市区町村: ${profile.city || ''}
+- 番地: ${profile.street || ''}
+- メッセージ: ${profile.message || profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。'}
+
+## ルール
+- スクリーンショット上のラベルやレイアウトを参考にして判断する
+- フリガナは全角カタカナ
+- 確認用メールはメールと同じ値
+- 不明・入力不要なフィールドはnullを返す
+- フィールド数と同じ要素数のJSON配列のみ返す（説明不要）`;
+
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-5-20250514',
+            max_tokens: 1024,
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+                { type: 'text', text: prompt }
+              ]
+            }]
+          })
+        });
+
+        if (!resp.ok) { sendResponse({ success: false, error: await resp.text() }); return; }
+        const result = await resp.json();
+        const text = result.content?.[0]?.text || '';
+        const match = text.match(/\[.*\]/s);
+        if (!match) { sendResponse({ success: false, error: 'No JSON in vision response' }); return; }
+        sendResponse({ success: true, values: JSON.parse(match[0]) });
+      } catch (e) {
+        sendResponse({ success: false, error: e.message });
+      }
+    })();
+    return true;
+  }
+
+  // saveInterceptedForm — 傍受したフォームパラメータを保存
+  if (message.action === 'saveInterceptedForm') {
+    (async () => {
+      try {
+        const { urlKey, formUrl, params } = message;
+        const data = await chrome.storage.local.get('intercepted_forms');
+        const intercepted = data.intercepted_forms || {};
+        intercepted[urlKey] = {
+          formUrl,
+          params,
+          timestamp: Date.now()
+        };
+        // 500件超えたら古いものを削除
+        const keys = Object.keys(intercepted);
+        if (keys.length > 500) {
+          keys.sort((a, b) => (intercepted[a].timestamp || 0) - (intercepted[b].timestamp || 0));
+          delete intercepted[keys[0]];
+        }
+        await chrome.storage.local.set({ intercepted_forms: intercepted });
+      } catch (e) {}
+    })();
+    return false;
+  }
+
   if (message.action === 'fetchSalesLetter') {
     console.log('[Background] Fetching sales letter for:', message.companyUrl);
     fetchSalesLetterFromBackground(message.companyUrl)

@@ -28,6 +28,15 @@ function shouldSkipIframe() {
 
 const shouldSkip = shouldSkipIframe();
 
+// =============================================================================
+// PASS 6: fetch/XHR 傍受 — ページロード直後から監視開始
+// =============================================================================
+if (!window.__pass6Initialized__) {
+  window.__pass6Initialized__ = true;
+  pass6InterceptRequests();
+}
+
+
 if (isInIframe) {
   if (shouldSkip) {
     console.log('⏭️ [IFRAME] Skipping third-party iframe:', window.location.href);
@@ -2023,6 +2032,21 @@ async function autoFillForm(profile) {
 
   // D: AI fallback - 未入力の必須/可視フィールドをAIで補完
   await aiFillUnknownFields(profile);
+
+  // Pass 4: Vision AI（空フィールドが残っている場合のみ）
+  if (getEmptyVisibleFields().length > 0) {
+    await pass4VisionAI(profile);
+  }
+
+  // Pass 5: ダミー送信バリデーション
+  if (getEmptyVisibleFields().length > 0) {
+    await pass5DummySubmit(profile);
+  }
+
+  // Pass 6: 傍受データから記入
+  if (getEmptyVisibleFields().length > 0) {
+    await pass6FillFromIntercepted(profile);
+  }
 
   // Record learning data for future visits
   await recordLearning(profile);
@@ -5341,4 +5365,295 @@ function getSelector(element) {
   if (element.id) return `#${element.id}`;
   if (element.name) return `[name="${element.name}"]`;
   return element.tagName.toLowerCase();
+}
+
+// =============================================================================
+// PASS 4: Vision AI（スクリーンショット → Claude Vision）
+// =============================================================================
+
+// 空の可視フィールドを取得するヘルパー
+function getEmptyVisibleFields() {
+  return Array.from(document.querySelectorAll(
+    'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select'
+  )).filter(el => isVisible(el) && (!el.value || !el.value.trim()));
+}
+
+async function pass4VisionAI(profile) {
+  const emptyFields = getEmptyVisibleFields();
+  if (emptyFields.length === 0) return;
+  console.log(`👁️ [Pass 4 / Vision] ${emptyFields.length} fields remain → capturing screenshot...`);
+
+  try {
+    const form = document.querySelector('form') || document.body;
+    form.scrollIntoView({ behavior: 'instant', block: 'start' });
+
+    // background.jsにスクリーンショット要求
+    const screenshotData = await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('screenshot timeout')), 10000);
+      chrome.runtime.sendMessage({ action: 'captureVisibleTab' }, (response) => {
+        clearTimeout(timer);
+        if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+        else resolve(response);
+      });
+    });
+
+    if (!screenshotData || !screenshotData.dataUrl) {
+      console.log('👁️ [Pass 4] Screenshot failed');
+      return;
+    }
+
+    // 空フィールドの情報をまとめる
+    const fieldDescriptions = emptyFields.map((el, i) => {
+      const ctx = getFieldContext(el);
+      return `${i}: tag=${el.tagName} name="${el.name}" id="${el.id}" context="${ctx}"`;
+    }).join('\n');
+
+    // Vision APIをbackground.js経由で呼ぶ
+    const data = await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('vision timeout')), 30000);
+      chrome.runtime.sendMessage({
+        action: 'aiVisionClassifyFields',
+        imageDataUrl: screenshotData.dataUrl,
+        fields: emptyFields.map((el, i) => ({
+          index: i,
+          tag: el.tagName,
+          name: el.name || '',
+          id: el.id || '',
+          context: getFieldContext(el),
+          type: el.type || el.tagName.toLowerCase()
+        })),
+        profile,
+        pageTitle: document.title
+      }, (response) => {
+        clearTimeout(timer);
+        if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
+        else resolve(response || { success: false });
+      });
+    });
+
+    if (!data.success || !Array.isArray(data.values)) {
+      console.log('👁️ [Pass 4] Vision API failed:', data.error);
+      return;
+    }
+
+    let filled = 0;
+    data.values.forEach((value, i) => {
+      if (!value) return;
+      const el = emptyFields[i];
+      if (!el) return;
+      fillField(el, String(value), el.type);
+      console.log(`👁️ [Pass 4 Vision] Filled field ${i}: "${String(value).substring(0, 30)}"`);
+      filled++;
+    });
+    console.log(`👁️ [Pass 4] Vision filled ${filled} fields`);
+  } catch (e) {
+    console.log('👁️ [Pass 4] Error:', e.message);
+  }
+}
+
+// =============================================================================
+// PASS 5: ダミー送信テスト（Validation エラーから逆算）
+// =============================================================================
+
+async function pass5DummySubmit(profile) {
+  const emptyFields = getEmptyVisibleFields();
+  if (emptyFields.length === 0) return;
+  console.log(`🧪 [Pass 5 / DummySubmit] Testing ${emptyFields.length} empty fields via validation...`);
+
+  try {
+    const forms = Array.from(document.querySelectorAll('form')).filter(f => f.querySelector('input, textarea, select'));
+    if (forms.length === 0) return;
+
+    const form = forms[0];
+
+    // HTML5 Validation を使って checkValidity() を実行
+    const invalidFields = [];
+    form.querySelectorAll('input, textarea, select').forEach(el => {
+      if (!el.checkValidity || el.type === 'hidden') return;
+      if (!el.checkValidity()) {
+        const msg = el.validationMessage || '';
+        const label = getFieldContext(el);
+        invalidFields.push({ el, msg, label, name: el.name, id: el.id, type: el.type });
+        console.log(`🧪 [Pass 5] Invalid field: name="${el.name}" msg="${msg}" label="${label}"`);
+      }
+    });
+
+    if (invalidFields.length === 0) return;
+
+    // Validation メッセージからフィールド種別を推定
+    for (const { el, msg, label, type } of invalidFields) {
+      if (!isVisible(el) || (el.value && el.value.trim())) continue;
+
+      const combined = (msg + ' ' + label).toLowerCase();
+      let value = null;
+
+      // メール系
+      if (/mail|email|メール/.test(combined) && /valid|有効|正しい/.test(combined)) {
+        value = profile.email;
+      }
+      // 必須フィールドのtype別デフォルト
+      else if (type === 'email') value = profile.email;
+      else if (type === 'tel') value = profile.phone;
+      else if (type === 'url') value = null;
+      else if (type === 'number') {
+        if (/zip|postal|郵便/.test(combined)) value = (profile.zipcode || '').replace('-', '');
+        else if (/tel|phone|電話/.test(combined)) value = profile.phone;
+      }
+      // テキスト系はラベルから推定
+      else if (type === 'text' || type === '') {
+        const ctx = combined;
+        if (/name|氏名|お名前|名前/.test(ctx)) value = ((profile.lastName || profile.last_name || '') + ' ' + (profile.firstName || profile.first_name || '')).trim() || profile.name;
+        else if (/kana|カナ|フリガナ|ふりがな/.test(ctx)) value = ((profile.lastNameKana || profile.last_name_kana || '') + ' ' + (profile.firstNameKana || profile.first_name_kana || '')).trim() || profile.name_kana;
+        else if (/company|会社|法人/.test(ctx)) value = profile.company;
+        else if (/zip|postal|郵便/.test(ctx)) value = profile.zipcode;
+        else if (/tel|phone|電話/.test(ctx)) value = profile.phone;
+        else if (/address|住所|addr/.test(ctx)) value = [profile.prefecture, profile.city, profile.street].filter(Boolean).join('');
+      } else if (el.tagName === 'TEXTAREA') {
+        value = profile.message || profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。';
+      }
+
+      if (value) {
+        fillField(el, value, type);
+        console.log(`🧪 [Pass 5] Filled from validation: name="${el.name}" → "${String(value).substring(0, 30)}"`);
+      }
+    }
+  } catch (e) {
+    console.log('🧪 [Pass 5] Error:', e.message);
+  }
+}
+
+// =============================================================================
+// PASS 6: fetch/XHR 傍受リバースエンジニアリング
+// =============================================================================
+
+function pass6InterceptRequests() {
+  const urlKey = location.hostname + location.pathname;
+
+  // fetch を傍受
+  const originalFetch = window.fetch;
+  window.fetch = async function(...args) {
+    const [resource, options] = args;
+    const url = typeof resource === 'string' ? resource : resource.url;
+
+    if (options && options.body && (options.method || '').toUpperCase() === 'POST') {
+      try {
+        let body = options.body;
+        let params = {};
+
+        if (typeof body === 'string') {
+          try { params = JSON.parse(body); } catch {}
+          if (Object.keys(params).length === 0) {
+            new URLSearchParams(body).forEach((v, k) => { params[k] = v; });
+          }
+        } else if (body instanceof FormData) {
+          body.forEach((v, k) => { params[k] = v; });
+        } else if (body instanceof URLSearchParams) {
+          body.forEach((v, k) => { params[k] = v; });
+        }
+
+        if (Object.keys(params).length > 0) {
+          console.log(`🔍 [Pass 6] Intercepted fetch POST to: ${url}`);
+          console.log(`🔍 [Pass 6] Params:`, params);
+          chrome.runtime.sendMessage({
+            action: 'saveInterceptedForm',
+            urlKey,
+            formUrl: url,
+            params
+          });
+        }
+      } catch (e) {}
+    }
+
+    return originalFetch.apply(this, args);
+  };
+
+  // XMLHttpRequest を傍受
+  const originalOpen = XMLHttpRequest.prototype.open;
+  const originalSend = XMLHttpRequest.prototype.send;
+
+  XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+    this._interceptMethod = method;
+    this._interceptUrl = url;
+    return originalOpen.apply(this, [method, url, ...rest]);
+  };
+
+  XMLHttpRequest.prototype.send = function(body) {
+    if (this._interceptMethod && this._interceptMethod.toUpperCase() === 'POST' && body) {
+      try {
+        let params = {};
+        if (typeof body === 'string') {
+          try { params = JSON.parse(body); } catch {}
+          if (Object.keys(params).length === 0) {
+            new URLSearchParams(body).forEach((v, k) => { params[k] = v; });
+          }
+        } else if (body instanceof FormData) {
+          body.forEach((v, k) => { params[k] = v; });
+        }
+
+        if (Object.keys(params).length > 0) {
+          console.log(`🔍 [Pass 6] Intercepted XHR POST to: ${this._interceptUrl}`);
+          console.log(`🔍 [Pass 6] Params:`, params);
+          chrome.runtime.sendMessage({
+            action: 'saveInterceptedForm',
+            urlKey,
+            formUrl: this._interceptUrl,
+            params
+          });
+        }
+      } catch (e) {}
+    }
+    return originalSend.apply(this, [body]);
+  };
+
+  // DOMのformのsubmitも傍受
+  document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!form) return;
+    const params = {};
+    new FormData(form).forEach((v, k) => { params[k] = v; });
+    if (Object.keys(params).length > 0) {
+      console.log(`🔍 [Pass 6] Form submit intercepted:`, params);
+      chrome.runtime.sendMessage({
+        action: 'saveInterceptedForm',
+        urlKey,
+        formUrl: form.action || location.href,
+        params
+      });
+    }
+  }, true);
+
+  console.log('🔍 [Pass 6] Request interception active');
+}
+
+// 傍受データを使ってフォームを記入（Pass 6）
+async function pass6FillFromIntercepted(profile) {
+  const emptyFields = getEmptyVisibleFields();
+  if (emptyFields.length === 0) return;
+
+  try {
+    const urlKey = location.hostname + location.pathname;
+    const data = await chrome.storage.local.get('intercepted_forms');
+    const intercepted = (data.intercepted_forms || {})[urlKey];
+    if (!intercepted || !intercepted.params) return;
+
+    console.log(`🔍 [Pass 6] Found intercepted params for ${urlKey}:`, intercepted.params);
+
+    for (const el of emptyFields) {
+      if (!isVisible(el) || (el.value && el.value.trim())) continue;
+      const elName = el.name || el.id || '';
+      if (!elName) continue;
+
+      if (intercepted.params.hasOwnProperty(elName)) {
+        const pastValue = intercepted.params[elName];
+        const fieldType = detectFieldTypeFromValue(pastValue, profile);
+        const value = fieldType ? getProfileValue(profile, fieldType) : null;
+        if (value) {
+          fillField(el, value, el.type);
+          console.log(`🔍 [Pass 6] Filled from intercepted: name="${elName}" → "${String(value).substring(0, 30)}"`);
+        }
+      }
+    }
+  } catch (e) {
+    console.log('🔍 [Pass 6] Fill error:', e.message);
+  }
 }
