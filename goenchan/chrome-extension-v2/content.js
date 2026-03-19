@@ -2550,6 +2550,20 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'kansou.co.jp/f/contact': {
+    company_url: 'https://kansou.co.jp/',
+    name1: { selector: 'input[name="field_14682_sei"]', confidence: 100 },
+    name2: { selector: 'input[name="field_14682_mei"]', confidence: 100 },
+    email: { selector: 'input[name="field_14683"]', confidence: 100 },
+    zipcode1: { selector: 'input[name="field_14686_zip1"]', confidence: 100 },
+    zipcode2: { selector: 'input[name="field_14686_zip2"]', confidence: 100 },
+    prefecture: { selector: 'select[name="field_14686_pref"]', confidence: 100 },
+    city: { selector: 'input[name="field_14686_addr1"]', confidence: 100 },
+    tel1: { selector: 'input[name="field_14687_1"]', confidence: 100 },
+    tel2: { selector: 'input[name="field_14687_2"]', confidence: 100 },
+    tel3: { selector: 'input[name="field_14687_3"]', confidence: 100 },
+    message: { selector: 'textarea[name="field_14690"]', confidence: 100 }
+  },
   'www.noridouraku.com/f/toiawase': {
     company_url: 'https://www.noridouraku.com/',
     name1: { selector: 'input[name="field_20570_sei"]', confidence: 100 },
