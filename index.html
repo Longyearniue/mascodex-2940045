@@ -89,9 +89,9 @@
       <div class="country-name">Australia</div>
       <div class="country-count">3,058 mascots</div>
       <div class="country-mascots">
-        <img src="/img/au/0800_01.png" alt="Darwin mascot" onerror="this.style.display='none'">
-        <img src="/img/au/2000_01.png" alt="Sydney mascot" onerror="this.style.display='none'">
-        <img src="/img/au/3000_01.png" alt="Melbourne mascot" onerror="this.style.display='none'">
+        <img src="https://au.img.mascodex.com/0800_01.png" alt="Darwin mascot" onerror="this.style.display='none'">
+        <img src="https://au.img.mascodex.com/2000_01.png" alt="Sydney mascot" onerror="this.style.display='none'">
+        <img src="https://au.img.mascodex.com/3000_01.png" alt="Melbourne mascot" onerror="this.style.display='none'">
       </div>
       <span class="country-btn">Explore Australia</span>
     </a>
@@ -134,6 +134,10 @@
         <div class="live-col-header">🇮🇳 India</div>
         <div class="live-posts" id="posts-in"><div class="loading">Loading...</div></div>
       </div>
+      <div class="live-col" id="live-au">
+        <div class="live-col-header">🇦🇺 Australia</div>
+        <div class="live-posts" id="posts-au"><div class="loading">Loading...</div></div>
+      </div>
     </div>
   </section>
 
@@ -143,7 +147,7 @@
     .live-header h2{font-size:1.3rem;font-weight:700;}
     .live-dot{color:#ff4444;animation:blink 1.2s ease-in-out infinite;}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-    .live-countries{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    .live-countries{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
     .live-col{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;min-height:220px;}
     .live-col-header{font-size:.82rem;font-weight:700;opacity:.6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
     .live-post{padding:10px 12px;margin-bottom:8px;background:rgba(255,255,255,.05);border-radius:10px;cursor:pointer;transition:.15s;text-decoration:none;display:block;color:#fff;}
@@ -159,7 +163,7 @@
     .ticker-content{flex:1;font-size:.84rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
     @keyframes tickerIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
     .ticker-new{animation:tickerIn .4s ease;}
-    @media(max-width:768px){.live-countries{grid-template-columns:1fr;}}
+    @media(max-width:900px){.live-countries{grid-template-columns:repeat(2,1fr);}}@media(max-width:500px){.live-countries{grid-template-columns:1fr;}}
     @media(max-width:600px){.live-section{padding:24px 16px 0;}}
   </style>
 
@@ -213,10 +217,11 @@
         const data = await res.json();
         const posts = Array.isArray(data) ? data : (data.posts || []);
 
-        const jpPosts = [], usPosts = [], inPosts = [];
+        const jpPosts = [], usPosts = [], inPosts = [], auPosts = [];
         for (const p of posts) {
           const zip = p.zip || '';
           if (isJP(zip)) jpPosts.push(p);
+          else if (isAU(zip)) auPosts.push(p);
           else if (isIN(zip)) inPosts.push(p);
           else if (isUS(zip)) usPosts.push(p);
         }
@@ -231,6 +236,7 @@
         render(jpPosts, 'posts-jp', '投稿なし');
         render(usPosts, 'posts-us', 'No posts');
         render(inPosts, 'posts-in', 'No posts');
+        render(auPosts, 'posts-au', 'No posts');
       } catch(e) {
         console.warn('Live feed error:', e);
       }

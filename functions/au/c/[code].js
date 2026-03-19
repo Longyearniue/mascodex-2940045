@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
 
   // OGタグ注入
   const _pageUrl = 'https://mascodex.com/au/c/' + code;
-  const _imgUrl = 'https://img.mascodex.com/' + code + '_01.png';
+  const _imgUrl = 'https://au.img.mascodex.com/' + code + '_01.png';
   const _titleMatch = html.match(/<title>([^<]+)<\/title>/);
   const _ogTags = '<meta property="og:title" content="' + (_titleMatch ? _titleMatch[1].replace(/"/g,'&quot;') : code) + '">'
     + '<meta property="og:image" content="' + _imgUrl + '">'
