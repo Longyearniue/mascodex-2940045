@@ -103,6 +103,7 @@
     <button class="tab-btn" data-tab="sendTab">📤 単発</button>
     <button class="tab-btn" data-tab="templateTab">📝 原稿</button>
     <button class="tab-btn" data-tab="profileTab">👤 プロフィール</button>
+    <button class="tab-btn" data-tab="learnedTab">📚 学習</button>
   </div>
 
   <!-- TAB0: バッチ (メイン) -->
@@ -357,6 +358,28 @@
       </div>
     </div>
     <div class="status" id="profileStatus"></div>
+  </div>
+
+  <!-- TAB4: 学習データ -->
+  <div class="tab-panel" id="learnedTab">
+    <div class="section">
+      <div class="section-title">📚 学習済みフォームデータ</div>
+      <div style="padding: 8px; background: #e8f0fe; border-radius: 6px; margin-bottom: 10px; font-size: 12px;">
+        学習済み: <strong id="learnedCount">0</strong> サイト
+      </div>
+      <div id="learnedList" style="max-height: 300px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 10px;">
+        <div style="padding: 12px; text-align: center; color: #999; font-size: 11px;">データなし</div>
+      </div>
+      <div class="button-group">
+        <button class="btn-danger" id="clearLearned">🗑️ 全て削除</button>
+        <button class="btn-secondary" id="exportLearned">📥 JSONエクスポート</button>
+      </div>
+      <div class="button-group" style="margin-top: 6px;">
+        <label class="btn-secondary" style="text-align: center; cursor: pointer;" for="importLearnedFile">📤 JSONインポート</label>
+        <input type="file" id="importLearnedFile" accept=".json" style="display: none;">
+      </div>
+      <div class="status" id="learnedStatus"></div>
+    </div>
   </div>
 
   <script src="popup.js"></script>

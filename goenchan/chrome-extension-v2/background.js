@@ -50,7 +50,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'aiClassifyFields') {
     (async () => {
       try {
-        const { fields, profile } = message;
+        const { fields, profile, pageTitle, formTitle } = message;
         const apiKeyData = await chrome.storage.sync.get(['anthropicApiKey']);
         const apiKey = apiKeyData.anthropicApiKey;
         if (!apiKey) {
@@ -59,7 +59,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         const fieldList = fields.map((f, i) =>
-          `${i}: context="${f.context || f.label}" name="${f.name}" id="${f.id}" type="${f.type}" placeholder="${f.placeholder}"`
+          `${i}: context="${f.context || f.label}" name="${f.name}" id="${f.id}" type="${f.type}" placeholder="${f.placeholder}"${f.htmlContext ? ' html_snippet="' + f.htmlContext.substring(0, 150) + '"' : ''}`
         ).join('\n');
 
         const fullName = profile.fullName || ((profile.lastName || '') + (profile.firstName ? ' ' + profile.firstName : '')).trim();
@@ -70,6 +70,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 ## フォームフィールド（空欄のもの）
 ${fieldList}
+
+## ページ情報
+- ページタイトル: ${pageTitle || '(不明)'}
+- フォームタイトル: ${formTitle || '(不明)'}
 
 ## ユーザープロフィール
 - 氏名（漢字）: ${fullName}
@@ -95,37 +99,56 @@ ${fieldList}
 - 電話番号はハイフンあり形式（例: 03-1234-5678）
 - 郵便番号はハイフンあり形式（例: 123-4567）
 - 入力不要（captcha, 検索欄など）はnullを返す
+- 各値にはフィールド特定の理由も考慮すること（デバッグ用）
 
 フィールド数と同じ要素数のJSON配列のみを返してください（説明文不要）。`;
 
-        const resp = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: 'claude-haiku-4-5',
-            max_tokens: 1024,
-            messages: [{ role: 'user', content: prompt }]
-          })
-        });
+        let values = null;
+        let lastError = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const maxTokens = attempt === 0 ? 1024 : 2048;
+            const resp = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-haiku-4-5',
+                max_tokens: maxTokens,
+                messages: [{ role: 'user', content: prompt }]
+              })
+            });
 
-        if (!resp.ok) {
-          const err = await resp.text();
-          sendResponse({ success: false, error: err });
-          return;
+            if (!resp.ok) {
+              lastError = await resp.text();
+              console.log(`🤖 [AI attempt ${attempt + 1}] HTTP error: ${resp.status}`);
+              continue;
+            }
+            const data = await resp.json();
+            const text = data.content?.[0]?.text || '';
+            const match = text.match(/\[.*\]/s);
+            if (!match) {
+              lastError = 'No JSON array in response';
+              console.log(`🤖 [AI attempt ${attempt + 1}] No JSON array, retrying...`);
+              continue;
+            }
+            values = JSON.parse(match[0]);
+            console.log(`🤖 [AI attempt ${attempt + 1}] Success: ${values.length} values`);
+            break;
+          } catch (e) {
+            lastError = e.message;
+            console.log(`🤖 [AI attempt ${attempt + 1}] Error: ${e.message}`);
+          }
         }
-        const data = await resp.json();
-        const text = data.content?.[0]?.text || '';
-        const match = text.match(/\[.*\]/s);
-        if (!match) {
-          sendResponse({ success: false, error: 'No JSON array in response' });
-          return;
+
+        if (values) {
+          sendResponse({ success: true, values });
+        } else {
+          sendResponse({ success: false, error: lastError || 'All retry attempts failed' });
         }
-        const values = JSON.parse(match[0]);
-        sendResponse({ success: true, values });
       } catch (e) {
         sendResponse({ success: false, error: e.message });
       }

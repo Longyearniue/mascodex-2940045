@@ -1512,3 +1512,104 @@ function syncBatchMainUI() {
   // 完了したらポーリング停止
   if (startBtn && !startBtn.disabled) stopBatchMainPolling();
 }
+
+// =============================================================================
+// LEARNED DATA TAB
+// =============================================================================
+
+async function loadLearnedData() {
+  const data = await chrome.storage.local.get('learned_forms');
+  const learned = data.learned_forms || {};
+  const entries = Object.entries(learned);
+
+  document.getElementById('learnedCount').textContent = entries.length;
+
+  const listEl = document.getElementById('learnedList');
+  if (entries.length === 0) {
+    listEl.innerHTML = '<div style="padding: 12px; text-align: center; color: #999; font-size: 11px;">データなし</div>';
+    return;
+  }
+
+  // Sort by timestamp descending, show max 20
+  entries.sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+  const display = entries.slice(0, 20);
+
+  listEl.innerHTML = display.map(([key, val]) => {
+    const date = val.timestamp ? new Date(val.timestamp).toLocaleDateString('ja-JP') : '-';
+    const mappingCount = val.mappings ? val.mappings.length : 0;
+    return `<div style="padding: 8px; border-bottom: 1px solid #f0f0f0; font-size: 11px;">
+      <div style="font-weight: 600; color: #1a73e8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(key)}</div>
+      <div style="display: flex; justify-content: space-between; color: #666; margin-top: 2px;">
+        <span>フィールド: ${mappingCount}</span>
+        <span>成功: ${val.successCount || 0}回</span>
+        <span>${date}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (entries.length > 20) {
+    listEl.innerHTML += `<div style="padding: 8px; text-align: center; color: #999; font-size: 10px;">他 ${entries.length - 20} サイト...</div>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Load learned data when tab is shown
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.tab === 'learnedTab') loadLearnedData();
+    });
+  });
+});
+
+// Clear learned data
+document.getElementById('clearLearned')?.addEventListener('click', async () => {
+  if (!confirm('学習データを全て削除しますか？')) return;
+  await chrome.storage.local.remove(['learned_forms']);
+  loadLearnedData();
+  showLearnedStatus('✅ 学習データを削除しました', 'success');
+});
+
+// Export learned data
+document.getElementById('exportLearned')?.addEventListener('click', async () => {
+  const data = await chrome.storage.local.get('learned_forms');
+  const learned = data.learned_forms || {};
+  const json = JSON.stringify(learned, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `learned-forms-${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showLearnedStatus(`✅ ${Object.keys(learned).length}件エクスポートしました`, 'success');
+});
+
+// Import learned data
+document.getElementById('importLearnedFile')?.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const imported = JSON.parse(text);
+    if (typeof imported !== 'object') throw new Error('Invalid format');
+    const data = await chrome.storage.local.get('learned_forms');
+    const existing = data.learned_forms || {};
+    const merged = { ...existing, ...imported };
+    await chrome.storage.local.set({ learned_forms: merged });
+    loadLearnedData();
+    showLearnedStatus(`✅ ${Object.keys(imported).length}件インポートしました`, 'success');
+  } catch (err) {
+    showLearnedStatus('❌ インポートに失敗しました: ' + err.message, 'error');
+  }
+  e.target.value = '';
+});
+
+function showLearnedStatus(message, type) {
+  const el = document.getElementById('learnedStatus');
+  if (!el) return;
+  el.textContent = message;
+  el.className = `status show status-${type}`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}

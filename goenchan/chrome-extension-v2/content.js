@@ -1290,6 +1290,221 @@ function detectFormSystem() {
   return null;
 }
 
+// =============================================================================
+// PASS 0: LEARNED FORMS (学習済みマッピング)
+// =============================================================================
+
+async function fillWithLearned(profile) {
+  const urlKey = location.hostname + location.pathname;
+  const data = await chrome.storage.local.get('learned_forms');
+  const learned = (data.learned_forms || {})[urlKey];
+  if (!learned || !learned.mappings) return 0;
+  let filled = 0;
+  for (const m of learned.mappings) {
+    const el = document.querySelector(m.selector);
+    if (el && isVisible(el) && !el.value) {
+      const val = getLearnedProfileValue(profile, m.fieldType);
+      if (val) { fillField(el, val, el.type); filled++; }
+    }
+  }
+  console.log(`📚 [Pass 0 / Learned] ${filled} fields filled from learning data`);
+  return filled;
+}
+
+function getLearnedProfileValue(profile, fieldType) {
+  const fullName = ((profile.last_name || profile.lastName || '') + ' ' + (profile.first_name || profile.firstName || '')).trim();
+  const fullNameKana = ((profile.last_name_kana || profile.lastNameKana || '') + ' ' + (profile.first_name_kana || profile.firstNameKana || '')).trim();
+  const map = {
+    name1: profile.name || fullName,
+    lastName: profile.last_name || profile.lastName || '',
+    firstName: profile.first_name || profile.firstName || '',
+    lastNameKana: profile.last_name_kana || profile.lastNameKana || '',
+    firstNameKana: profile.first_name_kana || profile.firstNameKana || '',
+    nameKana: profile.name_kana || fullNameKana,
+    company: profile.company || '',
+    email: profile.email || '',
+    emailConfirm: profile.email || '',
+    phone: profile.phone || '',
+    zipcode: profile.zipcode || '',
+    prefecture: profile.prefecture || '',
+    city: profile.city || '',
+    street: profile.street || '',
+    address: profile.address || [profile.prefecture, profile.city, profile.street].filter(Boolean).join(''),
+    message: profile.message || profile.defaultMessage || '卸売のご相談をさせていただきたくご連絡いたしました。'
+  };
+  return map[fieldType] || null;
+}
+
+// =============================================================================
+// LEARNING: Record successful form fills
+// =============================================================================
+
+async function recordLearning(profile) {
+  try {
+    const urlKey = location.hostname + location.pathname;
+    const allFields = document.querySelectorAll(
+      'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]), textarea, select'
+    );
+    const mappings = [];
+    allFields.forEach(el => {
+      if (!isVisible(el) || !el.value || !el.value.trim()) return;
+      const val = el.value.trim();
+      const fieldType = detectFieldTypeFromValue(val, profile);
+      if (fieldType) {
+        const selector = buildStableSelector(el);
+        mappings.push({ selector, fieldType, value: val });
+      }
+    });
+    if (mappings.length === 0) return;
+
+    const data = await chrome.storage.local.get('learned_forms');
+    const learned = data.learned_forms || {};
+    const existing = learned[urlKey] || { successCount: 0 };
+    learned[urlKey] = {
+      url: location.href,
+      mappings,
+      successCount: (existing.successCount || 0) + 1,
+      timestamp: Date.now()
+    };
+    const keys = Object.keys(learned);
+    if (keys.length > 1000) {
+      keys.sort((a, b) => (learned[a].timestamp || 0) - (learned[b].timestamp || 0));
+      delete learned[keys[0]];
+    }
+    await chrome.storage.local.set({ learned_forms: learned });
+    console.log(`💾 [Learning] Saved ${mappings.length} mappings for ${urlKey}`);
+  } catch (e) {
+    console.log('💾 [Learning] Error:', e.message);
+  }
+}
+
+function detectFieldTypeFromValue(value, profile) {
+  const fullName = ((profile.last_name || '') + ' ' + (profile.first_name || '')).trim();
+  const fullNameNoSpace = (profile.last_name || '') + (profile.first_name || '');
+  const fullNameKana = ((profile.last_name_kana || '') + ' ' + (profile.first_name_kana || '')).trim();
+  const fullNameKanaNoSpace = (profile.last_name_kana || '') + (profile.first_name_kana || '');
+  if (value === profile.name || value === fullName || value === fullNameNoSpace) return 'name1';
+  if (value === profile.last_name) return 'lastName';
+  if (value === profile.first_name) return 'firstName';
+  if (value === profile.name_kana || value === fullNameKana || value === fullNameKanaNoSpace) return 'nameKana';
+  if (value === profile.last_name_kana) return 'lastNameKana';
+  if (value === profile.first_name_kana) return 'firstNameKana';
+  if (value === profile.company) return 'company';
+  if (value === profile.email) return 'email';
+  if (value === profile.phone) return 'phone';
+  if (value === profile.zipcode || value === (profile.zipcode || '').replace('-', '')) return 'zipcode';
+  if (value === profile.prefecture) return 'prefecture';
+  if (value === profile.city) return 'city';
+  if (value === profile.street) return 'street';
+  if (profile.message && value === profile.message) return 'message';
+  return null;
+}
+
+function buildStableSelector(el) {
+  if (el.id) return `#${CSS.escape(el.id)}`;
+  if (el.name) return `${el.tagName.toLowerCase()}[name="${CSS.escape(el.name)}"]`;
+  const path = [];
+  let cur = el;
+  while (cur && cur !== document.body && path.length < 4) {
+    let seg = cur.tagName.toLowerCase();
+    if (cur.id) { seg = `#${CSS.escape(cur.id)}`; path.unshift(seg); break; }
+    if (cur.className && typeof cur.className === 'string') {
+      const cls = Array.from(cur.classList).filter(c => !/^(active|focus|hover|visible)$/i.test(c)).slice(0, 2);
+      if (cls.length) seg += '.' + cls.map(c => CSS.escape(c)).join('.');
+    }
+    path.unshift(seg);
+    cur = cur.parentElement;
+  }
+  return path.join(' > ');
+}
+
+// =============================================================================
+// PLATFORM DETECTION
+// =============================================================================
+
+function detectPlatform() {
+  const html = document.documentElement.innerHTML;
+  const meta = document.querySelector('meta[name="generator"]')?.content || '';
+  if (html.includes('ec-cube') || html.includes('eccube') || meta.includes('EC-CUBE')) return 'ec-cube';
+  if (html.includes('makeshop') || html.includes('MakeShop')) return 'makeshop';
+  if (html.includes('shopify') || html.includes('Shopify')) return 'shopify';
+  if (html.includes('wix.com') || html.includes('wixstatic')) return 'wix';
+  if (html.includes('wordpress') || meta.includes('WordPress')) return 'wordpress';
+  if (html.includes('formzu') || html.includes('formzu.net')) return 'formzu';
+  if (html.includes('color-me-shop') || html.includes('colorme')) return 'color-me';
+  return 'unknown';
+}
+
+function getPlatformMappings(platform) {
+  const patterns = {
+    'ec-cube': {
+      last_name: ['input[name*="name01"]'],
+      first_name: ['input[name*="name02"]'],
+      last_name_kana: ['input[name*="kana01"]'],
+      first_name_kana: ['input[name*="kana02"]'],
+      zipcode: ['input[name*="postal_code"]', 'input[name*="zip01"]'],
+      prefecture: ['select[name*="pref"]'],
+      address: ['input[name*="addr01"]'],
+      phone: ['input[name*="phone_number"]', 'input[name*="tel01"]'],
+      email: ['input[name*="email"]'],
+      message: ['textarea[name*="contents"]', 'textarea[name*="body"]']
+    },
+    'wordpress': {
+      name: ['input[name*="your-name"]', 'input[name*="fullname"]'],
+      email: ['input[name*="your-email"]', 'input[name*="email"]'],
+      phone: ['input[name*="your-tel"]', 'input[name*="tel"]'],
+      message: ['textarea[name*="your-message"]', 'textarea[name*="message"]']
+    },
+    'wix': {
+      name: ['input[name="氏名"]', 'input[name*="name"]'],
+      email: ['input[name="email"]', 'input[type="email"]'],
+      phone: ['input[name="phone"]', 'input[type="tel"]'],
+      message: ['textarea']
+    }
+  };
+  return patterns[platform] || {};
+}
+
+// =============================================================================
+// SEMANTIC SCORING
+// =============================================================================
+
+function getFieldConfidence(el, fieldType) {
+  const context = [
+    el.name || '', el.id || '', el.placeholder || '',
+    el.getAttribute('aria-label') || '',
+    el.getAttribute('autocomplete') || '',
+    getFieldContext(el)
+  ].join(' ').toLowerCase();
+
+  const patterns = {
+    lastName:      [/姓|sei|last.?name|family/, /名|first|given/],
+    firstName:     [/名|mei|first.?name|given/, /姓|last|family/],
+    lastNameKana:  [/姓.*かな|姓.*カナ|sei.*kana/, /(?:)/],
+    firstNameKana: [/名.*かな|名.*カナ|mei.*kana/, /(?:)/],
+    name1:         [/氏名|お名前|full.?name|your.?name|flnm/, /会社|company/],
+    nameKana:      [/ふりがな|フリガナ|kana|ruby/, /(?:)/],
+    company:       [/会社|法人|company|corp|organization|御社/, /(?:)/],
+    email:         [/mail|メール|e-mail/, /(?:)/],
+    emailConfirm:  [/確認|confirm|再入力|retype/, /(?:)/],
+    phone:         [/tel|電話|phone|携帯|mobile/, /(?:)/],
+    zipcode:       [/郵便|zip|postal/, /(?:)/],
+    prefecture:    [/都道府県|prefecture|pref/, /(?:)/],
+    city:          [/市区町村|city|town|区|市/, /(?:)/],
+    street:        [/番地|丁目|street|addr|住所/, /(?:)/],
+    message:       [/メッセージ|内容|お問い合わせ|message|inquiry|comment|本文|ご用件/, /(?:)/]
+  };
+
+  const [positives, negatives] = patterns[fieldType] || [null, null];
+  if (!positives) return 0;
+  let score = 0;
+  if (positives.test(context)) score += 80;
+  if (negatives && negatives.source !== '(?:)' && negatives.test(context)) score -= 40;
+  const acMap = { email: 'email', phone: 'tel', zipcode: 'postal-code', name1: 'name', lastName: 'family-name', firstName: 'given-name' };
+  if (acMap[fieldType] && el.getAttribute('autocomplete') === acMap[fieldType]) score += 20;
+  return Math.max(0, Math.min(100, score));
+}
+
 async function autoFillForm(profile) {
   const url = window.location.href;
   const urlObj = new URL(url);
@@ -1307,6 +1522,32 @@ async function autoFillForm(profile) {
     errors: [],
     detailedResults: []
   };
+
+  // =============================================================================
+  // PASS 0: 学習データ照合（最優先）
+  // =============================================================================
+  const learnedCount = await fillWithLearned(profile);
+  debugInfo.learnedFieldsFilled = learnedCount;
+
+  // Platform detection
+  const detectedPlatform = detectPlatform();
+  if (detectedPlatform !== 'unknown') {
+    console.log(`🏗️ [Platform] Detected: ${detectedPlatform}`);
+    debugInfo.platform = detectedPlatform;
+    const platformMappings = getPlatformMappings(detectedPlatform);
+    for (const [fieldType, selectors] of Object.entries(platformMappings)) {
+      for (const sel of selectors) {
+        const el = document.querySelector(sel);
+        if (el && isVisible(el) && !el.value) {
+          const val = getProfileValue(profile, fieldType);
+          if (val) {
+            fillField(el, val, el.type, fieldType);
+            console.log(`🏗️ [Platform/${detectedPlatform}] Filled ${fieldType} via ${sel}`);
+          }
+        }
+      }
+    }
+  }
 
   const filledFields = new Set();
 
@@ -1782,6 +2023,9 @@ async function autoFillForm(profile) {
 
   // D: AI fallback - 未入力の必須/可視フィールドをAIで補完
   await aiFillUnknownFields(profile);
+
+  // Record learning data for future visits
+  await recordLearning(profile);
 
   // Run verification after auto-fill
   const verification = verifyFormFill();
@@ -4531,14 +4775,24 @@ async function aiFillUnknownFields(profile) {
   try {
     const fields = unfilled.map(f => ({
       label: f.label, context: f.context, name: f.name, id: f.id,
-      placeholder: f.placeholder, type: f.type
+      placeholder: f.placeholder, type: f.type,
+      htmlContext: (() => {
+        try {
+          const container = f.el.closest('form, section, div');
+          return container ? container.innerHTML.substring(0, 300) : '';
+        } catch(e) { return ''; }
+      })()
     }));
+
+    const pageTitle = document.title;
+    const formEl = document.querySelector('form');
+    const formTitle = formEl ? (formEl.querySelector('h1, h2, h3')?.textContent?.trim() || '') : '';
 
     // background.js経由でClaude APIを呼ぶ (Mixed Content回避)
     const data = await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('timeout')), 20000);
       chrome.runtime.sendMessage(
-        { action: 'aiClassifyFields', fields, profile },
+        { action: 'aiClassifyFields', fields, profile, pageTitle, formTitle },
         (response) => {
           clearTimeout(timer);
           if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
