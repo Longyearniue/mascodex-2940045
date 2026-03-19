@@ -54,7 +54,7 @@ async function restoreBatchModeState() {
     // Restore saved batch URLs and settings
     const storage = await chrome.storage.local.get(['batchUrls', 'batchAutoCloseEnabled']);
     if (storage.batchUrls) {
-      document.getElementById('batchUrls').value = storage.batchUrls;
+      document.getElementById('batchUrls')?.value = storage.batchUrls;
     }
     // Restore auto-close setting (default to true)
     const autoCloseCheckbox = document.getElementById('autoCloseEnabled');
@@ -74,32 +74,32 @@ async function restoreBatchModeState() {
       batchToggle.textContent = '▼ Batch Mode (一括送信)';
 
       // Update button states
-      document.getElementById('startBatch').disabled = true;
-      document.getElementById('nextBatch').disabled = false;
-      document.getElementById('stopBatch').disabled = false;
-      document.getElementById('batchStatus').style.display = 'block';
+      document.getElementById('startBatch')?.disabled = true;
+      document.getElementById('nextBatch')?.disabled = false;
+      document.getElementById('stopBatch')?.disabled = false;
+      document.getElementById('batchStatus')?.style.display = 'block';
 
       // Show appropriate phase
       if (status.processingPhase === 'finding_contacts') {
-        document.getElementById('findingContactsPhase').style.display = 'block';
-        document.getElementById('openingTabsPhase').style.display = 'none';
+        document.getElementById('findingContactsPhase')?.style.display = 'block';
+        document.getElementById('openingTabsPhase')?.style.display = 'none';
 
         const processed = status.validCount + status.skippedCount;
-        document.getElementById('contactSearchProgress').textContent = `${processed}/${status.total}`;
-        document.getElementById('validUrlCount').textContent = status.validCount;
-        document.getElementById('skippedUrlCount').textContent = status.skippedCount;
+        document.getElementById('contactSearchProgress')?.textContent = `${processed}/${status.total}`;
+        document.getElementById('validUrlCount')?.textContent = status.validCount;
+        document.getElementById('skippedUrlCount')?.textContent = status.skippedCount;
 
         const percent = status.total > 0 ? (processed / status.total) * 100 : 0;
-        document.getElementById('contactSearchBar').style.width = `${percent}%`;
+        document.getElementById('contactSearchBar')?.style.width = `${percent}%`;
       } else if (status.processingPhase === 'running' || status.processingPhase === 'ready') {
-        document.getElementById('findingContactsPhase').style.display = 'none';
-        document.getElementById('openingTabsPhase').style.display = 'block';
+        document.getElementById('findingContactsPhase')?.style.display = 'none';
+        document.getElementById('openingTabsPhase')?.style.display = 'block';
 
-        document.getElementById('batchProgress').textContent = `${status.currentIndex}/${status.validCount}`;
-        document.getElementById('openTabsCount').textContent = status.openTabs;
+        document.getElementById('batchProgress')?.textContent = `${status.currentIndex}/${status.validCount}`;
+        document.getElementById('openTabsCount')?.textContent = status.openTabs;
 
         const percent = status.validCount > 0 ? (status.currentIndex / status.validCount) * 100 : 0;
-        document.getElementById('batchProgressBar').style.width = `${percent}%`;
+        document.getElementById('batchProgressBar')?.style.width = `${percent}%`;
       }
 
       // Start status update interval
@@ -149,7 +149,7 @@ function setupCollapsibles() {
   });
 
   // Auto-save autoCloseEnabled setting when changed
-  document.getElementById('autoCloseEnabled').addEventListener('change', async (e) => {
+  document.getElementById('autoCloseEnabled')?.addEventListener('change', async (e) => {
     await chrome.storage.local.set({ batchAutoCloseEnabled: e.target.checked });
     console.log('[Popup] Auto-close setting saved:', e.target.checked);
   });
@@ -1076,8 +1076,8 @@ async function getCurrentProfileWithTemplate() {
 }
 
 // Start batch button handler
-document.getElementById('startBatch').addEventListener('click', async () => {
-  const urlsText = document.getElementById('batchUrls').value.trim();
+document.getElementById('startBatch')?.addEventListener('click', async () => {
+  const urlsText = document.getElementById('batchUrls')?.value.trim();
   if (!urlsText) {
     showStatus('URLを入力してください', 'error');
     return;
@@ -1115,14 +1115,14 @@ document.getElementById('startBatch').addEventListener('click', async () => {
   }
 
   // Save URLs and settings for restoration
-  const autoCloseEnabled = document.getElementById('autoCloseEnabled').checked;
+  const autoCloseEnabled = document.getElementById('autoCloseEnabled')?.checked;
   await chrome.storage.local.set({
     batchUrls: urlsText,
     batchAutoCloseEnabled: autoCloseEnabled
   });
 
   const profile = await getCurrentProfileWithTemplate();
-  const tabsPerBatch = parseInt(document.getElementById('tabsPerBatch').value);
+  const tabsPerBatch = parseInt(document.getElementById('tabsPerBatch')?.value);
 
   try {
     await chrome.runtime.sendMessage({
@@ -1135,10 +1135,10 @@ document.getElementById('startBatch').addEventListener('click', async () => {
     });
 
     // Update UI
-    document.getElementById('startBatch').disabled = true;
-    document.getElementById('nextBatch').disabled = false;
-    document.getElementById('stopBatch').disabled = false;
-    document.getElementById('batchStatus').style.display = 'block';
+    document.getElementById('startBatch')?.disabled = true;
+    document.getElementById('nextBatch')?.disabled = false;
+    document.getElementById('stopBatch')?.disabled = false;
+    document.getElementById('batchStatus')?.style.display = 'block';
 
     startBatchStatusInterval();
     showStatus(`🚀 バッチ開始: ${urls.length}件のURLを処理します`, 'success');
@@ -1149,7 +1149,7 @@ document.getElementById('startBatch').addEventListener('click', async () => {
 });
 
 // Next batch button handler
-document.getElementById('nextBatch').addEventListener('click', async () => {
+document.getElementById('nextBatch')?.addEventListener('click', async () => {
   console.log('[Popup] Next batch button clicked');
   try {
     const response = await chrome.runtime.sendMessage({ action: 'nextBatch' });
@@ -1172,15 +1172,15 @@ document.getElementById('nextBatch').addEventListener('click', async () => {
 });
 
 // Stop batch button handler
-document.getElementById('stopBatch').addEventListener('click', async () => {
+document.getElementById('stopBatch')?.addEventListener('click', async () => {
   try {
     await chrome.runtime.sendMessage({ action: 'stopBatch' });
 
     // Update UI
-    document.getElementById('startBatch').disabled = false;
-    document.getElementById('nextBatch').disabled = true;
-    document.getElementById('stopBatch').disabled = true;
-    document.getElementById('batchStatus').style.display = 'none';
+    document.getElementById('startBatch')?.disabled = false;
+    document.getElementById('nextBatch')?.disabled = true;
+    document.getElementById('stopBatch')?.disabled = true;
+    document.getElementById('batchStatus')?.style.display = 'none';
 
     // Clear saved URLs
     await chrome.storage.local.remove(['batchUrls']);
@@ -1219,11 +1219,11 @@ async function updateBatchStatus() {
         findingPhase.style.display = 'none';
         openingPhase.style.display = 'block';
 
-        document.getElementById('batchProgress').textContent = `${currentIndex}/${validCount}`;
-        document.getElementById('openTabsCount').textContent = openTabs;
+        document.getElementById('batchProgress')?.textContent = `${currentIndex}/${validCount}`;
+        document.getElementById('openTabsCount')?.textContent = openTabs;
 
         const percentage = validCount > 0 ? (currentIndex / validCount) * 100 : 0;
-        document.getElementById('batchProgressBar').style.width = `${percentage}%`;
+        document.getElementById('batchProgressBar')?.style.width = `${percentage}%`;
 
         if (skippedCount > 0) {
           summaryText.innerHTML = `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`;
@@ -1234,9 +1234,9 @@ async function updateBatchStatus() {
 
       if (!status.isRunning && phase === 'idle' && (validCount > 0 || skippedCount > 0)) {
         // Batch complete
-        document.getElementById('startBatch').disabled = false;
-        document.getElementById('nextBatch').disabled = true;
-        document.getElementById('stopBatch').disabled = true;
+        document.getElementById('startBatch')?.disabled = false;
+        document.getElementById('nextBatch')?.disabled = true;
+        document.getElementById('stopBatch')?.disabled = true;
       }
     }
   } catch (error) {
@@ -1277,23 +1277,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (elMain) elMain.textContent = `${message.label}  ―  ${message.url}`;
 
   } else if (message.action === 'batchPhaseUpdate') {
-    document.getElementById('batchStatus').style.display = 'block';
+    document.getElementById('batchStatus')?.style.display = 'block';
 
     if (message.phase === 'finding_contacts') {
-      document.getElementById('findingContactsPhase').style.display = 'block';
-      document.getElementById('openingTabsPhase').style.display = 'none';
+      document.getElementById('findingContactsPhase')?.style.display = 'block';
+      document.getElementById('openingTabsPhase')?.style.display = 'none';
 
       const total = message.total || 0;
       const processed = message.processed || 0;
       const validCount = message.validCount || 0;
       const skippedCount = message.skippedCount || 0;
 
-      document.getElementById('contactSearchProgress').textContent = `${processed}/${total}`;
-      document.getElementById('validUrlCount').textContent = validCount;
-      document.getElementById('skippedUrlCount').textContent = skippedCount;
+      document.getElementById('contactSearchProgress')?.textContent = `${processed}/${total}`;
+      document.getElementById('validUrlCount')?.textContent = validCount;
+      document.getElementById('skippedUrlCount')?.textContent = skippedCount;
 
       const percentage = total > 0 ? (processed / total) * 100 : 0;
-      document.getElementById('contactSearchBar').style.width = `${percentage}%`;
+      document.getElementById('contactSearchBar')?.style.width = `${percentage}%`;
 
       // 現在処理中のURLとステップを表示
       const curUrl = message.currentUrl || '';
@@ -1302,19 +1302,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const el = document.getElementById('contactSearchCurrentUrl');
         if (el) el.textContent = curStep ? `${curStep}  ―  ${curUrl}` : curUrl;
       }
-      document.getElementById('batchSummaryText').textContent = `🔍 検索中... ${processed}/${total}件処理済み`;
+      document.getElementById('batchSummaryText')?.textContent = `🔍 検索中... ${processed}/${total}件処理済み`;
     } else if (message.phase === 'ready') {
-      document.getElementById('findingContactsPhase').style.display = 'none';
-      document.getElementById('openingTabsPhase').style.display = 'block';
+      document.getElementById('findingContactsPhase')?.style.display = 'none';
+      document.getElementById('openingTabsPhase')?.style.display = 'block';
 
       const validCount = message.validCount || 0;
       const skippedCount = message.skippedCount || 0;
 
       if (skippedCount > 0) {
-        document.getElementById('batchSummaryText').innerHTML =
+        document.getElementById('batchSummaryText')?.innerHTML =
           `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`;
       } else {
-        document.getElementById('batchSummaryText').innerHTML = `✅ 有効: <strong>${validCount}</strong>件`;
+        document.getElementById('batchSummaryText')?.innerHTML = `✅ 有効: <strong>${validCount}</strong>件`;
       }
 
       if (validCount > 0) {
@@ -1324,9 +1324,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     }
   } else if (message.action === 'batchComplete') {
-    document.getElementById('startBatch').disabled = false;
-    document.getElementById('nextBatch').disabled = true;
-    document.getElementById('stopBatch').disabled = true;
+    document.getElementById('startBatch')?.disabled = false;
+    document.getElementById('nextBatch')?.disabled = true;
+    document.getElementById('stopBatch')?.disabled = true;
 
     stopBatchStatusInterval();
 
@@ -1343,7 +1343,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       showStatus(`✅ バッチ完了: ${validCount}件処理 (${skipped}件スキップ)`, 'success');
     }
 
-    document.getElementById('batchSummaryText').innerHTML =
+    document.getElementById('batchSummaryText')?.innerHTML =
       `完了: <strong>${completed}</strong>件送信 / スキップ: <strong>${skipped}</strong>件`;
   }
 });
