@@ -1311,51 +1311,11 @@ async function autoFillForm(profile) {
   const filledFields = new Set();
 
   // =============================================================================
-  // FETCH SALES LETTER FOR ALL SITES (not just pre-configured)
+  // MESSAGE: 原稿タブのテンプレートを使用（Worker APIは使わない）
   // =============================================================================
-  let globalSalesLetter = null;
-
-  // Check if there's a message field on the page (textarea or message-related input)
-  const hasMessageField = document.querySelector('textarea, [name*="message"], [name*="content"], [name*="inquiry"], [name*="内容"], [name*="本文"]');
-
-  if (hasMessageField) {
-    console.log('📧 Message field detected on page, fetching sales letter...');
-    const companyUrl = window.location.origin;
-    const currentPageUrl = window.location.href;
-    console.log('🌐 Fetching sales letter for:', companyUrl);
-
-    try {
-      // In batch mode, check for pre-generated message first
-      const stored = await chrome.storage.local.get(['batchMode', 'batchGeneratedMessages']);
-      if (stored.batchMode && stored.batchGeneratedMessages) {
-        const msgs = stored.batchGeneratedMessages;
-        globalSalesLetter = msgs[currentPageUrl] || msgs[companyUrl] || null;
-        if (globalSalesLetter) {
-          console.log('✅ Using pre-generated batch sales letter, length:', globalSalesLetter.length);
-        }
-      }
-
-      // ユーザーが原稿タブでメッセージを設定済みの場合はAPIをスキップ
-      const hasUserTemplate = profile.message && profile.message.trim().length > 0;
-      if (hasUserTemplate) {
-        console.log('📝 Using user template from 原稿 tab, skipping API');
-        globalSalesLetter = null; // APIを使わない
-      } else if (!globalSalesLetter) {
-        // 原稿なし＆バッチ事前生成もない場合のみAPIを呼ぶ
-        globalSalesLetter = await fetchSalesLetter(companyUrl);
-      }
-
-      if (globalSalesLetter) {
-        console.log('✅ Sales letter ready, length:', globalSalesLetter.length);
-        profile = { ...profile, message: globalSalesLetter };
-      } else if (hasUserTemplate) {
-        console.log('✅ Using user-set message template');
-      } else {
-        console.log('⚠️ No message available');
-      }
-    } catch (error) {
-      console.error('❌ Error fetching sales letter:', error);
-    }
+  const globalSalesLetter = null; // Worker API無効化
+  if (profile.message) {
+    console.log('📝 Using message from profile/原稿 tab, length:', profile.message.length);
   }
 
   // Layer 0: Fingerprint engine
@@ -1434,9 +1394,9 @@ async function autoFillForm(profile) {
       const companyUrl = siteMapping.company_url || window.location.origin;
       console.log('🌐 Company URL for API:', companyUrl);
       console.log('⏳ Fetching sales letter from API (fallback)...');
-      salesLetter = await fetchSalesLetter(companyUrl);
-      if (salesLetter) {
-        console.log('✅ Sales letter received, length:', salesLetter.length);
+      // salesLetter fetch disabled - use profile.message from 原稿 tab
+      if (false && salesLetter) {
+        console.log('✅ Sales letter received, length:', salesLetter ? salesLetter.length : 0);
         console.log('📝 First 100 chars:', salesLetter.substring(0, 100));
       } else {
         console.log('❌ Failed to get sales letter from API');
