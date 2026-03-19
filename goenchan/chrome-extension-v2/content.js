@@ -5199,9 +5199,10 @@ function getProfileValue(profile, key) {
   // Handle split name fields (姓/名)
   if (key === 'name1' || key === 'name2' || key === 'name_sei' || key === 'name_mei' || key === 'last_name' || key === 'first_name') {
     const isSei = (key === 'name1' || key === 'name_sei' || key === 'last_name');
-    // 直接入力された姓/名を優先
-    if (isSei && profile.last_name) return profile.last_name;
-    if (!isSei && profile.first_name) return profile.first_name;
+    // 直接入力された姓/名を優先（ただしフルネームと同じ値なら分割処理に回す）
+    const _fullNameCheck = profile.name || '';
+    if (isSei && profile.last_name && profile.last_name !== _fullNameCheck) return profile.last_name;
+    if (!isSei && profile.first_name && profile.first_name !== _fullNameCheck) return profile.first_name;
     const fullName = profile.name || '';
     // スペース区切り
     const spaceParts = fullName.split(/[\s　]+/).filter(p => p.length > 0);
@@ -5223,9 +5224,10 @@ function getProfileValue(profile, key) {
   // Handle split name_kana fields (セイ/メイ)
   if (key === 'name_kana1' || key === 'name_kana2' || key === 'name_sei_kana' || key === 'name_mei_kana' || key === 'last_name_kana' || key === 'first_name_kana') {
     const isSei = (key === 'name_kana1' || key === 'name_sei_kana' || key === 'last_name_kana');
-    // 直接入力されたカナ姓/名を優先
-    if (isSei && profile.last_name_kana) return profile.last_name_kana;
-    if (!isSei && profile.first_name_kana) return profile.first_name_kana;
+    // 直接入力されたカナ姓/名を優先（フルカナと同じ値なら分割処理に回す）
+    const _fullKanaCheck = profile.name_kana || '';
+    if (isSei && profile.last_name_kana && profile.last_name_kana !== _fullKanaCheck) return profile.last_name_kana;
+    if (!isSei && profile.first_name_kana && profile.first_name_kana !== _fullKanaCheck) return profile.first_name_kana;
     const fullKana = profile.name_kana || '';
     // スペース区切り
     const spaceParts = fullKana.split(/[\s　]+/).filter(p => p.length > 0);

@@ -195,15 +195,58 @@ async function loadProfile() {
 
 // Save profile
 document.getElementById('saveProfile').addEventListener('click', async () => {
+  // フルネームから姓/名を自動分割（個別フィールドが空の場合）
+  const _fullName = document.getElementById('name').value.trim();
+  const _fullKana = document.getElementById('name_kana').value.trim();
+  let _autoLastName = document.getElementById('last_name').value.trim();
+  let _autoFirstName = document.getElementById('first_name').value.trim();
+  let _autoLastKana = document.getElementById('last_name_kana').value.trim();
+  let _autoFirstKana = document.getElementById('first_name_kana').value.trim();
+
+  // フルネームがあり姓/名が空なら自動分割
+  if (_fullName && (!_autoLastName || !_autoFirstName)) {
+    const spaceParts = _fullName.split(/[\s\u3000]+/).filter(p => p.length > 0);
+    if (spaceParts.length >= 2) {
+      if (!_autoLastName) _autoLastName = spaceParts[0];
+      if (!_autoFirstName) _autoFirstName = spaceParts.slice(1).join('');
+    } else {
+      // 漢字→かな/カナ境界で分割（例: 松本まみ, 松本マミ）
+      const m = _fullName.match(/^([一-鿿㐀-䶿]+)([぀-ゟ゠-ヿ].+)$/);
+      if (m) {
+        if (!_autoLastName) _autoLastName = m[1];
+        if (!_autoFirstName) _autoFirstName = m[2];
+      }
+    }
+  }
+
+  // フルカナがあり姓/名カナが空なら自動分割
+  if (_fullKana && (!_autoLastKana || !_autoFirstKana)) {
+    const kanaSpace = _fullKana.split(/[\s\u3000]+/).filter(p => p.length > 0);
+    if (kanaSpace.length >= 2) {
+      if (!_autoLastKana) _autoLastKana = kanaSpace[0];
+      if (!_autoFirstKana) _autoFirstKana = kanaSpace.slice(1).join('');
+    } else if (_autoLastName) {
+      // 漢字の姓の長さを使ってカナを分割
+      const kanjiCount = (_autoLastName.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length;
+      const totalKanji = (_fullName.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length;
+      if (kanjiCount > 0 && totalKanji > 0) {
+        const splitPos = Math.round(_fullKana.length * kanjiCount / totalKanji);
+        const clamped = Math.max(1, Math.min(splitPos, _fullKana.length - 1));
+        if (!_autoLastKana) _autoLastKana = _fullKana.slice(0, clamped);
+        if (!_autoFirstKana) _autoFirstKana = _fullKana.slice(clamped);
+      }
+    }
+  }
+
   const profile = {
     company: document.getElementById('company').value,
     company_kana: document.getElementById('company_kana').value,
-    name: document.getElementById('name').value,
-    name_kana: document.getElementById('name_kana').value,
-    last_name: document.getElementById('last_name').value,
-    first_name: document.getElementById('first_name').value,
-    last_name_kana: document.getElementById('last_name_kana').value,
-    first_name_kana: document.getElementById('first_name_kana').value,
+    name: _fullName,
+    name_kana: _fullKana,
+    last_name: _autoLastName,
+    first_name: _autoFirstName,
+    last_name_kana: _autoLastKana,
+    first_name_kana: _autoFirstKana,
     email: document.getElementById('email').value,
     phone: document.getElementById('phone').value,
     zipcode: document.getElementById('zipcode').value,
