@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>India Culture Quiz - Mascodex</title>
+  <meta property="og:title" content="India Culture Quiz - How well do you know your area?">
+  <meta property="og:description" content="Enter your PIN code and test your knowledge of local history & culture!">
+  <meta property="og:url" content="https://mascodex.com/game-in">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0c29;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen { display: none; width: 100%; max-width: 520px; padding: 24px; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+    .quiz-header {
+      background: linear-gradient(135deg, #ff9933 0%, #138808 100%);
+      padding: 32px 24px 24px;
+      text-align: center;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 32px;
+    }
+    .quiz-header h1 { font-size: 1.6rem; font-weight: 800; }
+    .quiz-header p { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+
+    .postal-input-wrap {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 360px;
+      margin-top: 24px;
+    }
+    .postal-input {
+      flex: 1;
+      font-size: 1.4rem;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      text-align: center;
+      letter-spacing: 0.15em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .postal-input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 0.05em; }
+    .postal-input:focus { border-color: #ff9933; }
+
+    .btn-start {
+      background: linear-gradient(135deg, #ff9933, #138808);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.15s, opacity 0.15s;
+      width: 100%;
+      max-width: 360px;
+    }
+    .btn-start:hover { transform: scale(1.03); }
+    .btn-start:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      min-height: 1.2em;
+    }
+
+    .quiz-progress {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+    .quiz-area-name {
+      font-size: 0.85rem;
+      opacity: 0.5;
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+
+    .timer-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .timer-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9933, #138808);
+      border-radius: 3px;
+      transition: width 0.1s linear;
+      width: 100%;
+    }
+    .timer-bar.danger { background: linear-gradient(90deg, #ff6b6b, #ee5a24); }
+
+    .question-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      text-align: center;
+      min-height: 3.2em;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+    .choice-btn {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .choice-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.25); }
+    .choice-btn.correct {
+      background: rgba(76,175,80,0.25);
+      border-color: #4caf50;
+    }
+    .choice-btn.wrong {
+      background: rgba(244,67,54,0.25);
+      border-color: #f44336;
+    }
+    .choice-btn.disabled { pointer-events: none; }
+
+    .result-score {
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 16px 0 8px;
+    }
+    .result-bar {
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .result-label {
+      font-size: 1rem;
+      opacity: 0.7;
+      margin-bottom: 24px;
+    }
+    .result-address {
+      font-size: 0.9rem;
+      opacity: 0.5;
+      margin-bottom: 32px;
+    }
+
+    .share-btns {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .share-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .share-btn:hover { transform: scale(1.03); }
+    .share-btn.twitter { background: #1da1f2; color: #fff; }
+    .share-btn.copy { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+    .btn-retry {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-top: 16px;
+      width: 100%;
+      max-width: 360px;
+      transition: border-color 0.2s;
+    }
+    .btn-retry:hover { border-color: rgba(255,255,255,0.5); }
+
+    .btn-home {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    .btn-home:hover { color: rgba(255,255,255,0.7); }
+
+    .not-found-icon { font-size: 3rem; margin-bottom: 16px; }
+    .not-found-text { font-size: 1rem; opacity: 0.7; text-align: center; line-height: 1.6; margin-bottom: 24px; }
+
+    .spinner {
+      display: inline-block;
+      width: 24px; height: 24px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text { font-size: 0.9rem; opacity: 0.6; margin-top: 12px; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(20,20,40,0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(76,175,80,0.5);
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 560px) {
+      .quiz-header { border-radius: 0; margin-bottom: 24px; }
+      .quiz-header h1 { font-size: 1.3rem; }
+      .screen { padding: 16px; }
+      .question-text { font-size: 1.05rem; }
+      .result-score { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-header">
+    <h1>India Culture Quiz</h1>
+    <p>How well do you know your area?</p>
+  </div>
+
+  <div id="screen-input" class="screen active">
+    <div class="postal-input-wrap">
+      <input id="postal-input" class="postal-input" type="tel" maxlength="6"
+             placeholder="110001" inputmode="numeric" autocomplete="postal-code">
+    </div>
+    <button id="btn-start" class="btn-start">Start Quiz</button>
+    <div id="error-msg" class="error-msg"></div>
+  </div>
+
+  <div id="screen-loading" class="screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading quiz...</div>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div id="quiz-progress" class="quiz-progress"></div>
+    <div id="quiz-area" class="quiz-area-name"></div>
+    <div class="timer-bar-wrap"><div id="timer-bar" class="timer-bar"></div></div>
+    <div id="question-text" class="question-text"></div>
+    <div id="choices" class="choices"></div>
+  </div>
+
+  <div id="screen-result" class="screen">
+    <div id="result-bar" class="result-bar"></div>
+    <div id="result-score" class="result-score"></div>
+    <div id="result-label" class="result-label"></div>
+    <div id="result-address" class="result-address"></div>
+    <div class="share-btns">
+      <button id="btn-twitter" class="share-btn twitter">Share on X</button>
+      <button id="btn-copy" class="share-btn copy">Copy</button>
+    </div>
+    <button id="btn-retry" class="btn-retry">Try Again</button>
+    <button id="btn-change" class="btn-retry" style="margin-top:8px">Different PIN Code</button>
+    <button id="btn-home" class="btn-home">Back to Home</button>
+  </div>
+
+  <div id="screen-notfound" class="screen">
+    <div class="not-found-icon">🏗️</div>
+    <div class="not-found-text">Quiz for this PIN code is not ready yet.<br>Try a different PIN code!</div>
+    <button id="btn-back" class="btn-retry">Go Back</button>
+  </div>
+
+  <div id="toast" class="toast">Copied!</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var quizData = null;
+  var currentQ = 0;
+  var score = 0;
+  var timerInterval = null;
+  var timeLeft = 0;
+  var TIME_LIMIT = 15;
+
+  var $input      = document.getElementById('screen-input');
+  var $loading    = document.getElementById('screen-loading');
+  var $quiz       = document.getElementById('screen-quiz');
+  var $result     = document.getElementById('screen-result');
+  var $notfound   = document.getElementById('screen-notfound');
+
+  var $postalInput = document.getElementById('postal-input');
+  var $btnStart    = document.getElementById('btn-start');
+  var $errorMsg    = document.getElementById('error-msg');
+  var $progress    = document.getElementById('quiz-progress');
+  var $area        = document.getElementById('quiz-area');
+  var $timerBar    = document.getElementById('timer-bar');
+  var $questionTxt = document.getElementById('question-text');
+  var $choices     = document.getElementById('choices');
+
+  function showScreen(el) {
+    [$input, $loading, $quiz, $result, $notfound].forEach(function(s) { s.classList.remove('active'); });
+    el.classList.add('active');
+  }
+
+  async function startQuiz(codeOverride) {
+    var code;
+    if (typeof codeOverride === 'string') {
+      code = codeOverride.replace(/[\s-]/g, '');
+    } else {
+      code = $postalInput.value.trim().replace(/[\s-]/g, '');
+    }
+    $errorMsg.textContent = '';
+
+    if (!/^\d{6}$/.test(code)) {
+      $errorMsg.textContent = 'Please enter a 6-digit PIN code';
+      showScreen($input);
+      return;
+    }
+
+    $btnStart.disabled = true;
+    showScreen($loading);
+
+    try {
+      var res = await fetch('/api/quiz/in/' + code);
+      if (res.status === 404) {
+        showScreen($notfound);
+        $btnStart.disabled = false;
+        return;
+      }
+      if (!res.ok) throw new Error('API error');
+
+      quizData = await res.json();
+      currentQ = 0;
+      score = 0;
+      showScreen($quiz);
+      showQuestion();
+    } catch (e) {
+      $errorMsg.textContent = 'Failed to load quiz. Please try again.';
+      showScreen($input);
+    } finally {
+      $btnStart.disabled = false;
+    }
+  }
+
+  function showQuestion() {
+    var q = quizData.questions[currentQ];
+    var total = quizData.questions.length;
+
+    $progress.textContent = (currentQ + 1) + ' / ' + total;
+    $area.textContent = '📍 ' + quizData.address + ' (' + quizData.pinCode + ')';
+
+    $questionTxt.textContent = q.question;
+    $choices.innerHTML = '';
+
+    q.choices.forEach(function(text, i) {
+      var btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = text;
+      btn.addEventListener('click', function() { handleAnswer(i); });
+      $choices.appendChild(btn);
+    });
+
+    startTimer();
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timeLeft = TIME_LIMIT * 10;
+    $timerBar.style.width = '100%';
+    $timerBar.classList.remove('danger');
+
+    timerInterval = setInterval(function() {
+      timeLeft--;
+      var pct = (timeLeft / (TIME_LIMIT * 10)) * 100;
+      $timerBar.style.width = pct + '%';
+      if (pct < 30) $timerBar.classList.add('danger');
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        handleAnswer(-1);
+      }
+    }, 100);
+  }
+
+  function handleAnswer(selected) {
+    clearInterval(timerInterval);
+    var q = quizData.questions[currentQ];
+    var btns = $choices.querySelectorAll('.choice-btn');
+
+    btns.forEach(function(b) { b.classList.add('disabled'); });
+    btns[q.correct].classList.add('correct');
+
+    if (selected === q.correct) {
+      score++;
+    } else if (selected >= 0) {
+      btns[selected].classList.add('wrong');
+    }
+
+    setTimeout(function() {
+      currentQ++;
+      if (currentQ < quizData.questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }, 1200);
+  }
+
+  function showResult() {
+    showScreen($result);
+    var total = quizData.questions.length;
+    var bar = '';
+    for (var i = 0; i < total; i++) {
+      bar += i < score ? '█' : '░';
+    }
+
+    document.getElementById('result-bar').textContent = bar;
+    document.getElementById('result-score').textContent = score + ' / ' + total;
+
+    var labels = [
+      'Time to explore your area!',
+      'Getting there!',
+      'Not bad!',
+      'Pretty impressive!',
+      'Local expert!',
+      'Perfect score! You\'re a local legend!'
+    ];
+    document.getElementById('result-label').textContent = labels[score] || labels[labels.length - 1];
+    document.getElementById('result-address').textContent =
+      '📍 ' + quizData.address + ' (' + quizData.pinCode + ')';
+  }
+
+  function getShareText() {
+    var total = quizData.questions.length;
+    var bar = '';
+    for (var i = 0; i < total; i++) {
+      bar += i < score ? '█' : '░';
+    }
+    return '🇮🇳 Mascodex India Culture Quiz\n' +
+      '📍 ' + quizData.address + ' (' + quizData.pinCode + ')\n\n' +
+      bar + ' ' + score + '/' + total + ' correct!\n\n' +
+      'How well do you know YOUR area?\n' +
+      'mascodex.com/game-in';
+  }
+
+  $btnStart.addEventListener('click', startQuiz);
+
+  $postalInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') startQuiz();
+  });
+
+  $postalInput.addEventListener('input', function() {
+    $errorMsg.textContent = '';
+  });
+
+  document.getElementById('btn-twitter').addEventListener('click', function() {
+    var text = encodeURIComponent(getShareText());
+    window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+  });
+
+  document.getElementById('btn-copy').addEventListener('click', function() {
+    navigator.clipboard.writeText(getShareText()).then(function() {
+      var toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 2000);
+    });
+  });
+
+  document.getElementById('btn-retry').addEventListener('click', function() {
+    if (quizData) {
+      startQuiz(quizData.pinCode);
+    } else {
+      showScreen($input);
+    }
+  });
+
+  document.getElementById('btn-change').addEventListener('click', function() {
+    showScreen($input);
+    $postalInput.value = '';
+    $postalInput.focus();
+  });
+
+  document.getElementById('btn-home').addEventListener('click', function() {
+    window.location.href = '/';
+  });
+
+  document.getElementById('btn-back').addEventListener('click', function() {
+    showScreen($input);
+    $postalInput.value = '';
+    $postalInput.focus();
+  });
+
+  var params = new URLSearchParams(window.location.search);
+  var autoCode = params.get('code');
+  if (autoCode && /^\d{6}$/.test(autoCode.replace(/[\s-]/g, ''))) {
+    startQuiz(autoCode);
+  } else {
+    $postalInput.focus();
+  }
+})();
+</script>
+</body>
+</html>

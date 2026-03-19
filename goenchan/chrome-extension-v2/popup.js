@@ -43,7 +43,87 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadCurrentUrl();
   setupCollapsibles();
   updateStorageStatus();
+
+  // Restore batch mode state if running
+  await restoreBatchModeState();
 });
+
+// Restore batch mode UI state from background
+async function restoreBatchModeState() {
+  try {
+    // Restore saved batch URLs and settings
+    const storage = await chrome.storage.local.get(['batchUrls', 'batchAutoCloseEnabled']);
+    if (storage.batchUrls) {
+      document.getElementById('batchUrls').value = storage.batchUrls;
+    }
+    // Restore auto-close setting (default to true)
+    const autoCloseCheckbox = document.getElementById('autoCloseEnabled');
+    if (autoCloseCheckbox) {
+      autoCloseCheckbox.checked = storage.batchAutoCloseEnabled !== false;
+    }
+
+    const status = await chrome.runtime.sendMessage({ action: 'getBatchStatus' });
+
+    if (status && status.isRunning) {
+      console.log('[Popup] Restoring batch mode state:', status);
+
+      // Show batch mode section
+      const batchContent = document.getElementById('batchModeContent');
+      const batchToggle = document.getElementById('batchModeToggle');
+      batchContent.classList.add('show');
+      batchToggle.textContent = '▼ Batch Mode (一括送信)';
+
+      // Update button states
+      document.getElementById('startBatch').disabled = true;
+      document.getElementById('nextBatch').disabled = false;
+      document.getElementById('stopBatch').disabled = false;
+      document.getElementById('batchStatus').style.display = 'block';
+
+      // Show appropriate phase
+      if (status.processingPhase === 'finding_contacts') {
+        document.getElementById('findingContactsPhase').style.display = 'block';
+        document.getElementById('openingTabsPhase').style.display = 'none';
+
+        const processed = status.validCount + status.skippedCount;
+        document.getElementById('contactSearchProgress').textContent = `${processed}/${status.total}`;
+        document.getElementById('validUrlCount').textContent = status.validCount;
+        document.getElementById('skippedUrlCount').textContent = status.skippedCount;
+
+        const percent = status.total > 0 ? (processed / status.total) * 100 : 0;
+        document.getElementById('contactSearchBar').style.width = `${percent}%`;
+      } else if (status.processingPhase === 'running' || status.processingPhase === 'ready') {
+        document.getElementById('findingContactsPhase').style.display = 'none';
+        document.getElementById('openingTabsPhase').style.display = 'block';
+
+        document.getElementById('batchProgress').textContent = `${status.currentIndex}/${status.validCount}`;
+        document.getElementById('openTabsCount').textContent = status.openTabs;
+
+        const percent = status.validCount > 0 ? (status.currentIndex / status.validCount) * 100 : 0;
+        document.getElementById('batchProgressBar').style.width = `${percent}%`;
+      }
+
+      // Start status update interval
+      startBatchStatusInterval();
+
+      showStatus(`🔄 バッチモード実行中: ${status.validCount}件の有効URL`, 'info');
+    }
+  } catch (error) {
+    console.log('[Popup] Could not restore batch state:', error);
+  }
+}
+
+// Batch status update interval reference
+let batchStatusInterval = null;
+
+function startBatchStatusInterval() {
+  // Clear existing interval if any
+  if (batchStatusInterval) {
+    clearInterval(batchStatusInterval);
+  }
+
+  // Start new interval
+  batchStatusInterval = setInterval(updateBatchStatus, 1000);
+}
 
 // Setup collapsible sections
 function setupCollapsibles() {
@@ -67,6 +147,12 @@ function setupCollapsibles() {
     content.classList.toggle('show');
     toggle.textContent = content.classList.contains('show') ? '▼ Batch Mode (一括送信)' : '▶ Batch Mode (一括送信)';
   });
+
+  // Auto-save autoCloseEnabled setting when changed
+  document.getElementById('autoCloseEnabled').addEventListener('change', async (e) => {
+    await chrome.storage.local.set({ batchAutoCloseEnabled: e.target.checked });
+    console.log('[Popup] Auto-close setting saved:', e.target.checked);
+  });
 }
 
 // Load current tab URL
@@ -80,6 +166,7 @@ async function loadProfile() {
   const data = await chrome.storage.sync.get(['profile', 'autoFillEnabled']);
   if (data.profile) {
     document.getElementById('company').value = data.profile.company || '';
+    document.getElementById('company_kana').value = data.profile.company_kana || '';
     document.getElementById('name').value = data.profile.name || '';
     document.getElementById('name_kana').value = data.profile.name_kana || '';
     document.getElementById('email').value = data.profile.email || '';
@@ -100,6 +187,7 @@ async function loadProfile() {
 document.getElementById('saveProfile').addEventListener('click', async () => {
   const profile = {
     company: document.getElementById('company').value,
+    company_kana: document.getElementById('company_kana').value,
     name: document.getElementById('name').value,
     name_kana: document.getElementById('name_kana').value,
     email: document.getElementById('email').value,
@@ -913,14 +1001,43 @@ document.getElementById('startBatch').addEventListener('click', async () => {
     return;
   }
 
-  const urls = urlsText.split('\n')
-    .map(url => url.trim())
-    .filter(url => url && url.startsWith('http'));
+  // Parse CSV lines: 会社名,URL,FAX,県,市 or plain URLs
+  const entries = urlsText.split('\n')
+    .map(line => line.trim())
+    .filter(line => line)
+    .map(line => {
+      const parts = line.split(',').map(p => p.trim());
+      // If line has commas, treat as CSV: 会社名,URL,FAX,県,市
+      if (parts.length >= 2 && parts[1].startsWith('http')) {
+        return {
+          companyName: parts[0] || '',
+          url: parts[1],
+          fax: parts[2] || '',
+          prefecture: parts[3] || '',
+          city: parts[4] || ''
+        };
+      }
+      // Plain URL
+      if (line.startsWith('http')) {
+        return { url: line, companyName: '', fax: '', prefecture: '', city: '' };
+      }
+      return null;
+    })
+    .filter(entry => entry && entry.url);
 
-  if (urls.length === 0) {
+  const urls = entries.map(e => e.url);
+
+  if (entries.length === 0) {
     showStatus('有効なURLがありません', 'error');
     return;
   }
+
+  // Save URLs and settings for restoration
+  const autoCloseEnabled = document.getElementById('autoCloseEnabled').checked;
+  await chrome.storage.local.set({
+    batchUrls: urlsText,
+    batchAutoCloseEnabled: autoCloseEnabled
+  });
 
   const profile = getCurrentProfile();
   const tabsPerBatch = parseInt(document.getElementById('tabsPerBatch').value);
@@ -929,8 +1046,10 @@ document.getElementById('startBatch').addEventListener('click', async () => {
     await chrome.runtime.sendMessage({
       action: 'startBatch',
       urls: urls,
+      entries: entries,
       profile: profile,
-      tabsPerBatch: tabsPerBatch
+      tabsPerBatch: tabsPerBatch,
+      autoCloseEnabled: autoCloseEnabled
     });
 
     // Update UI
@@ -939,7 +1058,7 @@ document.getElementById('startBatch').addEventListener('click', async () => {
     document.getElementById('stopBatch').disabled = false;
     document.getElementById('batchStatus').style.display = 'block';
 
-    updateBatchStatus();
+    startBatchStatusInterval();
     showStatus(`🚀 バッチ開始: ${urls.length}件のURLを処理します`, 'success');
   } catch (error) {
     console.error('Failed to start batch:', error);
@@ -949,12 +1068,23 @@ document.getElementById('startBatch').addEventListener('click', async () => {
 
 // Next batch button handler
 document.getElementById('nextBatch').addEventListener('click', async () => {
+  console.log('[Popup] Next batch button clicked');
   try {
-    await chrome.runtime.sendMessage({ action: 'nextBatch' });
-    showStatus('➡️ 次のバッチを開いています...', 'info');
+    const response = await chrome.runtime.sendMessage({ action: 'nextBatch' });
+    console.log('[Popup] Next batch response:', response);
+
+    if (response.success) {
+      showStatus(`➡️ 次のバッチを開いています... (残り${response.remaining}件)`, 'info');
+    } else if (response.error === 'no_more_urls') {
+      showStatus('⚠️ 処理するURLがありません', 'error');
+    } else if (response.error === 'batch_not_running') {
+      showStatus('⚠️ バッチモードが実行されていません', 'error');
+    } else {
+      showStatus('⚠️ ' + (response.message || '次のバッチを開けませんでした'), 'error');
+    }
     updateBatchStatus();
   } catch (error) {
-    console.error('Failed to open next batch:', error);
+    console.error('[Popup] Failed to open next batch:', error);
     showStatus('次のバッチを開けませんでした', 'error');
   }
 });
@@ -970,6 +1100,10 @@ document.getElementById('stopBatch').addEventListener('click', async () => {
     document.getElementById('stopBatch').disabled = true;
     document.getElementById('batchStatus').style.display = 'none';
 
+    // Clear saved URLs
+    await chrome.storage.local.remove(['batchUrls']);
+
+    stopBatchStatusInterval();
     showStatus('⏹️ バッチを停止しました', 'info');
   } catch (error) {
     console.error('Failed to stop batch:', error);
@@ -984,46 +1118,346 @@ async function updateBatchStatus() {
 
     if (status) {
       const total = status.total || 0;
-      const completed = status.completedTabs || 0;
+      const validCount = status.validCount || 0;
+      const skippedCount = status.skippedCount || 0;
       const currentIndex = status.currentIndex || 0;
       const openTabs = status.openTabs || 0;
+      const phase = status.processingPhase || 'idle';
 
-      document.getElementById('batchProgress').textContent = `${currentIndex}/${total}`;
-      document.getElementById('openTabsCount').textContent = openTabs;
+      // Update phase-specific UI
+      const findingPhase = document.getElementById('findingContactsPhase');
+      const openingPhase = document.getElementById('openingTabsPhase');
+      const summaryText = document.getElementById('batchSummaryText');
 
-      const percentage = total > 0 ? (currentIndex / total) * 100 : 0;
-      document.getElementById('batchProgressBar').style.width = `${percentage}%`;
+      if (phase === 'finding_contacts') {
+        findingPhase.style.display = 'block';
+        openingPhase.style.display = 'none';
+        summaryText.textContent = '🔍 お問合せページを検索中...';
+      } else if (phase === 'ready' || phase === 'running') {
+        findingPhase.style.display = 'none';
+        openingPhase.style.display = 'block';
 
-      if (!status.isRunning && currentIndex >= total && total > 0) {
+        document.getElementById('batchProgress').textContent = `${currentIndex}/${validCount}`;
+        document.getElementById('openTabsCount').textContent = openTabs;
+
+        const percentage = validCount > 0 ? (currentIndex / validCount) * 100 : 0;
+        document.getElementById('batchProgressBar').style.width = `${percentage}%`;
+
+        if (skippedCount > 0) {
+          summaryText.innerHTML = `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`;
+        } else {
+          summaryText.innerHTML = `✅ 有効: <strong>${validCount}</strong>件`;
+        }
+      }
+
+      if (!status.isRunning && phase === 'idle' && (validCount > 0 || skippedCount > 0)) {
         // Batch complete
         document.getElementById('startBatch').disabled = false;
         document.getElementById('nextBatch').disabled = true;
         document.getElementById('stopBatch').disabled = true;
-        showStatus(`✅ バッチ完了: ${total}件処理しました`, 'success');
       }
-    }
-
-    // Update message generation count
-    const stored = await chrome.storage.local.get(['batchGeneratedMessages']);
-    const messageCount = Object.keys(stored.batchGeneratedMessages || {}).length;
-    const messageGenCountEl = document.getElementById('messageGenCount');
-    if (messageGenCountEl) {
-      messageGenCountEl.textContent = messageCount;
     }
   } catch (error) {
     console.log('Could not get batch status:', error);
   }
 }
 
-// Listen for batch complete message
+// Listen for batch phase updates, verification updates, and complete message
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'batchComplete') {
+  if (message.action === 'verificationUpdate') {
+    // Handle individual tab verification result
+    const status = message.kept ? '✅' : '❌';
+    const reason = message.kept ? '記入完了' : message.reason;
+    console.log(`[Popup] Tab verification: ${status} ${reason} - ${message.url}`);
+
+    // Update summary text if available
+    const summaryEl = document.getElementById('batchSummaryText');
+    if (summaryEl && message.verification) {
+      const v = message.verification;
+      summaryEl.innerHTML = `${status} ${v.filledFields}/${v.totalFields}フィールド記入 (${reason})`;
+    }
+  } else if (message.action === 'batchSummaryUpdate') {
+    // Update batch summary display
+    const s = message.summary;
+    const summaryEl = document.getElementById('batchSummaryText');
+    if (summaryEl) {
+      summaryEl.innerHTML = `
+        ✅ 成功: <strong>${s.successful}</strong>件 /
+        ❌ 失敗: <strong>${s.failed}</strong>件 /
+        ⏳ 処理中: <strong>${s.pending}</strong>件
+      `;
+    }
+  } else if (message.action === 'batchPhaseUpdate') {
+    document.getElementById('batchStatus').style.display = 'block';
+
+    if (message.phase === 'finding_contacts') {
+      document.getElementById('findingContactsPhase').style.display = 'block';
+      document.getElementById('openingTabsPhase').style.display = 'none';
+
+      const total = message.total || 0;
+      const processed = message.processed || 0;
+      const validCount = message.validCount || 0;
+      const skippedCount = message.skippedCount || 0;
+
+      document.getElementById('contactSearchProgress').textContent = `${processed}/${total}`;
+      document.getElementById('validUrlCount').textContent = validCount;
+      document.getElementById('skippedUrlCount').textContent = skippedCount;
+
+      const percentage = total > 0 ? (processed / total) * 100 : 0;
+      document.getElementById('contactSearchBar').style.width = `${percentage}%`;
+
+      document.getElementById('batchSummaryText').textContent = '🔍 お問合せページを検索中...';
+    } else if (message.phase === 'ready') {
+      document.getElementById('findingContactsPhase').style.display = 'none';
+      document.getElementById('openingTabsPhase').style.display = 'block';
+
+      const validCount = message.validCount || 0;
+      const skippedCount = message.skippedCount || 0;
+
+      if (skippedCount > 0) {
+        document.getElementById('batchSummaryText').innerHTML =
+          `✅ 有効: <strong>${validCount}</strong>件 / ⏭️ スキップ: <strong>${skippedCount}</strong>件 (お問合せページなし)`;
+      } else {
+        document.getElementById('batchSummaryText').innerHTML = `✅ 有効: <strong>${validCount}</strong>件`;
+      }
+
+      if (validCount > 0) {
+        showStatus(`🎯 ${validCount}件のお問合せページを発見！タブを開きます...`, 'success');
+      } else {
+        showStatus(`⚠️ お問合せページが見つかりませんでした`, 'error');
+      }
+    }
+  } else if (message.action === 'batchComplete') {
     document.getElementById('startBatch').disabled = false;
     document.getElementById('nextBatch').disabled = true;
     document.getElementById('stopBatch').disabled = true;
-    showStatus(`✅ バッチ完了: ${message.total}件すべて処理しました`, 'success');
+
+    stopBatchStatusInterval();
+
+    // Clear saved URLs on completion
+    chrome.storage.local.remove(['batchUrls']);
+
+    const validCount = message.validCount || 0;
+    const skipped = message.skipped || 0;
+    const completed = message.completed || 0;
+
+    if (validCount === 0) {
+      showStatus(`⚠️ お問合せページが見つかりませんでした (${skipped}件スキップ)`, 'error');
+    } else {
+      showStatus(`✅ バッチ完了: ${validCount}件処理 (${skipped}件スキップ)`, 'success');
+    }
+
+    document.getElementById('batchSummaryText').innerHTML =
+      `完了: <strong>${completed}</strong>件送信 / スキップ: <strong>${skipped}</strong>件`;
   }
 });
 
-// Poll batch status when popup is open
-setInterval(updateBatchStatus, 2000);
+// Stop batch status interval
+function stopBatchStatusInterval() {
+  if (batchStatusInterval) {
+    clearInterval(batchStatusInterval);
+    batchStatusInterval = null;
+  }
+}
+
+// =============================================================================
+// TAB SYSTEM
+// =============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    });
+  });
+
+  // Variable insertion buttons
+  document.querySelectorAll('.var-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const textarea = document.getElementById('tplBody');
+      const v = btn.dataset.var;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      textarea.value = textarea.value.slice(0, start) + v + textarea.value.slice(end);
+      textarea.selectionStart = textarea.selectionEnd = start + v.length;
+      textarea.focus();
+    });
+  });
+
+  // Load template
+  loadTemplate();
+
+  // Save template
+  document.getElementById('saveTpl').addEventListener('click', saveTemplate);
+  document.getElementById('resetTpl').addEventListener('click', resetTemplate);
+
+  // processUrl button
+  document.getElementById('processUrlBtn').addEventListener('click', async () => {
+    const url = document.getElementById('targetUrl').value.trim();
+    if (!url) { showProcessStatus('❌ URLを入力してください', 'error'); return; }
+    const storage = await chrome.storage.sync.get(['profile', 'tplSubject', 'tplBody', 'tplSelfDesc']);
+    const profile = storage.profile || {};
+    const template = {
+      subject: storage.tplSubject || '{{会社名}}様へのご提案',
+      body: storage.tplBody || DEFAULT_TPL_BODY,
+      selfDesc: storage.tplSelfDesc || ''
+    };
+    showProcessStatus('⏳ 処理を開始しています...', 'info');
+    chrome.runtime.sendMessage({ action: 'processUrl', url, profile, template });
+    startProcessStatusPolling();
+  });
+});
+
+const DEFAULT_TPL_BODY = `突然のご連絡失礼いたします。{{担当者名}}と申します。
+{{会社名}}様の{{商品名}}を拝見し、{{都道府県}}でご活躍されていることを知りご連絡いたしました。
+弊社では{{自社説明}}をご提供しております。ぜひ一度お話しできればと思いご連絡差し上げました。
+何卒よろしくお願いいたします。`;
+
+function loadTemplate() {
+  chrome.storage.sync.get(['tplSubject', 'tplBody', 'tplSelfDesc'], data => {
+    document.getElementById('tplSubject').value = data.tplSubject || '{{会社名}}様へのご提案';
+    document.getElementById('tplBody').value = data.tplBody || DEFAULT_TPL_BODY;
+    document.getElementById('tplSelfDesc').value = data.tplSelfDesc || '';
+  });
+}
+
+function saveTemplate() {
+  const subj = document.getElementById('tplSubject').value;
+  const body = document.getElementById('tplBody').value;
+  const selfDesc = document.getElementById('tplSelfDesc').value;
+  chrome.storage.sync.set({ tplSubject: subj, tplBody: body, tplSelfDesc: selfDesc }, () => {
+    const st = document.getElementById('tplStatus');
+    st.textContent = '✅ 保存しました';
+    st.className = 'status status-success show';
+    setTimeout(() => st.classList.remove('show'), 2000);
+  });
+}
+
+function resetTemplate() {
+  document.getElementById('tplSubject').value = '{{会社名}}様へのご提案';
+  document.getElementById('tplBody').value = DEFAULT_TPL_BODY;
+  document.getElementById('tplSelfDesc').value = '';
+}
+
+function showProcessStatus(text, type) {
+  const el = document.getElementById('processStatus');
+  el.textContent = text;
+  el.className = 'show';
+  if (type === 'error') el.style.background = '#fce8e6', el.style.color = '#c5221f';
+  else if (type === 'success') el.style.background = '#e6f4ea', el.style.color = '#137333';
+  else el.style.background = '#e8f0fe', el.style.color = '#1967d2';
+}
+
+let processStatusInterval = null;
+function startProcessStatusPolling() {
+  if (processStatusInterval) clearInterval(processStatusInterval);
+  processStatusInterval = setInterval(async () => {
+    const data = await chrome.storage.local.get('processStatus');
+    const s = data.processStatus;
+    if (!s) return;
+    const isError = s.startsWith('❌');
+    const isDone = s.startsWith('✅');
+    showProcessStatus(s, isError ? 'error' : isDone ? 'success' : 'info');
+    if (isError || isDone) {
+      clearInterval(processStatusInterval);
+      processStatusInterval = null;
+    }
+  }, 500);
+}
+
+// =============================================================================
+// BATCH MAIN TAB - シンプル版（MutationObserverなし）
+// =============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // 保存済みURLをロード
+  chrome.storage.local.get('batchUrls', d => {
+    const el = document.getElementById('batchUrlsMain');
+    if (el && d.batchUrls) el.value = d.batchUrls;
+  });
+
+  // バッチ開始
+  document.getElementById('startBatchMain')?.addEventListener('click', () => {
+    const urls = document.getElementById('batchUrlsMain')?.value || '';
+    const tabs = document.getElementById('tabsPerBatchMain')?.value || '10';
+    const autoClose = document.getElementById('autoCloseEnabledMain')?.checked ?? true;
+    // プロフィールタブのUIに値を同期してから既存ロジックを呼ぶ
+    const sub = document.getElementById('batchUrls');
+    const subTabs = document.getElementById('tabsPerBatch');
+    const subClose = document.getElementById('autoCloseEnabled');
+    if (sub) sub.value = urls;
+    if (subTabs) subTabs.value = tabs;
+    if (subClose) subClose.checked = autoClose;
+    document.getElementById('startBatch')?.click();
+    document.getElementById('batchStatusMain').style.display = 'block';
+    startBatchMainPolling();
+  });
+
+  document.getElementById('nextBatchMain')?.addEventListener('click', () => {
+    document.getElementById('nextBatch')?.click();
+  });
+
+  document.getElementById('stopBatchMain')?.addEventListener('click', () => {
+    document.getElementById('stopBatch')?.click();
+    stopBatchMainPolling();
+  });
+});
+
+let batchMainPollTimer = null;
+
+function startBatchMainPolling() {
+  if (batchMainPollTimer) return;
+  batchMainPollTimer = setInterval(syncBatchMainUI, 1000);
+}
+
+function stopBatchMainPolling() {
+  if (batchMainPollTimer) { clearInterval(batchMainPollTimer); batchMainPollTimer = null; }
+}
+
+function syncBatchMainUI() {
+  const copyText = (srcId, dstId) => {
+    const s = document.getElementById(srcId);
+    const d = document.getElementById(dstId);
+    if (s && d) d.textContent = s.textContent;
+  };
+  const copyStyle = (srcId, dstId, prop) => {
+    const s = document.getElementById(srcId);
+    const d = document.getElementById(dstId);
+    if (s && d) d.style[prop] = s.style[prop];
+  };
+
+  // 検索フェーズ
+  const findPhase = document.getElementById('findingContactsPhase');
+  const findPhaseMain = document.getElementById('findingContactsPhaseMain');
+  if (findPhase && findPhaseMain) findPhaseMain.style.display = findPhase.style.display;
+  copyText('contactSearchProgress', 'contactSearchProgressMain');
+  copyText('validUrlCount', 'validUrlCountMain');
+  copyText('skippedUrlCount', 'skippedUrlCountMain');
+  copyStyle('contactSearchBar', 'contactSearchBarMain', 'width');
+
+  // タブフェーズ
+  const tabPhase = document.getElementById('openingTabsPhase');
+  const tabPhaseMain = document.getElementById('openingTabsPhaseMain');
+  if (tabPhase && tabPhaseMain) tabPhaseMain.style.display = tabPhase.style.display;
+  copyText('batchProgress', 'batchProgressMain');
+  copyText('openTabsCount', 'openTabsCountMain');
+  copyStyle('batchProgressBar', 'batchProgressBarMain', 'width');
+  copyText('batchSummaryText', 'batchSummaryTextMain');
+
+  // ボタン状態
+  const startBtn = document.getElementById('startBatch');
+  const nextBtn = document.getElementById('nextBatch');
+  const stopBtn = document.getElementById('stopBatch');
+  const sm = document.getElementById('startBatchMain');
+  const nm = document.getElementById('nextBatchMain');
+  const stm = document.getElementById('stopBatchMain');
+  if (sm && startBtn) sm.disabled = startBtn.disabled;
+  if (nm && nextBtn) nm.disabled = nextBtn.disabled;
+  if (stm && stopBtn) stm.disabled = stopBtn.disabled;
+
+  // 完了したらポーリング停止
+  if (startBtn && !startBtn.disabled) stopBatchMainPolling();
+}

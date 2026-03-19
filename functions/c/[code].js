@@ -24,7 +24,64 @@ export async function onRequestGet(context) {
   );
   // Social feed injection
   const jpZip = 'JP' + code;
-  const socialScript = `<style>.social-post{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);}.social-post:last-child{border-bottom:none;}.social-post-content{font-size:.88rem;line-height:1.6;opacity:.88;}.social-post-meta{font-size:.7rem;opacity:.38;margin-top:4px;}</style><div class="section" id="mascot-social" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px"><h2 style="font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px">💬 最近のつぶやき<a href="https://social.mascodex.com/users/JP${code}" target="_blank" style="font-size:.7rem;font-weight:400;opacity:.4;text-decoration:none;margin-left:auto">@JP${code}@social.mascodex.com ↗</a></h2><div id="social-feed-posts"><div style="opacity:.4;font-size:.85rem">読み込み中...</div></div></div><script>(function(){fetch('https://social.mascodex.com/users/JP${code}/outbox').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;var items=(d.orderedItems||[]);var el=document.getElementById('social-feed-posts');if(!items.length){el.innerHTML='<div style="opacity:.4;font-size:.85rem">まだ投稿がありません</div>';return;}el.innerHTML=items.slice(0,5).map(function(p){var raw=(p.object&&p.object.content)||p.content||'';var c=raw.replace(/^#[^\\n]+\\n*/,'').substring(0,140);var t=p.published?new Date(p.published).toLocaleDateString('ja-JP'):'';return '<div class="social-post"><div class="social-post-content">'+c+(c.length>=140?'…':'')+'</div><div class="social-post-meta">'+t+'</div></div>';}).join('');}).catch(function(){});})();<\/script>`;
+  const socialScript = `<style>.social-post{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);}.social-post:last-child{border-bottom:none;}.social-post-content{font-size:.88rem;line-height:1.6;opacity:.88;}.social-post-meta{font-size:.7rem;opacity:.38;margin-top:4px;}</style><div class="section" id="mascot-social" style="background:rgba(255,255,255,.04);border-radius:16px;padding:20px;margin-bottom:20px"><h2 style="font-size:1.1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px">💬 最近のつぶやき<a href="https://social.mascodex.com/users/JP${code}" target="_blank" style="font-size:.7rem;font-weight:400;opacity:.4;text-decoration:none;margin-left:auto">@JP${code}@social.mascodex.com ↗</a></h2><div id="social-feed-posts"><div style="opacity:.4;font-size:.85rem">読み込み中...</div></div></div><script>(function(){fetch('https://social.mascodex.com/users/JP${code}/outbox').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d)return;var items=(d.orderedItems||[]);var el=document.getElementById('social-feed-posts');if(!items.length){el.innerHTML='<div style="opacity:.4;font-size:.85rem">まだ投稿がありません</div>';return;}el.innerHTML=items.slice(0,5).map(function(p){var raw=(p.object&&p.object.content)||p.content||'';var c=raw.replace(/^#[^\\n]+\\n*/,'').substring(0,140);var t=p.published?new Date(p.published).toLocaleDateString('ja-JP'):'';return '<div class="social-post"><div class="social-post-content">'+c+(c.length>=140?'…':'')+'</div><div class="social-post-meta">'+t+'</div></div>';}).join('');}).catch(function(){});})();</script>`;
+
+
+  // SNSシェアボタン注入
+  const shareSection = `
+<style>
+.share-section{max-width:700px;margin:0 auto 20px;padding:0 20px}
+.share-btns{display:flex;gap:6px;flex-wrap:wrap}
+.share-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border-radius:24px;font-size:.78rem;font-weight:600;text-decoration:none;transition:opacity .2s;white-space:nowrap;border:none}
+.share-btn:hover{opacity:.85}
+.share-x{background:#000;color:#fff}
+.share-line{background:#06C755;color:#fff}
+.share-wa{background:#25D366;color:#fff}
+.share-tg{background:#229ED9;color:#fff}
+.share-pin{background:#E60023;color:#fff}
+.share-reddit{background:#FF4500;color:#fff}
+.share-bsky{background:#0085ff;color:#fff}
+.share-fb{background:#1877F2;color:#fff}
+.share-copy{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)!important;cursor:pointer}
+.share-copy.copied{background:rgba(100,220,100,.2);color:#6dc}
+</style>
+<div class="share-section">
+  <div class="share-btns">
+    <a class="share-btn share-x" id="share-x" href="#" target="_blank" rel="noopener">𝕏 X</a>
+    <a class="share-btn share-line" id="share-line" href="#" target="_blank" rel="noopener">LINE</a>
+    <a class="share-btn share-wa" id="share-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="share-btn share-tg" id="share-tg" href="#" target="_blank" rel="noopener">Telegram</a>
+    <a class="share-btn share-pin" id="share-pin" href="#" target="_blank" rel="noopener">Pinterest</a>
+    <a class="share-btn share-reddit" id="share-reddit" href="#" target="_blank" rel="noopener">Reddit</a>
+    <a class="share-btn share-bsky" id="share-bsky" href="#" target="_blank" rel="noopener">Bluesky</a>
+    <a class="share-btn share-fb" id="share-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+    <button class="share-btn share-copy" id="share-copy" onclick="copyUrl()">🔗 コピー</button>
+  </div>
+</div>
+<script>
+(function(){
+  var url=encodeURIComponent(location.href);
+  var title=encodeURIComponent(document.title);
+  var img=encodeURIComponent((document.querySelector('meta[property="og:image"]')||{}).content||'');
+  document.getElementById('share-x').href='https://twitter.com/intent/tweet?text='+title+'&url='+url+'&hashtags=mascodex';
+  document.getElementById('share-line').href='https://social-plugins.line.me/lineit/share?url='+url;
+  document.getElementById('share-wa').href='https://wa.me/?text='+title+'%20'+url;
+  document.getElementById('share-tg').href='https://t.me/share/url?url='+url+'&text='+title;
+  document.getElementById('share-pin').href='https://pinterest.com/pin/create/button/?url='+url+'&media='+img+'&description='+title;
+  document.getElementById('share-reddit').href='https://reddit.com/submit?url='+url+'&title='+title;
+  document.getElementById('share-bsky').href='https://bsky.app/intent/compose?text='+title+'%20'+url;
+  document.getElementById('share-fb').href='https://www.facebook.com/sharer/sharer.php?u='+url;
+})();
+function copyUrl(){
+  navigator.clipboard.writeText(location.href).then(function(){
+    var b=document.getElementById('share-copy');
+    b.textContent='✅ コピー完了';b.classList.add('copied');
+    setTimeout(function(){b.textContent='🔗 コピー';b.classList.remove('copied');},2000);
+  });
+}
+</script>`;
+
+  html = html.replace('</body>', shareSection + '</body>');
 
   // チャットウィジェットまたはlinksの前に挿入
   html = html.replace('<div class="links">', socialScript + '<div class="links">');

@@ -66,9 +66,19 @@ const socialScript = `
       .replace(/history\.push\(/g, 'chatHistory.push(')
       .replace(/history\.slice\(-8\)/g, 'chatHistory.slice(-8)');
     // tote / pillow / poster のproductカードを削除
+    // 古いドメインを正しいURLに修正
+    html = html.replace(/https:\/\/mascodex\.pages\.dev/g, 'https://mascodex.com');
+    html = html.replace(/https:\/\/[a-z0-9-]+\.mascodex-2940045\.pages\.dev/g, 'https://mascodex.com');
+
     html = html.replace(/<a [^>]*product=tote[^>]*>[\s\S]*?<\/a>/g, '');
     html = html.replace(/<a [^>]*product=pillow[^>]*>[\s\S]*?<\/a>/g, '');
     html = html.replace(/<a [^>]*product=poster[^>]*>[\s\S]*?<\/a>/g, '');
+
+    // composeエンドポイントをimg.mascodex.comの事前生成モックアップに置き換え
+    html = html.replace(
+      /https?:\/\/[^"]*\/api\/mockup\/compose\/([^"?]+)\?product=(tshirt|mug)/g,
+      (_, c, product) => `https://img.mascodex.com/mockups/${c}_${product}.jpg`
+    );
     html = html.replace('<div class="chat-widget">', socialScript + '<div class="chat-widget">');
     if (!html.includes('social-feed-posts')) {
       html = html.replace('</body>', socialScript + '</body>');
@@ -133,7 +143,12 @@ function renderPage(zip, p) {
   <title>${esc(name)} - ZIP ${zip} Mascot | Mascodex USA</title>
   <meta name="description" content="${esc(name)} is the mascot of ZIP ${zip} (${esc(city)}, ${esc(state)}). ${esc(catchphrase)}">
   <meta property="og:title" content="${esc(name)} - ZIP ${zip} Mascot">
-  <meta property="og:image" content="/img/us/${zip}_01.png">
+  <meta property="og:description" content="${esc(name)} is the mascot of ZIP ${zip} (${esc(city)}, ${esc(state)}). ${esc(catchphrase)}">
+  <meta property="og:image" content="https://img.mascodex.com/${zip}_01.png">
+  <meta property="og:url" content="https://mascodex.com/us/c/${zip}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://mascodex.com/us/c/${zip}">
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;}

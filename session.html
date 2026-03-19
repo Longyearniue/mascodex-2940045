@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Call - セッション状況 | Mascodex</title>
+  <meta name="robots" content="noindex">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Noto Sans JP',sans-serif;background:#0f0c29;color:#fff;min-height:100vh;}
+    .container{max-width:600px;margin:0 auto;padding:20px 16px 60px;}
+    .header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.08);}
+    .header a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.85rem;}
+    .header a:hover{color:#fff;}
+    .logo{font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+    .page-title{text-align:center;margin-bottom:24px;}
+    .page-title h1{font-size:1.3rem;font-weight:700;color:rgba(255,255,255,0.9);}
+    .page-title .subtitle{color:rgba(255,255,255,0.4);font-size:0.85rem;margin-top:4px;}
+
+    .card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;margin-bottom:16px;}
+    .card-label{font-size:0.75rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+    .card-value{font-size:1rem;font-weight:600;color:rgba(255,255,255,0.9);}
+
+    .status-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.8rem;font-weight:700;}
+    .status-hearing{background:rgba(255,221,87,0.15);color:#ffdd57;}
+    .status-payment{background:rgba(102,126,234,0.15);color:#667eea;}
+    .status-calling{background:rgba(255,165,0,0.15);color:#ffa500;}
+    .status-completed{background:rgba(102,234,126,0.15);color:rgba(102,234,126,0.9);}
+    .status-failed{background:rgba(234,102,102,0.15);color:rgba(234,102,102,0.9);}
+    .status-refunded{background:rgba(200,200,200,0.1);color:rgba(200,200,200,0.7);}
+
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+    @media(max-width:400px){.info-grid{grid-template-columns:1fr;}}
+
+    .call-list{margin-top:12px;}
+    .call-item{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;margin-bottom:8px;}
+    .call-icon{font-size:1.2rem;width:28px;text-align:center;}
+    .call-info{flex:1;}
+    .call-name{font-weight:600;font-size:0.9rem;}
+    .call-detail{font-size:0.8rem;color:rgba(255,255,255,0.5);margin-top:2px;}
+    .call-summary{font-size:0.8rem;color:rgba(255,255,255,0.6);margin-top:4px;line-height:1.4;font-style:italic;}
+
+    .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.2);border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;margin-left:8px;vertical-align:middle;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .loading-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.4);}
+    .error-state{text-align:center;padding:40px 20px;color:rgba(234,102,102,0.8);}
+
+    .footer{text-align:center;padding:30px 0 10px;color:rgba(255,255,255,0.2);font-size:0.75rem;}
+
+    .past-sessions{margin-top:32px;}
+    .past-sessions h3{font-size:0.9rem;color:rgba(255,255,255,0.5);margin-bottom:12px;padding-left:12px;border-left:3px solid rgba(255,255,255,0.15);}
+    .past-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;margin-bottom:6px;text-decoration:none;color:#fff;font-size:0.85rem;transition:background 0.2s;}
+    .past-item:hover{background:rgba(255,255,255,0.06);}
+    .past-date{color:rgba(255,255,255,0.35);font-size:0.75rem;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="/" class="logo">Mascodex</a>
+      <a href="/">ホームに戻る</a>
+    </div>
+
+    <div class="page-title">
+      <h1>Life Call セッション状況</h1>
+      <div class="subtitle" id="session-id-display"></div>
+    </div>
+
+    <div id="content">
+      <div class="loading-state">
+        <div class="spinner" style="width:24px;height:24px;border-width:3px;"></div>
+        <p style="margin-top:12px;">読み込み中...</p>
+      </div>
+    </div>
+
+    <div id="past-sessions-area"></div>
+
+    <div class="footer">&copy; 2025 Mascodex. Life Call AI電話代行サービス。</div>
+  </div>
+
+  <script>
+    (function() {
+      var LIFECALL_API = 'https://lifecall-worker.taiichifox.workers.dev';
+      var params = new URLSearchParams(window.location.search);
+      var sessionId = params.get('id');
+      var pollTimer = null;
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function formatDate(iso) {
+        if (!iso) return '-';
+        try {
+          var d = new Date(iso);
+          return d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+        } catch (e) { return iso; }
+      }
+
+      function statusLabel(status) {
+        var map = {
+          hearing: '入力中',
+          payment: '支払い待ち',
+          calling: '電話中',
+          completed: '完了',
+          failed: '失敗',
+          refunded: '返金済み'
+        };
+        return map[status] || status;
+      }
+
+      function callIcon(call) {
+        if (call.status === 'completed') {
+          if (call.outcome === 'booked') return '\u2705';
+          return '\u274C';
+        }
+        if (call.status === 'calling') return '\uD83D\uDCDE';
+        return '\u23F3';
+      }
+
+      function callStatusText(call) {
+        if (call.status === 'completed') {
+          if (call.outcome === 'booked') return '予約完了';
+          if (call.outcome === 'voicemail') return '留守電';
+          if (call.outcome === 'no_answer') return '応答なし';
+          return call.outcome || '失敗';
+        }
+        if (call.status === 'calling') return '通話中...';
+        return '待機中';
+      }
+
+      function renderSession(data) {
+        var session = data.session;
+        var calls = data.calls || [];
+        var content = document.getElementById('content');
+
+        var html = '';
+
+        // Status + Category card
+        html += '<div class="card">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+          '<span class="card-value">' + escapeHtml(session.category || '') + '</span>' +
+          '<span class="status-badge status-' + (session.status || '') + '">' + statusLabel(session.status) +
+          (session.status === 'calling' ? '<span class="spinner"></span>' : '') +
+          '</span></div>';
+
+        html += '<div class="info-grid">';
+        html += '<div><div class="card-label">料金</div><div class="card-value">&yen;' + (session.price_tier || '-') + '</div></div>';
+        html += '<div><div class="card-label">作成日時</div><div class="card-value" style="font-size:0.85rem;">' + formatDate(session.created_at) + '</div></div>';
+        html += '</div>';
+
+        // Payment info
+        if (session.paypal_order_id) {
+          html += '<div style="margin-top:8px;"><div class="card-label">支払い</div>' +
+            '<div style="font-size:0.85rem;color:rgba(102,234,126,0.8);">\u2705 支払い済み</div></div>';
+        }
+        html += '</div>';
+
+        // Calls list
+        if (calls.length > 0) {
+          html += '<div class="card"><div class="card-label" style="margin-bottom:10px;">電話先</div><div class="call-list">';
+          for (var i = 0; i < calls.length; i++) {
+            var c = calls[i];
+            html += '<div class="call-item">' +
+              '<div class="call-icon">' + callIcon(c) + '</div>' +
+              '<div class="call-info">' +
+              '<div class="call-name">' + escapeHtml(c.target_name) + '</div>' +
+              '<div class="call-detail">' + callStatusText(c);
+            if (c.target_address) {
+              html += ' \u30FB ' + escapeHtml(c.target_address);
+            }
+            html += '</div>';
+            if (c.ai_summary) {
+              html += '<div class="call-summary">' + escapeHtml(c.ai_summary) + '</div>';
+            }
+            if (c.price_quoted) {
+              html += '<div class="call-detail" style="color:#ffdd57;">見積: ' + escapeHtml(c.price_quoted) + '</div>';
+            }
+            html += '</div></div>';
+          }
+          html += '</div></div>';
+        }
+
+        // Refund note
+        if (session.status === 'failed' || session.status === 'refunded') {
+          html += '<div class="card" style="border-color:rgba(234,102,102,0.2);">' +
+            '<div style="color:rgba(234,102,102,0.8);font-weight:600;">' +
+            (session.status === 'refunded' ? '\u2705 返金処理済み' : '\u23F3 返金処理中...') +
+            '</div></div>';
+        }
+
+        content.innerHTML = html;
+
+        // Auto-poll while calling
+        if (session.status === 'calling' || session.status === 'hearing' || session.status === 'payment') {
+          if (!pollTimer) {
+            pollTimer = setInterval(fetchSession, 5000);
+          }
+        } else {
+          if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+          }
+        }
+      }
+
+      function renderError(msg) {
+        document.getElementById('content').innerHTML =
+          '<div class="error-state"><p>' + escapeHtml(msg) + '</p></div>';
+      }
+
+      async function fetchSession() {
+        if (!sessionId) return;
+        try {
+          var res = await fetch(LIFECALL_API + '/api/sessions/' + sessionId);
+          if (!res.ok) {
+            if (res.status === 404) {
+              renderError('セッションが見つかりません。');
+              return;
+            }
+            renderError('データの取得に失敗しました。');
+            return;
+          }
+          var data = await res.json();
+          renderSession(data);
+        } catch (e) {
+          renderError('通信エラーが発生しました。');
+        }
+      }
+
+      // Render past sessions from localStorage
+      function renderPastSessions() {
+        try {
+          var raw = localStorage.getItem('lifecall_sessions');
+          if (!raw) return;
+          var list = JSON.parse(raw);
+          if (!list || list.length === 0) return;
+
+          // Reverse to show newest first, exclude current
+          var filtered = list.filter(function(s) { return s.id !== sessionId; }).reverse();
+          if (filtered.length === 0) return;
+
+          var html = '<div class="past-sessions"><h3>過去のセッション</h3>';
+          for (var i = 0; i < Math.min(filtered.length, 10); i++) {
+            var s = filtered[i];
+            html += '<a href="/session.html?id=' + encodeURIComponent(s.id) + '" class="past-item">' +
+              '<span>' + escapeHtml(s.category_name) + ' &yen;' + (s.price || '') +
+              (s.paid_at ? ' \u2705' : '') + '</span>' +
+              '<span class="past-date">' + formatDate(s.created_at) + '</span></a>';
+          }
+          html += '</div>';
+          document.getElementById('past-sessions-area').innerHTML = html;
+        } catch (e) { /* localStorage unavailable */ }
+      }
+
+      // Init
+      if (sessionId) {
+        document.getElementById('session-id-display').textContent = 'ID: ' + sessionId.slice(0, 8) + '...';
+        fetchSession();
+      } else {
+        document.getElementById('content').innerHTML = '';
+        document.getElementById('session-id-display').textContent = 'セッション履歴';
+      }
+      renderPastSessions();
+    })();
+  </script>
+</body>
+</html>

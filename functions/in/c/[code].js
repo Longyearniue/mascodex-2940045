@@ -18,6 +18,19 @@ export async function onRequestGet(context) {
 
   let html = await obj.text();
 
+  // OGタグ注入
+  const _pageUrl = 'https://mascodex.com/in/c/' + code;
+  const _imgUrl = 'https://img.mascodex.com/' + code + '_01.png';
+  const _titleMatch = html.match(/<title>([^<]+)<\/title>/);
+  const _ogTags = '<meta property="og:title" content="' + (_titleMatch ? _titleMatch[1].replace(/"/g,'&quot;') : code) + '">'
+    + '<meta property="og:image" content="' + _imgUrl + '">'
+    + '<meta property="og:url" content="' + _pageUrl + '">'
+    + '<meta property="og:type" content="website">'
+    + '<meta name="twitter:card" content="summary_large_image">'
+    + '<link rel="canonical" href="' + _pageUrl + '">';
+  html = html.replace('</head>', _ogTags + '</head>');
+
+
   // historyグローバル変数の衝突をスクリプト注入で修正
   const fixScript = `<script>
 // Fix: override window.history collision
@@ -40,6 +53,35 @@ export async function onRequestGet(context) {
     .split('history.push(').join('chatHistory.push(')
     .split('history.slice(-8)').join('chatHistory.slice(-8)');
 
+  // D1からpersonality・local_notesを取得して注入
+  if (context.env.MASCOT_D1) {
+    try {
+      const row = await context.env.MASCOT_D1.prepare(
+        'SELECT personality, local_notes FROM mascots WHERE zip = ?'
+      ).bind('IN' + code).first();
+      if (row) {
+        let inject = '';
+        if (row.personality) {
+          inject += `<div class="section"><h2>🧠 Personality</h2><p>${row.personality}</p></div>`;
+        }
+        if (row.local_notes) {
+          inject += `<div class="section"><h2>📝 Local Notes</h2><p>${row.local_notes}</p></div>`;
+        }
+        if (inject) {
+          // chat-widgetの前に挿入
+          if (html.includes('<div class="chat-widget">')) {
+            html = html.replace('<div class="chat-widget">', inject + '<div class="chat-widget">');
+          } else if (html.includes('<div class="chat-widget"')) {
+            html = html.replace('<div class="chat-widget"', inject + '<div class="chat-widget"');
+          } else {
+            html = html.replace('</div>\n\n  <div class="footer">', inject + '</div>\n\n  <div class="footer">');
+          }
+        }
+      }
+    } catch (e) {
+      // D1 error - silently continue without personality data
+    }
+  }
 
   // Social feed injection
   const socialScript = `

@@ -52,3 +52,9 @@ bucket_name = "mascodex-au"
 [[r2_buckets]]
 binding = "KR_CHAR_R2"
 bucket_name = "mascodex-kr"
+
+# === Mascot Social D1 (personality/local_notes) ===
+[[d1_databases]]
+binding = "MASCOT_D1"
+database_name = "mascot-social"
+database_id = "2dce7966-6040-4851-a881-4f1ea41e5681"

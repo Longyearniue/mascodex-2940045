@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投稿一覧 | Mascodex</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0c29;color:#fff;min-height:100vh}
+    header{background:rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.1);padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    header a{color:#ffdd57;text-decoration:none;font-weight:600}
+    h1{font-size:1.3rem;font-weight:700}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;padding:16px 24px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.08)}
+    select,input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 12px;border-radius:8px;font-size:.9rem}
+    button{background:#ffdd57;color:#000;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.9rem}
+    button:hover{background:#ffe88a}
+    .stats{padding:12px 24px;font-size:.85rem;opacity:.6}
+    .posts{padding:16px 24px;display:grid;gap:10px;max-width:900px;margin:0 auto}
+    .post{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px}
+    .post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+    .zip{background:rgba(255,221,87,.15);color:#ffdd57;border-radius:6px;padding:3px 10px;font-size:.78rem;font-weight:600}
+    .flag{font-size:1.1rem}
+    .lang{background:rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;font-size:.72rem;opacity:.7}
+    .status-posted{background:rgba(100,220,100,.15);color:#6dc;border-radius:6px;padding:3px 8px;font-size:.72rem}
+    .status-pending{background:rgba(255,200,50,.15);color:#fdc;border-radius:6px;padding:3px 8px;font-size:.72rem}
+    .date{font-size:.72rem;opacity:.45;margin-left:auto}
+    .location{font-size:.78rem;opacity:.65;background:rgba(255,255,255,.08);border-radius:6px;padding:3px 8px}
+    .content{font-size:.92rem;line-height:1.7;color:rgba(255,255,255,.88)}
+    .pagination{display:flex;gap:8px;justify-content:center;padding:24px;flex-wrap:wrap}
+    .pagination button{background:rgba(255,255,255,.1);color:#fff;min-width:40px}
+    .pagination button.active{background:#ffdd57;color:#000}
+    .loading{text-align:center;padding:60px;opacity:.5}
+    #search{width:200px}
+  </style>
+</head>
+<body>
+<header>
+  <a href="/">← Mascodex</a>
+  <h1>💬 投稿一覧</h1>
+</header>
+<div class="controls">
+  <select id="country">
+    <option value="">全国</option>
+    <option value="JP">🇯🇵 日本</option>
+    <option value="US">🇺🇸 US</option>
+    <option value="IN">🇮🇳 India</option>
+    <option value="AU">🇦🇺 Australia</option>
+  </select>
+  <select id="status">
+    <option value="posted">投稿済み</option>
+    <option value="pending">待機中</option>
+  </select>
+  <select id="limit">
+    <option value="50">50件</option>
+    <option value="100">100件</option>
+  </select>
+  <input id="search" type="text" placeholder="キーワード検索...">
+  <button onclick="load(1)">検索</button>
+</div>
+<div class="stats" id="stats">読み込み中...</div>
+<div class="posts" id="posts"><div class="loading">読み込み中...</div></div>
+<div class="pagination" id="pagination"></div>
+
+<script>
+let currentPage = 1;
+let totalPages = 1;
+
+function fmt(dt) {
+  if (!dt) return '';
+  const s = dt.includes('T') ? dt : dt.replace(' ', 'T');
+  const iso = /Z$|[+-]\d{2}:\d{2}$/.test(s) ? s : s + 'Z';
+  const d = new Date(iso);
+  if (isNaN(d)) return dt;
+  return d.toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'});
+}
+
+function flag(zip) {
+  const l = zip.length;
+  if (l === 7 && /^\d/.test(zip)) return '🇯🇵';
+  if (l === 5) return '🇺🇸';
+  if (l === 6) return '🇮🇳';
+  if (l === 4) return '🇦🇺';
+  return '🌍';
+}
+
+function charUrl(zip) {
+  const l = zip.length;
+  if (l === 7 && /^\d/.test(zip)) return `/c/${zip}`;
+  if (l === 5) return `/us/c/${zip}`;
+  if (l === 6) return `/in/c/${zip}`;
+  if (l === 4) return `/au/c/${zip}`;
+  return '#';
+}
+
+:\d{2}$/.test(s) ? s : s + 'Z';
+  const d = new Date(iso);
+  if (isNaN(d)) return dt;
+  return d.toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'});
+}
+
+
+
+
+
+async function load(page) {
+  currentPage = page;
+  const country = document.getElementById('country').value;
+  const status = document.getElementById('status').value;
+  const limit = document.getElementById('limit').value;
+  const kw = document.getElementById('search').value;
+
+  document.getElementById('posts').innerHTML = '<div class="loading">読み込み中...</div>';
+  document.getElementById('stats').textContent = '読み込み中...';
+
+  let url = `/api/posts?page=${page}&limit=${limit}&status=${status}`;
+  if (country) url += `&country=${country}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    totalPages = data.pages;
+
+    let posts = data.posts;
+    if (kw) {
+      const kl = kw.toLowerCase();
+      posts = posts.filter(p => p.content.toLowerCase().includes(kl) || p.zip.includes(kw));
+    }
+
+    document.getElementById('stats').textContent =
+      `全 ${data.total.toLocaleString()} 件 / ${data.pages} ページ`;
+
+    if (!posts.length) {
+      document.getElementById('posts').innerHTML = '<div class="loading">投稿が見つかりません</div>';
+    } else {
+      document.getElementById('posts').innerHTML = posts.map(p => `
+        <div class="post">
+          <div class="post-header">
+            <span class="flag">${flag(p.zip)}</span>
+            <a href="${charUrl(p.zip)}" class="zip" target="_blank">${p.zip}</a>
+            ${p.state || p.city ? `<span class="location">${[p.state, p.city].filter(Boolean).join(' ')}</span>` : ''}
+            <span class="lang">${p.lang || 'ja'}</span>
+            <span class="status-${p.status}">${p.status === 'posted' ? '✅ 投稿済' : '⏳ 待機中'}</span>
+            <span class="date">${fmt(p.posted_at || p.created_at)}</span>
+          </div>
+          <div class="content">${p.content.replace(/</g,'&lt;')}</div>
+        </div>`).join('');
+    }
+
+    renderPagination(data.page, data.pages);
+  } catch(e) {
+    document.getElementById('posts').innerHTML = '<div class="loading">エラーが発生しました</div>';
+    console.error(e);
+  }
+}
+
+function renderPagination(page, pages) {
+  const el = document.getElementById('pagination');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let btns = '';
+  const start = Math.max(1, page - 3);
+  const end = Math.min(pages, page + 3);
+  if (start > 1) btns += `<button onclick="load(1)">1</button>`;
+  if (start > 2) btns += `<span style="opacity:.4">…</span>`;
+  for (let i = start; i <= end; i++) {
+    btns += `<button onclick="load(${i})" class="${i===page?'active':''}">${i}</button>`;
+  }
+  if (end < pages - 1) btns += `<span style="opacity:.4">…</span>`;
+  if (end < pages) btns += `<button onclick="load(${pages})">${pages}</button>`;
+  el.innerHTML = btns;
+}
+
+document.getElementById('search').addEventListener('keydown', e => { if(e.key==='Enter') load(1); });
+load(1);
+</script>
+</body>
+</html>

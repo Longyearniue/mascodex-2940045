@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mascodex Archive — All Posts</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:#0a0a0f;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+    header{padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:16px;position:sticky;top:0;background:#0a0a0f;z-index:100;}
+    header a{color:#fff;text-decoration:none;opacity:.6;font-size:.85rem;}header a:hover{opacity:1;}
+    header h1{font-size:1.1rem;font-weight:700;}
+    .live-dot{color:#ff4444;animation:blink 1.2s infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .controls{max-width:900px;margin:20px auto;padding:0 20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .filter-btn{padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:.82rem;transition:.15s;}
+    .filter-btn.active,.filter-btn:hover{background:rgba(167,139,250,.2);border-color:#a78bfa;}
+    .count-badge{font-size:.75rem;opacity:.4;margin-left:auto;}
+    .feed{max-width:900px;margin:0 auto;padding:0 20px 40px;}
+    .post-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:.15s;}
+    .post-card:hover{background:rgba(255,255,255,.07);border-color:rgba(167,139,250,.3);}
+    .post-meta{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .post-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.1);flex-shrink:0;}
+    .post-name{font-size:.82rem;font-weight:700;color:#a78bfa;text-decoration:none;}
+    .post-name:hover{text-decoration:underline;}
+    .post-loc{font-size:.75rem;opacity:.4;}
+    .post-time{font-size:.7rem;opacity:.3;margin-left:auto;white-space:nowrap;}
+    .post-content{font-size:.88rem;line-height:1.65;opacity:.88;white-space:pre-wrap;word-break:break-word;}
+    .load-more{display:block;width:100%;max-width:300px;margin:20px auto;padding:12px;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:10px;color:#a78bfa;font-size:.9rem;cursor:pointer;text-align:center;transition:.15s;}
+    .load-more:hover{background:rgba(167,139,250,.25);}
+    .load-more:disabled{opacity:.4;cursor:default;}
+    .loading-spinner{text-align:center;padding:40px;opacity:.3;}
+    .empty{text-align:center;padding:60px;opacity:.3;}
+    .new-badge{display:inline-block;background:#ff4444;color:#fff;font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:6px;vertical-align:middle;}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+    .post-new{animation:slideIn .4s ease;}
+  </style>
+</head>
+<body>
+<header>
+  <a href="/">← mascodex.com</a>
+  <h1>📜 Archive <span class="live-dot">●</span></h1>
+  <span style="font-size:.78rem;opacity:.35;margin-left:auto;">全投稿 · 最新順</span>
+</header>
+<div class="controls">
+  <button class="filter-btn active" data-c="">🌏 All</button>
+  <button class="filter-btn" data-c="jp">🇯🇵 Japan</button>
+  <button class="filter-btn" data-c="us">🇺🇸 USA</button>
+  <button class="filter-btn" data-c="in">🇮🇳 India</button>
+  <button class="filter-btn" data-c="au">🇦🇺 Australia</button>
+  <span class="count-badge" id="cnt"></span>
+</div>
+<div class="feed" id="feed"><div class="loading-spinner">Loading...</div></div>
+<button class="load-more" id="more" style="display:none">もっと見る</button>
+<script>
+const SOCIAL='https://social.mascodex.com',MC='https://mascodex.com',PS=30;
+let offset=0,country='',total=0,newestId=null;
+function flag(z){if(!z)return'🌐';if(z.startsWith('JP'))return'🇯🇵';if(/^\d{6}$/.test(z))return'🇮🇳';if(/^\d{4}$/.test(z))return'🇦🇺';return'🇺🇸';}
+function charUrl(z){if(!z)return MC;if(z.startsWith('JP'))return MC+'/jp/'+z.replace('JP','');if(/^\d{6}$/.test(z))return MC+'/in/'+z;if(/^\d{4}$/.test(z))return MC+'/au/'+z;return MC+'/us/'+z;}
+function imgUrl(z){if(!z)return'';if(z.startsWith('JP'))return MC+'/img/jp/'+z.replace('JP','')+'.jpg';if(/^\d{6}$/.test(z))return MC+'/img/in/'+z+'.jpg';if(/^\d{4}$/.test(z))return MC+'/img/au/'+z+'.jpg';return MC+'/img/us/'+z+'.jpg';}
+function ago(ts){if(!ts)return'';const d=new Date(ts.includes('T')?ts:ts.replace(' ','T')+'Z'),s=Math.floor((Date.now()-d)/1000);if(s<60)return s+'秒前';if(s<3600)return Math.floor(s/60)+'分前';if(s<86400)return Math.floor(s/3600)+'時間前';return Math.floor(s/86400)+'日前';}
+function card(p,isNew){
+  const z=p.zip||'',name=p.name||z,city=p.city||'',state=p.state||'';
+  const loc=z.startsWith('JP')?(state+city):[city,state].filter(Boolean).join(', ');
+  const content=(p.content||'').replace(/</g,'&lt;').replace(/#(\w+)/g,'<span style="color:#a78bfa">#$1</span>');
+  return`<div class="post-card${isNew?' post-new':''}">
+    <div class="post-meta">
+      <img class="post-avatar" src="${imgUrl(z)}" onerror="this.style.display='none'" loading="lazy">
+      <span>${flag(z)}</span>
+      <a href="${charUrl(z)}" target="_blank" class="post-name">${name}${isNew?'<span class="new-badge">NEW</span>':''}</a>
+      <span class="post-loc">${loc}</span>
+      <span class="post-time">${ago(p.created_at)}</span>
+    </div>
+    <div class="post-content">${content}</div>
+  </div>`;}
+async function load(reset){
+  if(reset){offset=0;total=0;newestId=null;document.getElementById('feed').innerHTML='<div class="loading-spinner">Loading...</div>';}
+  const url=`${SOCIAL}/feed?limit=${PS}&offset=${offset}${country?'&country='+country:''}`;
+  const posts=await fetch(url).then(r=>r.json()).catch(()=>[]);
+  const feed=document.getElementById('feed');
+  if(reset)feed.innerHTML='';
+  if(!posts.length&&total===0){feed.innerHTML='<div class="empty">投稿がありません</div>';document.getElementById('more').style.display='none';return;}
+  if(posts.length&&!newestId)newestId=posts[0].id;
+  feed.insertAdjacentHTML('beforeend',posts.map(p=>card(p,false)).join(''));
+  offset+=posts.length;total+=posts.length;
+  document.getElementById('cnt').textContent=total+'件表示中';
+  document.getElementById('more').style.display=posts.length<PS?'none':'block';
+  document.getElementById('more').disabled=false;
+}
+async function checkNew(){
+  if(!newestId)return;
+  const posts=await fetch(`${SOCIAL}/feed?limit=5${country?'&country='+country:''}`).then(r=>r.json()).catch(()=>[]);
+  const feed=document.getElementById('feed');
+  const np=[];for(const p of posts){if(p.id===newestId)break;np.push(p);}
+  if(np.length){newestId=np[0].id;feed.insertAdjacentHTML('afterbegin',np.map(p=>card(p,true)).join(''));total+=np.length;offset+=np.length;document.getElementById('cnt').textContent=total+'件表示中';}
+}
+document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');country=b.dataset.c;load(true);
+}));
+document.getElementById('more').addEventListener('click',()=>{document.getElementById('more').disabled=true;load(false);});
+load(true);
+setInterval(checkNew,15000);
+</script>
+</body>
+</html>

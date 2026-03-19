@@ -42,47 +42,27 @@ if (isInIframe) {
 // SALES LETTER API
 // =============================================================================
 
-// Fetch sales letter from API
+// Fetch sales letter via background script (avoids CORS issues)
 async function fetchSalesLetter(companyUrl) {
   try {
-    console.log('📧 Fetching sales letter for:', companyUrl);
-    const apiUrl = 'https://crawler-worker-teamb.taiichifox.workers.dev/sales-letter';
-    console.log('🔗 API endpoint:', apiUrl);
+    console.log('📧 Fetching sales letter via background script for:', companyUrl);
 
-    const requestBody = { company_url: companyUrl };
-    console.log('📤 Request body:', JSON.stringify(requestBody));
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
+    // Use chrome.runtime.sendMessage to call background script
+    // Background script can make cross-origin requests without CORS issues
+    const response = await chrome.runtime.sendMessage({
+      action: 'fetchSalesLetter',
+      companyUrl: companyUrl
     });
 
-    console.log('📥 Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ API error response:', errorText);
-      return null;
-    }
-
-    const data = await response.json();
-    console.log('📊 Response data keys:', Object.keys(data));
-
-    if (data.ok && data.sales_letter) {
-      console.log('✅ Sales letter fetched successfully');
-      console.log('📏 Sales letter length:', data.sales_letter.length);
-      return data.sales_letter;
+    if (response && response.success && response.salesLetter) {
+      console.log('✅ Sales letter received from background, length:', response.salesLetter.length);
+      return response.salesLetter;
     } else {
-      console.error('❌ Sales letter API returned error:', data.error || 'Unknown error');
-      console.error('Full response:', data);
+      console.log('⚠️ No sales letter returned from background:', response?.error || 'Unknown reason');
       return null;
     }
   } catch (error) {
-    console.error('❌ Exception while fetching sales letter:', error);
-    console.error('Error details:', error.message, error.stack);
+    console.error('❌ Exception while fetching sales letter via background:', error);
     return null;
   }
 }
@@ -97,6 +77,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'batchAutoFill') {
     // Batch mode: auto-fill with provided profile
     console.log('📦 [BATCH] Received batch auto-fill request');
+
+    // Check for error page first
+    if (isErrorPage()) {
+      console.log('📦 [BATCH] Error page detected, skipping');
+      notifyPageShouldClose('エラーページ（Page Not Found）');
+      sendResponse({ success: false, error: 'error_page' });
+      return true;
+    }
+
+    // Check for valid form
+    if (!hasValidContactForm()) {
+      console.log('📦 [BATCH] No valid contact form, skipping');
+      notifyPageShouldClose('お問合せフォームが見つかりません');
+      sendResponse({ success: false, error: 'no_form' });
+      return true;
+    }
+
     autoFillForm(message.profile).then(result => {
       console.log('📦 [BATCH] Auto-fill complete:', result);
       // Highlight submit button for review
@@ -174,6 +171,163 @@ function highlightSubmitButton() {
 }
 
 // =============================================================================
+// ERROR PAGE & FORM DETECTION
+// =============================================================================
+
+// Detect if page is a 404/error page
+function isErrorPage() {
+  const pageText = document.body?.innerText || '';
+  const title = document.title || '';
+
+  const errorPatterns = [
+    /page\s*not\s*found/i,
+    /404\s*(error|not found)?/i,
+    /お探しのページ.*見つかりません/,
+    /ページが見つかりません/,
+    /指定されたページは存在しません/,
+    /このページは存在しません/,
+    /アクセスできません/,
+    /ページは削除されました/,
+    /not\s*found/i,
+    /無効なページ/,
+    /エラーが発生しました/,
+    /申し訳ございません.*ページ.*見つかりません/,
+    /お探しのページは見つかりませんでした/,
+    /リクエストされたページは見つかりません/,
+    /存在しないページ/,
+  ];
+
+  // Check title first (faster)
+  for (const pattern of errorPatterns) {
+    if (pattern.test(title)) {
+      console.log('🚫 [ERROR PAGE] Detected via title:', title);
+      return true;
+    }
+  }
+
+  // Check body text (only first 2000 chars to be fast)
+  const bodySnippet = pageText.slice(0, 2000);
+  for (const pattern of errorPatterns) {
+    if (pattern.test(bodySnippet)) {
+      console.log('🚫 [ERROR PAGE] Detected via body text');
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Check if page has a valid contact form with fillable fields
+function hasValidContactForm() {
+  // Get all visible input fields
+  const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="reset"])');
+  const textareas = document.querySelectorAll('textarea');
+  const selects = document.querySelectorAll('select');
+
+  let visibleInputCount = 0;
+  let hasTextarea = false;
+  let hasTextInput = false;
+  let hasEmailOrTel = false;
+
+  for (const input of inputs) {
+    if (!isVisible(input)) continue;
+    visibleInputCount++;
+
+    const type = (input.type || 'text').toLowerCase();
+    if (type === 'text') hasTextInput = true;
+    if (type === 'email' || type === 'tel') hasEmailOrTel = true;
+  }
+
+  for (const textarea of textareas) {
+    if (isVisible(textarea)) {
+      hasTextarea = true;
+      visibleInputCount++;
+    }
+  }
+
+  for (const select of selects) {
+    if (isVisible(select)) {
+      visibleInputCount++;
+    }
+  }
+
+  console.log(`🔍 [FORM CHECK] Visible fields: ${visibleInputCount}, textarea: ${hasTextarea}, text input: ${hasTextInput}, email/tel: ${hasEmailOrTel}`);
+
+  // A valid contact form should have:
+  // - At least 2 visible fillable fields AND
+  // - At least one text-like input (textarea, text, email, or tel)
+  const hasTextLikeField = hasTextarea || hasTextInput || hasEmailOrTel;
+  const isValid = visibleInputCount >= 2 && hasTextLikeField;
+
+  if (!isValid) {
+    console.log('🚫 [FORM CHECK] Not a valid contact form');
+  }
+
+  return isValid;
+}
+
+// Send notification that this page should be closed (BATCH MODE ONLY)
+async function notifyPageShouldClose(reason) {
+  // Check if batch mode is active before showing close banner
+  const storage = await chrome.storage.local.get(['batchMode']);
+  if (!storage.batchMode) {
+    console.log('⏭️ Skipping page close notification - not in batch mode');
+    return;
+  }
+
+  const verification = {
+    timestamp: Date.now(),
+    totalFields: 0,
+    filledFields: 0,
+    emptyFields: 0,
+    requiredEmpty: 0,
+    hasMessageField: false,
+    messageFieldFilled: false,
+    fields: [],
+    issues: [{ type: 'page_invalid', message: reason }],
+    status: 'page_invalid',
+    pageInvalidReason: reason
+  };
+
+  // Show banner on page (only in batch mode)
+  showInvalidPageBanner(reason);
+
+  // Notify background script
+  try {
+    chrome.runtime.sendMessage({
+      action: 'verificationResult',
+      verification: verification,
+      url: window.location.href
+    });
+  } catch (e) {
+    console.log('Could not notify background about invalid page:', e);
+  }
+}
+
+// Show banner for invalid pages
+function showInvalidPageBanner(reason) {
+  const banner = document.createElement('div');
+  banner.id = 'goenchan-invalid-banner';
+  banner.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #f44336, #e91e63);
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 999999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  `;
+  banner.innerHTML = `🚫 ${reason} - このタブは自動的に閉じられます`;
+
+  document.body?.appendChild(banner);
+}
+
+// =============================================================================
 // AUTO-FILL ON PAGE LOAD
 // =============================================================================
 
@@ -185,6 +339,10 @@ async function checkAndAutoFill() {
 
   try {
     console.log(`🔍 [DEBUG] ${frameContext} checkAndAutoFill started`);
+
+    // Note: Error page detection and form validation are only done in batch mode
+    // (handled in batchAutoFill message handler)
+    // Normal auto-fill just skips silently if no form is found
 
     // Load settings and profile from chrome.storage
     const { autoFillEnabled = true, profile } =
@@ -576,6 +734,10 @@ function analyzeFieldSemantics(field) {
       ja: ['会社', '企業', '法人', '団体', '貴社', '御社', '勤務先', '組織'],
       en: ['company', 'corporation', 'organization', 'employer', 'firm']
     },
+    company_kana: {
+      ja: ['会社名フリガナ', '会社名カナ', '企業名フリガナ', '企業名カナ', '法人名フリガナ', '貴社名フリガナ', '会社フリガナ'],
+      en: ['company_kana', 'company kana', 'company furigana']
+    },
     name: {
       ja: ['名前', '氏名', 'お名前', '担当者', 'ご担当者'],
       en: ['name', 'full name', 'your name', 'contact name']
@@ -592,6 +754,19 @@ function analyzeFieldSemantics(field) {
       ja: ['電話', '電話番号', 'TEL', '連絡先', '携帯', 'お電話'],
       en: ['phone', 'tel', 'telephone', 'mobile', 'contact number']
     },
+    // Split phone fields
+    phone1: {
+      ja: ['市外局番', '電話番号1', 'TEL1'],
+      en: ['area_code', 'tel1', 'phone1']
+    },
+    phone2: {
+      ja: ['市内局番', '電話番号2', 'TEL2'],
+      en: ['tel2', 'phone2', 'exchange']
+    },
+    phone3: {
+      ja: ['加入者番号', '電話番号3', 'TEL3'],
+      en: ['tel3', 'phone3', 'subscriber']
+    },
     zipcode: {
       ja: ['郵便', '郵便番号', '〒'],
       en: ['zip', 'postal', 'postcode', 'zip code']
@@ -604,19 +779,91 @@ function analyzeFieldSemantics(field) {
       ja: ['部署', '所属', '部門'],
       en: ['department', 'division', 'section']
     },
+    position: {
+      ja: ['役職', '肩書', '職位'],
+      en: ['position', 'title', 'job_title']
+    },
     subject: {
       ja: ['件名', 'タイトル', '用件', '問い合わせ件名'],
       en: ['subject', 'title', 'topic']
     },
     message: {
-      ja: ['内容', 'メッセージ', '本文', 'お問い合わせ内容', '詳細', 'ご質問', 'ご相談'],
+      ja: ['内容', 'メッセージ', '本文', 'お問い合わせ内容', '詳細', 'ご質問', 'ご相談', '事業内容'],
       en: ['message', 'content', 'details', 'inquiry', 'comment', 'question']
+    },
+    // Split name fields
+    name_sei: {
+      ja: ['姓'],
+      en: ['lastname', 'last_name', 'family_name', 'surname']
+    },
+    name_mei: {
+      ja: ['名'],
+      en: ['firstname', 'first_name', 'given_name']
+    },
+    name_sei_kana: {
+      ja: ['セイ', 'ふりがな（姓）', 'フリガナ（姓）', '姓（カナ）', '姓カナ'],
+      en: ['lastname_kana', 'sei_kana']
+    },
+    name_mei_kana: {
+      ja: ['メイ', 'ふりがな（名）', 'フリガナ（名）', '名（カナ）', '名カナ'],
+      en: ['firstname_kana', 'mei_kana']
     }
   };
 
   const sources = [];
 
-  // 1. Get label text (highest priority - includes aria-label and aria-labelledby)
+  // 0. FIRST: Check immediate preceding text for split name fields (姓/名/セイ/メイ)
+  // This is highest priority because these short labels are often right before the input
+  const immediateText = getImmediatePrecedingText(field);
+  if (immediateText) {
+    const cleanImmediate = immediateText.replace(/[※＊\*\s（）()]/g, '').trim();
+    // Check for split name field patterns - exact match OR ends with pattern
+    const splitNamePatterns = {
+      'name_sei': { exact: ['姓'], endsWith: ['姓', '氏名姓'] },
+      'name_mei': { exact: ['名'], endsWith: ['氏名名', '名前名'] },  // Note: standalone 名 at end is tricky
+      'name_sei_kana': { exact: ['セイ'], endsWith: ['セイ', 'フリガナセイ', 'ふりがなセイ', '姓カナ', '姓セイ'] },
+      'name_mei_kana': { exact: ['メイ'], endsWith: ['メイ', 'フリガナメイ', 'ふりがなメイ', '名カナ', '名メイ'] }
+    };
+    for (const [fieldType, patterns] of Object.entries(splitNamePatterns)) {
+      // Check exact match
+      if (patterns.exact.includes(cleanImmediate)) {
+        console.log(`  [SEMANTIC] Immediate text exact match: "${cleanImmediate}" = ${fieldType}`);
+        return {
+          type: fieldType,
+          confidence: CONFIDENCE_LABEL + 20, // Highest priority
+          source: 'immediate-text'
+        };
+      }
+      // Check if text ends with pattern
+      for (const suffix of patterns.endsWith) {
+        if (cleanImmediate.endsWith(suffix)) {
+          console.log(`  [SEMANTIC] Immediate text ends with: "${cleanImmediate}" ends with "${suffix}" = ${fieldType}`);
+          return {
+            type: fieldType,
+            confidence: CONFIDENCE_LABEL + 18,
+            source: 'immediate-text-suffix'
+          };
+        }
+      }
+    }
+    // Special case: Check if immediate text is just "名" and NOT part of "氏名" or "名前"
+    if (cleanImmediate === '名' || (cleanImmediate.endsWith('名') && !cleanImmediate.includes('氏名') && !cleanImmediate.includes('名前') && !cleanImmediate.includes('会社名') && !cleanImmediate.includes('企業名'))) {
+      // Check if it's likely the given name field (appears after 姓 field)
+      const prevField = field.previousElementSibling || field.parentElement?.previousElementSibling;
+      if (prevField || cleanImmediate === '名') {
+        console.log(`  [SEMANTIC] Detected 名 field: "${cleanImmediate}" = name_mei`);
+        return {
+          type: 'name_mei',
+          confidence: CONFIDENCE_LABEL + 15,
+          source: 'immediate-text-mei'
+        };
+      }
+    }
+    // Add to sources for further matching
+    sources.push({ text: immediateText, type: 'immediate-text', confidence: CONFIDENCE_LABEL + 5 });
+  }
+
+  // 1. Get label text (high priority - includes aria-label and aria-labelledby)
   const label = getFieldLabel(field);
   if (label) {
     sources.push({ text: label, type: 'label', confidence: CONFIDENCE_LABEL });
@@ -644,12 +891,63 @@ function analyzeFieldSemantics(field) {
   let bestSource = null;
 
   for (const source of sources) {
-    const text = source.text.toLowerCase();
+    const text = source.text.toLowerCase().trim();
+    const textClean = text.replace(/[※＊\*\s]/g, ''); // Remove markers and whitespace
+
+    // PRIORITY: Check for split name fields first (姓/名/セイ/メイ ending patterns)
+    const splitNameEndPatterns = {
+      'name_sei': ['姓'],
+      'name_mei': [],  // 名 is tricky, handled separately
+      'name_sei_kana': ['セイ', 'せい'],
+      'name_mei_kana': ['メイ', 'めい']
+    };
+    for (const [fieldType, suffixes] of Object.entries(splitNameEndPatterns)) {
+      for (const suffix of suffixes) {
+        if (textClean.endsWith(suffix)) {
+          const score = source.confidence + 15; // High priority for split fields
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = fieldType;
+            bestSource = source.type;
+            console.log(`  [SEMANTIC] Split name suffix match: "${textClean}" ends with "${suffix}" = ${fieldType}`);
+          }
+        }
+      }
+    }
+    // Special check for 名 (given name) - must end with 名 but NOT be 氏名/名前/会社名 etc.
+    if (textClean.endsWith('名') && !textClean.endsWith('氏名') && !textClean.endsWith('名前') &&
+        !textClean.endsWith('会社名') && !textClean.endsWith('企業名') && !textClean.endsWith('法人名') &&
+        !textClean.endsWith('担当者名') && !textClean.endsWith('御社名') && !textClean.endsWith('貴社名') &&
+        !textClean.endsWith('部署名') && !textClean.endsWith('件名')) {
+      const score = source.confidence + 15;
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = 'name_mei';
+        bestSource = source.type;
+        console.log(`  [SEMANTIC] Given name (名) detected: "${textClean}" = name_mei`);
+      }
+    }
 
     for (const [fieldType, patterns] of Object.entries(semanticPatterns)) {
+      // Skip if we already matched a split name field with higher confidence
+      if (bestMatch && bestMatch.startsWith('name_') && bestMatch !== 'name' && bestMatch !== 'name_kana') {
+        continue;
+      }
       // Check Japanese keywords
       for (const keyword of patterns.ja) {
-        if (text.includes(keyword.toLowerCase())) {
+        const kwLower = keyword.toLowerCase();
+        // Exact match for single-character keywords (姓, 名, セイ, メイ)
+        if (keyword.length <= 2 && (text === kwLower || textClean === kwLower)) {
+          const score = source.confidence + 10; // Bonus for exact match
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = fieldType;
+            bestSource = source.type;
+            console.log(`  [SEMANTIC] Exact match: "${text}" = ${fieldType}`);
+          }
+        }
+        // Contains match for longer keywords
+        else if (text.includes(kwLower)) {
           const score = source.confidence;
           if (score > bestScore) {
             bestScore = score;
@@ -723,7 +1021,9 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
     { key: 'phone', value: profile.phone },
     { key: 'address', value: profile.address },
     { key: 'department', value: profile.department },
-    { key: 'subject', value: profile.subject }
+    { key: 'position', value: profile.position },
+    { key: 'subject', value: profile.subject },
+    { key: 'message', value: profile.message }
   ].filter(item => item.value); // Only items with values
 
   if (fillOrder.length === 0) {
@@ -731,38 +1031,94 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
     return 0;
   }
 
+  // Label-based field type detection patterns
+  const labelPatterns = {
+    company_kana: [/会社.*(?:カナ|フリガナ|かな|ふりがな)|貴社.*(?:カナ|フリガナ|かな|ふりがな)|企業.*(?:カナ|フリガナ|かな|ふりがな)|法人.*(?:カナ|フリガナ|かな|ふりがな)|company.*kana/i],
+    company: [/会社|貴社|御社|社名|企業名|法人名|organization|company/i],
+    name: [/氏名|お名前|ご担当者.*名|名前|担当者名|your.*name|fullname|^名$/i],
+    email: [/メール|email|mail|e-mail/i],
+    phone: [/電話|tel|phone|携帯|連絡先/i],
+    address: [/住所|所在地|address/i],
+    department: [/部署|部門|部課|department|division/i],
+    position: [/役職|肩書|職位|職種|title|position/i],
+    subject: [/件名|題名|タイトル|subject|title/i],
+    message: [/内容|本文|メッセージ|お問い?合わせ|ご相談|ご質問|事業内容|message|content|inquiry|details/i],
+    zipcode: [/郵便|〒|zip|postal/i],
+    prefecture: [/都道府県|prefecture/i],
+    url: [/url|ホームページ|サイト|website/i]
+  };
+
+  // Determine field type based on label
+  function detectFieldTypeByLabel(field) {
+    const label = getFieldLabel(field) || '';
+    const name = field.name || '';
+    const id = field.id || '';
+    const placeholder = field.placeholder || '';
+    const combined = `${label} ${name} ${id} ${placeholder}`.toLowerCase();
+
+    for (const [type, patterns] of Object.entries(labelPatterns)) {
+      for (const pattern of patterns) {
+        if (pattern.test(combined)) {
+          return type;
+        }
+      }
+    }
+    return null;
+  }
+
   let fallbackFilledCount = 0;
-  let fillIndex = 0;
 
   for (const field of unfilledFields) {
-    if (fillIndex >= fillOrder.length) {
-      // Out of values, cycle back to start
-      fillIndex = 0;
-    }
-
-    const item = fillOrder[fillIndex];
-
-    // Special handling for email/tel/textarea types
     const fieldType = field.type || field.tagName.toLowerCase();
-    let valueToFill, fieldKey;
+    const fieldLabel = getFieldLabel(field);
+    let valueToFill = null;
+    let fieldKey = null;
 
+    // First, try to detect field type by HTML type
     if (fieldType === 'email' && profile.email) {
       valueToFill = profile.email;
       fieldKey = 'email';
     } else if (fieldType === 'tel' && profile.phone) {
-      valueToFill = profile.phone;
+      valueToFill = formatPhoneForField(profile.phone, field);
       fieldKey = 'phone';
-    } else if (fieldType === 'textarea' && profile.message) {
-      // Textareas should get message template, not company/name
-      valueToFill = profile.message;
-      fieldKey = 'message';
+    } else if (fieldType === 'url' && profile.url) {
+      valueToFill = profile.url;
+      fieldKey = 'url';
     } else if (fieldType === 'textarea') {
-      // Skip textarea if no message template available
-      console.log(`⏭️ [FALLBACK] Skipping textarea (no message template available)`);
-      continue;
+      // Textareas are almost always message fields
+      if (profile.message) {
+        valueToFill = profile.message;
+        fieldKey = 'message';
+      } else {
+        console.log(`⏭️ [FALLBACK] Skipping textarea "${fieldLabel}" (no message template)`);
+        continue;
+      }
     } else {
-      valueToFill = item.value;
-      fieldKey = item.key;
+      // Detect by label
+      const detectedType = detectFieldTypeByLabel(field);
+      console.log(`🔍 [FALLBACK] Field "${fieldLabel}" detected as: ${detectedType || 'unknown'}`);
+
+      if (detectedType && profile[detectedType]) {
+        valueToFill = profile[detectedType];
+        fieldKey = detectedType;
+      } else if (detectedType === 'message' && profile.message) {
+        // Special case: message-like fields (事業内容, 内容, etc.)
+        valueToFill = profile.message;
+        fieldKey = 'message';
+      } else if (detectedType) {
+        // Detected type but no matching profile value
+        console.log(`⏭️ [FALLBACK] Skipping "${fieldLabel}" - detected as ${detectedType} but no profile value`);
+        continue;
+      } else {
+        // Unknown field type - skip to avoid filling with wrong data
+        console.log(`⏭️ [FALLBACK] Skipping unknown field "${fieldLabel}"`);
+        continue;
+      }
+    }
+
+    if (!valueToFill) {
+      console.log(`⏭️ [FALLBACK] No value for field "${fieldLabel}"`);
+      continue;
     }
 
     try {
@@ -774,9 +1130,9 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
       const resultInfo = {
         fieldType: fieldKey,
         selector: getSelector(field),
-        confidence: 5, // Very low confidence - this is a guess
-        method: 'generic-fallback',
-        label: getFieldLabel(field) || `field-${fallbackFilledCount}`
+        confidence: 15, // Low but better than random
+        method: 'generic-fallback-smart',
+        label: fieldLabel || `field-${fallbackFilledCount}`
       };
 
       results.push(resultInfo);
@@ -788,21 +1144,143 @@ function genericFallbackFill(profile, filledFields, debugInfo, results) {
         fieldType: fieldType
       });
 
-      console.log(`✅ [FALLBACK] Filled field #${fallbackFilledCount} with ${fieldKey}: ${String(valueToFill).substring(0, 20)}`);
+      console.log(`✅ [FALLBACK] Filled "${fieldLabel}" with ${fieldKey}: ${String(valueToFill).substring(0, 30)}`);
     } catch (e) {
       console.error(`❌ [FALLBACK] Error filling field:`, e);
     }
-
-    fillIndex++;
   }
 
-  console.log(`📊 [FALLBACK] Filled ${fallbackFilledCount} fields via generic fallback`);
+  console.log(`📊 [FALLBACK] Filled ${fallbackFilledCount} fields via smart fallback`);
   return fallbackFilledCount;
 }
 
 // =============================================================================
 // AUTO-FILL
 // =============================================================================
+
+// ===== FINGERPRINT ENGINE =====
+function inferFieldTypeFromLabel(label) {
+  const l = label.toLowerCase().replace(/[（）()【】\s　]/g, '');
+  if (/フリガナ|ふりがな|かな|kana/.test(l)) return 'name_kana';
+  if (/会社|企業|法人|company|corporation/.test(l)) return 'company';
+  if (/名前|氏名|お名前|姓名|fullname|yourname/.test(l)) return 'name';
+  if (/メール|email|mail/.test(l)) return 'email';
+  if (/電話|tel|phone|携帯/.test(l)) return 'phone';
+  if (/件名|subject|タイトル/.test(l)) return 'subject';
+  if (/内容|メッセージ|message|本文|お問|inquiry|ご相談|詳細/.test(l)) return 'message';
+  if (/部署|department/.test(l)) return 'department';
+  if (/郵便|zip|postal/.test(l)) return 'zipcode';
+  if (/住所|address/.test(l)) return 'address';
+  return null;
+}
+
+function getFieldLabel(el) {
+  if (el.id) {
+    const lbl = document.querySelector(`label[for="${el.id}"]`);
+    if (lbl) return lbl.textContent.replace(/[*＊必須required]/gi, '').trim();
+  }
+  if (el.getAttribute('aria-label')) return el.getAttribute('aria-label');
+  if (el.placeholder) return el.placeholder;
+  if (el.title) return el.title;
+  const parent = el.closest('tr,div,li,p,dd,section');
+  if (parent) {
+    const lbl = parent.querySelector('label,th,dt');
+    if (lbl) return lbl.textContent.replace(/[*＊必須required]/gi, '').trim();
+  }
+  return '';
+}
+
+const FORM_FINGERPRINTS = {
+  'wordpress-cf7': {
+    detect: () => document.querySelectorAll('[name^="your-"]').length >= 2,
+    map: (el) => {
+      const name = el.name || '';
+      const m = { 'your-name': 'name', 'your-email': 'email', 'your-tel': 'phone', 'your-message': 'message', 'your-company': 'company', 'your-subject': 'subject' };
+      return m[name] || null;
+    }
+  },
+  'wordpress-wpforms': {
+    detect: () => /wpforms\[fields\]\[\d+\]/.test(Array.from(document.querySelectorAll('[name]')).map(e=>e.name).join(' ')),
+    map: (el) => inferFieldTypeFromLabel(getFieldLabel(el))
+  },
+  'gravity-forms': {
+    detect: () => document.querySelectorAll('[name^="input_"]').length >= 3,
+    map: (el) => inferFieldTypeFromLabel(getFieldLabel(el))
+  },
+  'formzu': {
+    detect: () => /^tk[a-z]{2}\d{3}$/.test((document.querySelector('[name^="tk"]') || {}).name || ''),
+    map: (el) => {
+      const n = (el.name || '').substring(0, 4);
+      const m = { 'tkna': 'name', 'tkem': 'email', 'tkph': 'phone', 'tktx': 'message', 'tkms': 'message', 'tkco': 'company', 'tksb': 'subject' };
+      return m[n] || inferFieldTypeFromLabel(getFieldLabel(el));
+    }
+  },
+  'synergy-form': {
+    detect: () => !!document.querySelector('[name*="singleAnswer"]'),
+    map: (el) => inferFieldTypeFromLabel(getFieldLabel(el))
+  },
+  'hubspot': {
+    detect: () => !!(document.querySelector('.hs-input') || document.querySelector('.hs-form')),
+    map: (el) => {
+      const n = el.name || '';
+      const m = { 'email': 'email', 'firstname': 'name', 'lastname': 'name', 'phone': 'phone', 'company': 'company', 'message': 'message' };
+      return m[n] || inferFieldTypeFromLabel(getFieldLabel(el));
+    }
+  },
+  'shopify-contact': {
+    detect: () => !!document.querySelector('[name^="contact["]'),
+    map: (el) => {
+      const n = el.name || '';
+      if (/contact\[name\]/.test(n)) return 'name';
+      if (/contact\[email\]/.test(n)) return 'email';
+      if (/contact\[body\]/.test(n)) return 'message';
+      return inferFieldTypeFromLabel(getFieldLabel(el));
+    }
+  },
+  'mailform-cgi': {
+    detect: () => document.querySelectorAll('[name^="F"]').length >= 3,
+    map: (el) => {
+      const n = el.name || '';
+      const t = el.type || '';
+      if (t === 'email' || /email/i.test(n)) return 'email';
+      return inferFieldTypeFromLabel(getFieldLabel(el));
+    }
+  },
+  'japanese-direct': {
+    detect: () => {
+      const names = Array.from(document.querySelectorAll('[name]')).map(e => e.name);
+      return names.filter(n => /[^\x00-\x7F]/.test(n)).length >= 2;
+    },
+    map: (el) => {
+      const n = (el.name || '').replace(/[（）()【】*＊]/g, '').trim();
+      const m = {
+        'お名前': 'name', '氏名': 'name', 'お名前（必須）': 'name',
+        '会社名': 'company', '企業名': 'company',
+        'メールアドレス': 'email', 'メール': 'email',
+        '電話番号': 'phone', 'TEL': 'phone', '電話': 'phone',
+        'お問い合わせ内容': 'message', '内容': 'message', 'メッセージ': 'message',
+        '件名': 'subject', 'お名前（フリガナ）': 'name_kana', 'フリガナ': 'name_kana'
+      };
+      return m[n] || inferFieldTypeFromLabel(n);
+    }
+  },
+  'tayori': {
+    detect: () => !!(document.querySelector('[data-tayori]') || document.querySelector('.tayori-form')),
+    map: (el) => inferFieldTypeFromLabel(getFieldLabel(el))
+  }
+};
+
+function detectFormSystem() {
+  for (const [system, fp] of Object.entries(FORM_FINGERPRINTS)) {
+    try {
+      if (fp.detect()) {
+        console.log(`🔍 [Fingerprint] Detected: ${system}`);
+        return { system, mapper: fp.map };
+      }
+    } catch(e) {}
+  }
+  return null;
+}
 
 async function autoFillForm(profile) {
   const url = window.location.href;
@@ -823,6 +1301,61 @@ async function autoFillForm(profile) {
   };
 
   const filledFields = new Set();
+
+  // =============================================================================
+  // FETCH SALES LETTER FOR ALL SITES (not just pre-configured)
+  // =============================================================================
+  let globalSalesLetter = null;
+
+  // Check if there's a message field on the page (textarea or message-related input)
+  const hasMessageField = document.querySelector('textarea, [name*="message"], [name*="content"], [name*="inquiry"], [name*="内容"], [name*="本文"]');
+
+  if (hasMessageField) {
+    console.log('📧 Message field detected on page, fetching sales letter...');
+    const companyUrl = window.location.origin;
+    const currentPageUrl = window.location.href;
+    console.log('🌐 Fetching sales letter for:', companyUrl);
+
+    try {
+      // In batch mode, check for pre-generated message first
+      const stored = await chrome.storage.local.get(['batchMode', 'batchGeneratedMessages']);
+      if (stored.batchMode && stored.batchGeneratedMessages) {
+        const msgs = stored.batchGeneratedMessages;
+        globalSalesLetter = msgs[currentPageUrl] || msgs[companyUrl] || null;
+        if (globalSalesLetter) {
+          console.log('✅ Using pre-generated batch sales letter, length:', globalSalesLetter.length);
+        }
+      }
+
+      // Fallback: fetch from API if no pre-generated message
+      if (!globalSalesLetter) {
+        globalSalesLetter = await fetchSalesLetter(companyUrl);
+      }
+
+      if (globalSalesLetter) {
+        console.log('✅ Sales letter ready, length:', globalSalesLetter.length);
+        // Also update profile.message so it's used by all layers
+        profile = { ...profile, message: globalSalesLetter };
+      } else {
+        console.log('⚠️ No sales letter returned, using profile.message as fallback');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching sales letter:', error);
+    }
+  }
+
+  // Layer 0: Fingerprint engine
+  const fpSystem = detectFormSystem();
+  if (fpSystem) {
+    const fields = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select');
+    fields.forEach(el => {
+      if (!isVisible(el)) return;
+      const fieldType = fpSystem.mapper(el);
+      if (!fieldType) return;
+      const value = getProfileValue(profile, fieldType);
+      if (value) fillField(el, value, el.type, fieldType);
+    });
+  }
 
   // Check for pre-configured site mappings FIRST
   let siteMapping = null;
@@ -845,13 +1378,13 @@ async function autoFillForm(profile) {
     console.log('🎯 Using pre-configured mapping for:', siteMappingKey);
     console.log('🔍 [DEBUG] Site mapping fields:', Object.keys(siteMapping));
 
-    // Fetch sales letter if message field exists in mapping
-    let salesLetter = null;
-    if (siteMapping.message) {
-      // Use company_url from mapping, or fallback to origin
+    // Use already fetched sales letter (fetched at start of autoFillForm)
+    let salesLetter = globalSalesLetter;
+    if (siteMapping.message && !salesLetter) {
+      // Fallback: fetch if not already fetched (e.g., no message field detected earlier)
       const companyUrl = siteMapping.company_url || window.location.origin;
       console.log('🌐 Company URL for API:', companyUrl);
-      console.log('⏳ Fetching sales letter from API...');
+      console.log('⏳ Fetching sales letter from API (fallback)...');
       salesLetter = await fetchSalesLetter(companyUrl);
       if (salesLetter) {
         console.log('✅ Sales letter received, length:', salesLetter.length);
@@ -859,6 +1392,8 @@ async function autoFillForm(profile) {
       } else {
         console.log('❌ Failed to get sales letter from API');
       }
+    } else if (salesLetter) {
+      console.log('✅ Using pre-fetched sales letter, length:', salesLetter.length);
     }
 
     for (const [key, fieldConfig] of Object.entries(siteMapping)) {
@@ -1155,11 +1690,408 @@ async function autoFillForm(profile) {
   console.log(`  - Generic fallback: ${results.filter(r => r.method === 'generic-fallback').length} fields`);
   console.log(`  - TOTAL FILLED: ${debugInfo.fieldsFilled}/${debugInfo.fieldsProcessed} fields`);
 
+  // B: 確認用メールアドレス自動入力
+  if (profile.email) {
+    document.querySelectorAll('input[type="text"], input[type="email"], input').forEach(el => {
+      if (!isVisible(el)) return;
+      const attrs = [el.name, el.id, el.placeholder, el.getAttribute('aria-label')].join(' ').toLowerCase();
+      if (/confirm|確認|再入力|check|verify|再度|もう一度/.test(attrs) && /mail|email/.test(attrs)) {
+        if (!el.value) {
+          setNativeValue(el, profile.email);
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    });
+  }
+
+  // C: プライバシーチェックボックス自動ON
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    if (cb.checked) return;
+    const attrs = [cb.name, cb.id, cb.className, cb.getAttribute('aria-label') || ''].join(' ');
+    // 近くのlabelテキストも確認
+    let labelText = '';
+    if (cb.id) {
+      const lbl = document.querySelector(`label[for="${cb.id}"]`);
+      if (lbl) labelText = lbl.textContent;
+    }
+    const combined = (attrs + ' ' + labelText).toLowerCase();
+    if (/privacy|個人情報|同意|agree|consent|acceptance|プライバシー/.test(combined)) {
+      cb.checked = true;
+      cb.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  // Run verification after auto-fill
+  const verification = verifyFormFill();
+  debugInfo.verification = verification;
+
+  // Show verification status on page
+  showVerificationStatus(verification);
+
+  // Automatically notify background script about verification result
+  // This enables batch mode auto-close functionality
+  notifyVerificationResult(verification);
+
   return {
     success: true,
     results,
-    debug: debugInfo
+    debug: debugInfo,
+    verification
   };
+}
+
+// =============================================================================
+// FORM VERIFICATION
+// =============================================================================
+
+/**
+ * Verify that form fields are correctly filled
+ * Returns detailed report of filled/unfilled fields
+ */
+function verifyFormFill() {
+  const allFields = getAllFormFields();
+  const verification = {
+    timestamp: Date.now(),
+    totalFields: 0,
+    filledFields: 0,
+    emptyFields: 0,
+    requiredEmpty: 0,
+    hasMessageField: false,    // NEW: フォームにメッセージ欄が存在するか
+    messageFieldFilled: false,
+    fields: [],
+    issues: [],
+    status: 'unknown' // 'success', 'warning', 'error'
+  };
+
+  for (const field of allFields) {
+    if (!isVisible(field)) continue;
+
+    const fieldInfo = {
+      type: field.type || field.tagName.toLowerCase(),
+      name: field.name || '',
+      id: field.id || '',
+      label: getFieldLabel(field) || '',
+      required: field.required || field.getAttribute('aria-required') === 'true',
+      value: field.value || '',
+      filled: false,
+      isMessageField: false
+    };
+
+    // Check if it's a message field
+    const isMessageField =
+      field.tagName.toLowerCase() === 'textarea' ||
+      /message|content|inquiry|内容|本文|お問い合わせ/i.test(field.name) ||
+      /message|content|inquiry|内容|本文|お問い合わせ/i.test(fieldInfo.label);
+
+    fieldInfo.isMessageField = isMessageField;
+
+    // Track if the form has any message field
+    if (isMessageField) {
+      verification.hasMessageField = true;
+    }
+
+    // Check if filled
+    if (field.type === 'checkbox' || field.type === 'radio') {
+      fieldInfo.filled = field.checked;
+    } else if (field.tagName.toLowerCase() === 'select') {
+      fieldInfo.filled = field.selectedIndex > 0 || (field.value && field.value !== '');
+    } else {
+      fieldInfo.filled = field.value && field.value.trim().length > 0;
+    }
+
+    verification.totalFields++;
+
+    if (fieldInfo.filled) {
+      verification.filledFields++;
+      if (isMessageField) {
+        verification.messageFieldFilled = true;
+      }
+    } else {
+      verification.emptyFields++;
+      if (fieldInfo.required) {
+        verification.requiredEmpty++;
+        verification.issues.push({
+          type: 'required_empty',
+          field: fieldInfo.name || fieldInfo.id || fieldInfo.label,
+          message: `必須フィールド「${fieldInfo.label || fieldInfo.name}」が空です`
+        });
+      }
+      if (isMessageField) {
+        verification.issues.push({
+          type: 'message_empty',
+          field: fieldInfo.name || fieldInfo.id,
+          message: 'メッセージ本文が空です'
+        });
+      }
+    }
+
+    verification.fields.push(fieldInfo);
+  }
+
+  // Determine overall status
+  // メッセージ欄がない場合は、メッセージ欄の入力を必須としない
+  const messageOk = !verification.hasMessageField || verification.messageFieldFilled;
+
+  if (verification.requiredEmpty > 0) {
+    verification.status = 'error';
+  } else if (verification.emptyFields > 0 || !messageOk) {
+    verification.status = 'warning';
+  } else if (verification.filledFields > 0) {
+    verification.status = 'success';
+  }
+
+  console.log('🔍 [VERIFY] Form verification result:', verification);
+
+  return verification;
+}
+
+/**
+ * Show verification status as a floating banner on the page
+ */
+function showVerificationStatus(verification) {
+  // Remove existing banner if any
+  const existingBanner = document.getElementById('goenchan-verification-banner');
+  if (existingBanner) {
+    existingBanner.remove();
+  }
+
+  const banner = document.createElement('div');
+  banner.id = 'goenchan-verification-banner';
+
+  let bgColor, icon, message;
+
+  if (verification.status === 'success') {
+    bgColor = '#4caf50';
+    icon = '✅';
+    message = `記入完了: ${verification.filledFields}/${verification.totalFields}フィールド`;
+  } else if (verification.status === 'warning') {
+    bgColor = '#ff9800';
+    icon = '⚠️';
+    const issues = [];
+    // メッセージ欄がある場合のみ「本文が空」を表示
+    if (verification.hasMessageField && !verification.messageFieldFilled) issues.push('本文が空');
+    if (verification.emptyFields > 0) issues.push(`${verification.emptyFields}フィールド未記入`);
+    message = issues.join(', ');
+  } else if (verification.status === 'error') {
+    bgColor = '#f44336';
+    icon = '❌';
+    message = `必須フィールド${verification.requiredEmpty}件が未記入`;
+  } else {
+    bgColor = '#9e9e9e';
+    icon = 'ℹ️';
+    message = 'フォームが見つかりません';
+  }
+
+  banner.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 18px;">${icon}</span>
+      <span>${message}</span>
+      <button id="goenchan-verify-details" style="
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.4);
+        border-radius: 4px;
+        color: white;
+        padding: 2px 8px;
+        cursor: pointer;
+        font-size: 11px;
+      ">詳細</button>
+      <button id="goenchan-verify-close" style="
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0 4px;
+      ">×</button>
+    </div>
+  `;
+
+  banner.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: ${bgColor};
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    z-index: 999999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: goenchan-slide-in 0.3s ease-out;
+  `;
+
+  // Add animation keyframes
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes goenchan-slide-in {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.body.appendChild(banner);
+
+  // Close button handler
+  document.getElementById('goenchan-verify-close').addEventListener('click', () => {
+    banner.remove();
+  });
+
+  // Details button handler
+  document.getElementById('goenchan-verify-details').addEventListener('click', () => {
+    showVerificationDetails(verification);
+  });
+
+  // Auto-hide after 10 seconds if success
+  if (verification.status === 'success') {
+    setTimeout(() => {
+      if (banner.parentNode) {
+        banner.style.animation = 'goenchan-slide-in 0.3s ease-out reverse';
+        setTimeout(() => banner.remove(), 300);
+      }
+    }, 10000);
+  }
+}
+
+/**
+ * Show detailed verification modal
+ */
+function showVerificationDetails(verification) {
+  // Remove existing modal
+  const existingModal = document.getElementById('goenchan-verify-modal');
+  if (existingModal) existingModal.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'goenchan-verify-modal';
+
+  const fieldsHtml = verification.fields.map(f => {
+    const statusIcon = f.filled ? '✅' : (f.required ? '❌' : '⚪');
+    const valuePreview = f.filled ? (f.value.substring(0, 30) + (f.value.length > 30 ? '...' : '')) : '(空)';
+    const highlight = f.isMessageField ? 'background: #fff3e0;' : '';
+    return `
+      <tr style="${highlight}">
+        <td style="padding: 4px 8px;">${statusIcon}</td>
+        <td style="padding: 4px 8px;">${f.label || f.name || f.id || '(名前なし)'}</td>
+        <td style="padding: 4px 8px; color: #666; font-size: 11px;">${f.type}</td>
+        <td style="padding: 4px 8px; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${valuePreview}</td>
+      </tr>
+    `;
+  }).join('');
+
+  modal.innerHTML = `
+    <div style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999998;
+    " id="goenchan-modal-backdrop"></div>
+    <div style="
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: auto;
+      z-index: 999999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    ">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 16px;">📋 フォーム記入検証結果</h3>
+        <button id="goenchan-modal-close" style="
+          background: none;
+          border: none;
+          font-size: 20px;
+          cursor: pointer;
+          padding: 0;
+        ">×</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;">
+        <div style="background: #e8f5e9; padding: 10px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #2e7d32;">${verification.filledFields}</div>
+          <div style="font-size: 11px; color: #666;">記入済み</div>
+        </div>
+        <div style="background: #fff3e0; padding: 10px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: #ef6c00;">${verification.emptyFields}</div>
+          <div style="font-size: 11px; color: #666;">未記入</div>
+        </div>
+        <div style="background: ${verification.requiredEmpty > 0 ? '#ffebee' : '#f5f5f5'}; padding: 10px; border-radius: 6px; text-align: center;">
+          <div style="font-size: 24px; font-weight: bold; color: ${verification.requiredEmpty > 0 ? '#c62828' : '#666'};">${verification.requiredEmpty}</div>
+          <div style="font-size: 11px; color: #666;">必須未記入</div>
+        </div>
+      </div>
+
+      ${verification.issues.length > 0 ? `
+        <div style="background: #ffebee; padding: 10px; border-radius: 6px; margin-bottom: 16px;">
+          <div style="font-weight: bold; color: #c62828; margin-bottom: 6px;">⚠️ 問題</div>
+          ${verification.issues.map(i => `<div style="font-size: 12px; color: #c62828;">・${i.message}</div>`).join('')}
+        </div>
+      ` : ''}
+
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <thead>
+          <tr style="background: #f5f5f5;">
+            <th style="padding: 6px 8px; text-align: left;">状態</th>
+            <th style="padding: 6px 8px; text-align: left;">フィールド名</th>
+            <th style="padding: 6px 8px; text-align: left;">種類</th>
+            <th style="padding: 6px 8px; text-align: left;">値</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${fieldsHtml}
+        </tbody>
+      </table>
+
+      <div style="margin-top: 16px; text-align: right;">
+        <button id="goenchan-modal-ok" style="
+          background: #1976d2;
+          color: white;
+          border: none;
+          padding: 8px 24px;
+          border-radius: 6px;
+          cursor: pointer;
+        ">閉じる</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // Event handlers
+  document.getElementById('goenchan-modal-close').addEventListener('click', () => modal.remove());
+  document.getElementById('goenchan-modal-ok').addEventListener('click', () => modal.remove());
+  document.getElementById('goenchan-modal-backdrop').addEventListener('click', () => modal.remove());
+}
+
+/**
+ * Notify background script about verification result (for batch mode ONLY)
+ */
+async function notifyVerificationResult(verification) {
+  // Only send verification results in batch mode
+  const storage = await chrome.storage.local.get(['batchMode']);
+  if (!storage.batchMode) {
+    console.log('⏭️ Skipping verification notification - not in batch mode');
+    return;
+  }
+
+  try {
+    chrome.runtime.sendMessage({
+      action: 'verificationResult',
+      verification: verification,
+      url: window.location.href
+    });
+  } catch (e) {
+    console.log('Could not notify background about verification:', e);
+  }
 }
 
 // Find element by fingerprint
@@ -2712,6 +3644,10 @@ function generateSplitFieldsMapping(fields) {
 // Detect field type (enhanced with better Japanese keyword matching)
 function detectFieldType(field) {
   const patterns = {
+    company_kana: {
+      keywords: ['会社名フリガナ', '会社名カナ', '企業名フリガナ', '企業名カナ', '法人名フリガナ', '貴社名フリガナ', '会社フリガナ', '会社カナ', 'company_kana', 'companykana'],
+      weight: { label: 45, name: 30, placeholder: 25 }
+    },
     company: {
       keywords: ['company', '会社', '企業', '法人', '団体', 'corporation', '会社名', '企業名', '貴社名', '御社名', 'organization', '勤務先', '勤務先名', '法人名', '団体名', '組織名'],
       weight: { label: 30, name: 20, placeholder: 15 }
@@ -2959,6 +3895,85 @@ function getFieldLabel(field) {
   return null;
 }
 
+// Get immediate preceding text (for split name fields like 姓/名/セイ/メイ)
+// This looks for short text labels right before the input field
+function getImmediatePrecedingText(field) {
+  // 1. Check previous sibling text node
+  let node = field.previousSibling;
+  while (node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent.trim();
+      if (text && text.length <= 10) {
+        return text;
+      }
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      // Check if it's a short span/label
+      const el = node;
+      if (el.tagName === 'SPAN' || el.tagName === 'LABEL' || el.tagName === 'DIV') {
+        const text = cleanText(el.textContent);
+        if (text && text.length <= 10) {
+          return text;
+        }
+      }
+      break; // Stop at first element
+    }
+    node = node.previousSibling;
+  }
+
+  // 2. Check parent's text content before the input
+  const parent = field.parentElement;
+  if (parent) {
+    // Get all child nodes and find text right before the input
+    const nodes = Array.from(parent.childNodes);
+    const inputIndex = nodes.indexOf(field);
+
+    for (let i = inputIndex - 1; i >= 0; i--) {
+      const node = nodes[i];
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.trim();
+        if (text && text.length <= 10) {
+          return text;
+        }
+      }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const text = cleanText(node.textContent);
+        if (text && text.length <= 10) {
+          return text;
+        }
+        break; // Stop at first element with content
+      }
+    }
+  }
+
+  // 3. Check for table cell structure (common in Japanese forms)
+  const td = field.closest('td');
+  if (td) {
+    // Check previous td or th in the same row
+    const prevCell = td.previousElementSibling;
+    if (prevCell && (prevCell.tagName === 'TD' || prevCell.tagName === 'TH')) {
+      const text = cleanText(prevCell.textContent);
+      if (text && text.length <= 10) {
+        return text;
+      }
+    }
+  }
+
+  // 4. Check for dt/dd structure
+  const dd = field.closest('dd');
+  if (dd) {
+    const dt = dd.previousElementSibling;
+    if (dt && dt.tagName === 'DT') {
+      const text = cleanText(dt.textContent);
+      if (text && text.length <= 10) {
+        return text;
+      }
+    }
+  }
+
+  return null;
+}
+
 // Match keywords
 function matchesKeywords(text, keywords) {
   const lowerText = text.toLowerCase();
@@ -2966,33 +3981,124 @@ function matchesKeywords(text, keywords) {
 }
 
 // Fill field with value
-function fillField(field, value, type) {
+// Format phone number based on field requirements
+function formatPhoneForField(phone, field) {
+  if (!phone) return phone;
+
+  // Extract digits only
+  const digits = phone.replace(/[^0-9]/g, '');
+  if (!digits) return phone;
+
+  // Check field requirements
+  const placeholder = (field.getAttribute('placeholder') || '').toLowerCase();
+  const maxLength = field.getAttribute('maxlength');
+  const pattern = field.getAttribute('pattern');
+  const nearbyText = getPreviousSiblingText(field) || '';
+
+  // Detect if field requires no hyphens
+  const noHyphenIndicators = [
+    'ハイフンなし', 'ハイフン無し', 'ハイフン不要',
+    '半角数字のみ', '数字のみ', 'ハイフンを除く',
+    '例: 0312345678', '例:0312345678', '例）0312345678'
+  ];
+
+  let requiresNoHyphen = false;
+
+  // Check placeholder and nearby text for no-hyphen indicators
+  for (const indicator of noHyphenIndicators) {
+    if (placeholder.includes(indicator.toLowerCase()) ||
+        nearbyText.includes(indicator)) {
+      requiresNoHyphen = true;
+      console.log(`[Phone] No hyphen required - indicator found: "${indicator}"`);
+      break;
+    }
+  }
+
+  // Check maxlength - if maxlength is exactly the digit count, no hyphens expected
+  if (maxLength) {
+    const maxLengthNum = parseInt(maxLength, 10);
+    // 10-11 digits without hyphens, 13-14 with hyphens
+    if (maxLengthNum <= 11) {
+      requiresNoHyphen = true;
+      console.log(`[Phone] No hyphen required - maxlength=${maxLengthNum}`);
+    }
+  }
+
+  // Check if placeholder shows no-hyphen format (e.g., "09012345678")
+  if (/^0[0-9]{9,10}$/.test(placeholder.replace(/[^0-9]/g, ''))) {
+    requiresNoHyphen = true;
+    console.log(`[Phone] No hyphen required - placeholder shows no-hyphen format`);
+  }
+
+  // Check pattern for digits-only requirement
+  if (pattern && /^\[0-9\]|^\\d/.test(pattern)) {
+    requiresNoHyphen = true;
+    console.log(`[Phone] No hyphen required - pattern indicates digits only`);
+  }
+
+  if (requiresNoHyphen) {
+    console.log(`[Phone] Formatting without hyphens: ${digits}`);
+    return digits;
+  }
+
+  // Format with hyphens (default for Japanese phone numbers)
+  if (digits.length === 11) {
+    // Mobile: 090-1234-5678
+    return `${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7, 11)}`;
+  } else if (digits.length === 10) {
+    // Landline or older mobile: 03-1234-5678 or 090-123-4567
+    if (digits.charAt(1) === '3' || digits.charAt(1) === '4' ||
+        digits.charAt(1) === '5' || digits.charAt(1) === '6') {
+      // Tokyo/major city: 2-4-4 format
+      return `${digits.substring(0, 2)}-${digits.substring(2, 6)}-${digits.substring(6, 10)}`;
+    } else {
+      // Other: 3-4-3 or 3-3-4 format
+      return `${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7, 10)}`;
+    }
+  }
+
+  // Return original if we can't format
+  return phone;
+}
+
+function setNativeValue(el, value) {
+  const inputProto = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');
+  const textareaProto = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value');
+  const proto = el.tagName === 'TEXTAREA' ? textareaProto : inputProto;
+  if (proto && proto.set) {
+    proto.set.call(el, value);
+  } else {
+    el.value = value;
+  }
+}
+
+function fillField(field, value, type, fieldType = null) {
   if (type === 'checkbox' || type === 'radio') {
     field.checked = !!value;
   } else if (type === 'select' || field.tagName === 'SELECT') {
-    // For select, try to find matching option
     const options = Array.from(field.options);
-    const matchingOption = options.find(opt =>
-      opt.value === value || opt.text === value
-    );
+    const matchingOption = options.find(opt => opt.value === value || opt.text === value);
     if (matchingOption) {
       field.value = matchingOption.value;
+    } else {
+      // fallback: その他/Other/一般/お問い合わせ/General → index=1
+      const fallback = options.find(opt => /その他|Other|一般|お問い合わせ|General/i.test(opt.text || opt.value));
+      if (fallback) field.value = fallback.value;
+      else if (options.length > 1) field.value = options[1].value;
     }
   } else {
-    field.value = value;
+    let formattedValue = value;
+    if (type === 'tel' || fieldType === 'phone') {
+      formattedValue = formatPhoneForField(value, field);
+    }
+    setNativeValue(field, formattedValue);
   }
-
-  // Trigger events
   field.dispatchEvent(new Event('input', { bubbles: true }));
   field.dispatchEvent(new Event('change', { bubbles: true }));
   field.dispatchEvent(new Event('blur', { bubbles: true }));
-
-  // Visual feedback
   field.style.transition = 'background-color 0.3s';
   field.style.backgroundColor = '#e8f5e9';
-  setTimeout(() => {
-    field.style.backgroundColor = '';
-  }, 1000);
+  setTimeout(() => { field.style.backgroundColor = ''; }, 1000);
 }
 
 // Test fill a single field
@@ -3145,24 +4251,33 @@ function parseAddress(fullAddress) {
 }
 
 function getProfileValue(profile, key) {
-  // Handle split name fields (name1=姓, name2=名)
-  if (key === 'name1' || key === 'name2') {
+  // Handle split name fields (姓/名)
+  if (key === 'name1' || key === 'name2' || key === 'name_sei' || key === 'name_mei') {
     const fullName = profile.name || '';
-    const parts = fullName.split(/\s+/);
+    // Split by whitespace (half-width or full-width)
+    const parts = fullName.split(/[\s　]+/).filter(p => p.length > 0);
+    const isSei = (key === 'name1' || key === 'name_sei');
     if (parts.length >= 2) {
-      return key === 'name1' ? parts[0] : parts[1];
+      return isSei ? parts[0] : parts.slice(1).join(' ');
     }
-    return key === 'name1' ? fullName : '';
+    // If no space, return full name for sei, empty for mei
+    // User should add a space between surname and given name
+    console.log(`[Profile] Name "${fullName}" has no space separator - returning ${isSei ? 'full name as sei' : 'empty for mei'}`);
+    return isSei ? fullName : '';
   }
 
-  // Handle split name_kana fields
-  if (key === 'name_kana1' || key === 'name_kana2') {
+  // Handle split name_kana fields (セイ/メイ)
+  if (key === 'name_kana1' || key === 'name_kana2' || key === 'name_sei_kana' || key === 'name_mei_kana') {
     const fullKana = profile.name_kana || '';
-    const parts = fullKana.split(/\s+/);
+    // Split by whitespace (half-width or full-width)
+    const parts = fullKana.split(/[\s　]+/).filter(p => p.length > 0);
+    const isSei = (key === 'name_kana1' || key === 'name_sei_kana');
     if (parts.length >= 2) {
-      return key === 'name_kana1' ? parts[0] : parts[1];
+      return isSei ? parts[0] : parts.slice(1).join(' ');
     }
-    return key === 'name_kana1' ? fullKana : '';
+    // If no space, return full kana for sei, empty for mei
+    console.log(`[Profile] Name kana "${fullKana}" has no space separator - returning ${isSei ? 'full kana as sei' : 'empty for mei'}`);
+    return isSei ? fullKana : '';
   }
 
   // Handle address fields with smart splitting

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@cloudflare/workerd-darwin-arm64": "^1.20260305.0",
+    "buffer": "^6.0.3",
+    "fast-png": "^8.0.0",
+    "jpeg-js": "^0.4.4"
+  }
+}
