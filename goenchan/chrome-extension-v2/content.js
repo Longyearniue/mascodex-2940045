@@ -3179,7 +3179,19 @@ const SITE_MAPPINGS = {
     zipcode: { selector: 'input[name="ichibiki-form-post"]', confidence: 100 },
     message: { selector: 'textarea[name="ichibiki-form-detail"]', confidence: 100 },
   },
-  'www.yokoo.co.jp': {
+  'aritaporcelainlab.com': {
+    company_url: 'https://aritaporcelainlab.com/',
+    last_name:        { selector: 'input[name="your-name-sei"]', confidence: 100 },
+    first_name:       { selector: 'input[name="your-name-mei"]', confidence: 100 },
+    last_name_kana:   { selector: 'input[name="your-hurigana-sei"]', confidence: 100 },
+    first_name_kana:  { selector: 'input[name="your-hurigana-mei"]', confidence: 100 },
+    company:          { selector: 'input[name="your-company"]', confidence: 100 },
+    phone:            { selector: 'input[name="your-tel"]', confidence: 100 },
+    email:            { selector: 'input[name="your-email"]', confidence: 100 },
+    email_confirm:    { selector: 'input[name="your-email_confirm"]', confidence: 100 },
+    message:          { selector: 'textarea[name="your-message"]', confidence: 100 },
+  },
+    'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
     name1: { selector: 'input[name="氏名"]', confidence: 100 },
     company: { selector: 'input[name="会社名"]', confidence: 100 },
