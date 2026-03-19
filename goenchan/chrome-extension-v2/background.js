@@ -1034,19 +1034,11 @@ async function findContactPagesForBatch(urls) {
         foundVia = 'worker-api';
       }
 
-      // Method 2: Client-side
+      // Method 2-6: Enhanced (footer/brute/wayback/AI/humanStyle)
       if (!contactPageUrl) {
         try {
-          contactPageUrl = await findContactPageClientSide(url);
-          if (contactPageUrl) foundVia = 'client-side';
-        } catch (e) {}
-      }
-
-      // Method 3: Human-like
-      if (!contactPageUrl) {
-        try {
-          contactPageUrl = await findContactPageHumanStyle(url);
-          if (contactPageUrl) foundVia = 'human-navigation';
+          contactPageUrl = await findContactPageEnhanced(url);
+          if (contactPageUrl) foundVia = 'enhanced';
         } catch (e) {}
       }
 
@@ -1552,10 +1544,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     await setStatus('⏳ お問合せページを検索中...');
     let contactUrl = null;
-    try { contactUrl = await findContactPageClientSide(url); } catch(e) {}
-    if (!contactUrl) {
-      try { contactUrl = await findContactPageHumanStyle(url); } catch(e) {}
-    }
+    try { contactUrl = await findContactPageEnhanced(url); } catch(e) {}
     if (!contactUrl) { await setStatus('❌ お問合せページが見つかりませんでした'); return; }
 
     await setStatus('🔍 企業情報をスキャン中...');
@@ -1703,4 +1692,174 @@ async function findContactPageClientSide(baseUrl) {
     console.error('[Batch] Client-side search error:', error);
     return null;
   }
+}
+
+// =============================================================================
+// ENHANCED CONTACT FINDER: 強化版お問い合わせページ検索（Google除く）
+// =============================================================================
+
+function resolveUrlForContact(href, baseUrl) {
+  try {
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return null;
+    return new URL(href, baseUrl).href;
+  } catch(e) { return null; }
+}
+
+function isContactUrlKeyword(url) {
+  return /contact|inquiry|otoiawase|toiawase|form|mail|support|soudan|renraku/i.test(url);
+}
+
+function scoreContactLink(url, linkText) {
+  let score = 0;
+  const urlLower = url.toLowerCase();
+  const textLower = (linkText || '').toLowerCase();
+  const urlKws = ['contact', 'inquiry', 'otoiawase', 'form', 'mail', 'support', 'toiawase', 'soudan'];
+  const textKws = ['お問い合わせ', 'お問合せ', '問い合わせ', '問合せ', 'ご連絡', 'contact', 'inquiry', 'form', 'mail'];
+  for (const kw of urlKws) if (urlLower.includes(kw)) score += 3;
+  for (const kw of textKws) if (textLower.includes(kw)) score += 2;
+  return score;
+}
+
+// 方法2: footer優先DOM解析
+async function findContactByFooterScan(html, baseUrl) {
+  if (!html) return null;
+  let domain;
+  try { domain = new URL(baseUrl).hostname; } catch(e) { return null; }
+  const footerMatch = html.match(/<footer[\s\S]*?<\/footer>/i);
+  const scanHtml = footerMatch ? footerMatch[0] : html;
+  const links = [...scanHtml.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+  const candidates = [];
+  for (const [, href, rawText] of links) {
+    const url = resolveUrlForContact(href, baseUrl);
+    if (!url) continue;
+    try { if (new URL(url).hostname !== domain) continue; } catch(e) { continue; }
+    const text = rawText.replace(/<[^>]+>/g, '').trim();
+    const score = scoreContactLink(url, text);
+    if (score > 0) candidates.push({ url, score });
+  }
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates[0]?.url || null;
+}
+
+// 方法3: 30パス並列ブルートフォース
+const BRUTE_FORCE_CONTACT_PATHS = [
+  '/contact', '/contact/', '/contact.html', '/contact.php', '/contact/index.php',
+  '/inquiry', '/inquiry/', '/inquiry.html', '/inquiry.php', '/inquiry/index.php',
+  '/otoiawase', '/otoiawase/', '/otoiawase.html', '/otoiawase/index.html',
+  '/toiawase', '/toiawase.html',
+  '/form', '/form/', '/form.html', '/form.php',
+  '/mail', '/mail/', '/mail.html', '/mailform', '/mailform.html', '/mailform/',
+  '/support', '/support/', '/help', '/help.html',
+  '/contact-us', '/contact_us', '/contactus',
+  '/inquiry-form', '/soudan', '/renraku',
+];
+
+async function findContactByBruteForce(baseUrl) {
+  let origin;
+  try { origin = new URL(baseUrl).origin; } catch(e) { return null; }
+  const checks = BRUTE_FORCE_CONTACT_PATHS.map(async (path) => {
+    const url = origin + path;
+    try {
+      const res = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: AbortSignal.timeout(3000) });
+      if (res.ok) return url;
+    } catch(e) {}
+    return null;
+  });
+  const results = await Promise.allSettled(checks);
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) return r.value;
+  }
+  return null;
+}
+
+// 方法5: Wayback Machine
+async function findContactByWayback(baseUrl) {
+  let domain;
+  try { domain = new URL(baseUrl).hostname; } catch(e) { return null; }
+  const paths = ['contact', 'inquiry', 'otoiawase', 'form', 'mailform', 'mail', 'toiawase'];
+  const checks = paths.map(async (path) => {
+    try {
+      const res = await fetch(`https://archive.org/wayback/available?url=${domain}/${path}`, { signal: AbortSignal.timeout(5000) });
+      const data = await res.json();
+      if (data.archived_snapshots?.closest?.available) {
+        const m = data.archived_snapshots.closest.url.match(/web\/\d+\*?\/(https?:\/\/.+)/);
+        if (m) return m[1];
+      }
+    } catch(e) {}
+    return null;
+  });
+  const results = await Promise.allSettled(checks);
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) return r.value;
+  }
+  return null;
+}
+
+// 方法6: AIリンクスコアリング（Claude Haiku）
+async function findContactByAI(html, baseUrl, apiKey) {
+  if (!apiKey || !html) return null;
+  let domain;
+  try { domain = new URL(baseUrl).hostname; } catch(e) { return null; }
+  const links = [...html.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
+    .map(([, href, rawText]) => ({ url: resolveUrlForContact(href, baseUrl), text: rawText.replace(/<[^>]+>/g, '').trim().substring(0, 40) }))
+    .filter(l => { if (!l.url) return false; try { return new URL(l.url).hostname === domain; } catch(e) { return false; } })
+    .filter((l, i, arr) => arr.findIndex(x => x.url === l.url) === i)
+    .slice(0, 50);
+  if (links.length === 0) return null;
+  const prompt = `以下はウェブサイトのリンク一覧です。お問い合わせフォームページのURLを1つ選んでURLだけ返してください。見つからない場合は "none" とだけ返してください。\n\n${links.map(l => `${l.url} [${l.text}]`).join('\n')}`;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 200, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const answer = (data.content?.[0]?.text || '').trim();
+    if (answer && answer !== 'none' && answer.startsWith('http')) return answer;
+  } catch(e) {}
+  return null;
+}
+
+// 統合オーケストレーター（Google検索除く）
+async function findContactPageEnhanced(baseUrl) {
+  console.log('[Contact Finder+] Starting for:', baseUrl);
+
+  // Step 1: 既存の高速チェック（サイトマップ + 並列HEAD）
+  let url = null;
+  try { url = await findContactPageClientSide(baseUrl); } catch(e) {}
+  if (url) { console.log('[Contact Finder+] ✅ Step1 sitemap/HEAD:', url); return url; }
+
+  // Step 2: HTMLを1回取得して以降のステップで共有
+  let html = '';
+  try {
+    const res = await fetch(baseUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(6000) });
+    html = await res.text();
+  } catch(e) {}
+
+  // Step 3: footer DOM解析 + ブルートフォース を並列
+  const [footerResult, bruteResult] = await Promise.allSettled([
+    findContactByFooterScan(html, baseUrl),
+    findContactByBruteForce(baseUrl),
+  ]);
+  url = (footerResult.status === 'fulfilled' ? footerResult.value : null)
+      || (bruteResult.status === 'fulfilled' ? bruteResult.value : null);
+  if (url) { console.log('[Contact Finder+] ✅ Step3 footer/brute:', url); return url; }
+
+  // Step 4: Wayback Machine
+  try { url = await findContactByWayback(baseUrl); } catch(e) {}
+  if (url) { console.log('[Contact Finder+] ✅ Step4 Wayback:', url); return url; }
+
+  // Step 5: AI リンクスコアリング
+  try {
+    const storage = await chrome.storage.sync.get(['anthropicApiKey']);
+    url = await findContactByAI(html, baseUrl, storage.anthropicApiKey);
+  } catch(e) {}
+  if (url) { console.log('[Contact Finder+] ✅ Step5 AI:', url); return url; }
+
+  // Step 6: 既存の humanStyle フォールバック
+  try { url = await findContactPageHumanStyle(baseUrl); } catch(e) {}
+  if (url) { console.log('[Contact Finder+] ✅ Step6 humanStyle:', url); return url; }
+
+  console.log('[Contact Finder+] ❌ Not found:', baseUrl);
+  return null;
 }
