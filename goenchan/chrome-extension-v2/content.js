@@ -5151,6 +5151,17 @@ function fillField(field, value, type, fieldType = null) {
     if (type === 'tel' || fieldType === 'phone') {
       formattedValue = formatPhoneForField(value, field);
     }
+    // zipcode1/zipcode2: 全番号が来た場合でも正しく分割
+    if (fieldType === 'zipcode1' || fieldType === 'zipcode2') {
+      const digits = (value || '').replace(/[^0-9]/g, '');
+      if (digits.length >= 7) {
+        formattedValue = fieldType === 'zipcode1' ? digits.substring(0, 3) : digits.substring(3, 7);
+      } else if (digits.length >= 3 && fieldType === 'zipcode1') {
+        formattedValue = digits.substring(0, 3);
+      } else if (digits.length > 3 && fieldType === 'zipcode2') {
+        formattedValue = digits.substring(3);
+      }
+    }
     // ふりがなフィールド: ひらがな期待→カタカナをひらがなに変換、カタカナ期待→ひらがなをカタカナに変換
     if (fieldType && (fieldType === 'name_kana' || fieldType === 'last_name_kana' || fieldType === 'first_name_kana' || fieldType === 'company_kana' || fieldType === 'nameKana' || /name_kana[12]|kana/.test(fieldType))) {
       if (expectsHiragana(field)) {
