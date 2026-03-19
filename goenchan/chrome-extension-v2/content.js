@@ -2550,6 +2550,18 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'katsuobushiou.com/contact': {
+    company_url: 'https://katsuobushiou.com/',
+    email: { selector: "input[name='email-1']", confidence: 100 },
+    name1: { selector: "input[name='text-2']", confidence: 100 },
+    tel1: { selector: "input[name='tel-3-1']", confidence: 100 },
+    tel2: { selector: "input[name='tel-3-2']", confidence: 100 },
+    tel3: { selector: "input[name='tel-3-3']", confidence: 100 },
+    zipcode1: { selector: "input[name='code-front-zip-5']", confidence: 100 },
+    zipcode2: { selector: "input[name='code-back-zip-5']", confidence: 100 },
+    address: { selector: "input[name='zip-name-zip-5']", confidence: 100 },
+    message: { selector: "textarea[name='textarea-6']", confidence: 100 }
+  },
   'www.kobayashi-foods.co.jp/inquiry': {
     company_url: 'https://www.kobayashi-foods.co.jp/',
     name1: { selector: 'input[name="your-name"]', confidence: 100 },
