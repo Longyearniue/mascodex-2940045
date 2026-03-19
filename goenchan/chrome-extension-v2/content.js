@@ -1717,20 +1717,45 @@ async function autoFillForm(profile) {
     });
   }
 
-  // C: プライバシーチェックボックス自動ON
+  // C: 必須チェックボックス・同意チェックボックス自動ON
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
     if (cb.checked) return;
+
     const attrs = [cb.name, cb.id, cb.className, cb.getAttribute('aria-label') || ''].join(' ');
-    // 近くのlabelテキストも確認
     let labelText = '';
+    // label[for]
     if (cb.id) {
       const lbl = document.querySelector(`label[for="${cb.id}"]`);
       if (lbl) labelText = lbl.textContent;
     }
+    // 親要素内のlabel
+    if (!labelText) {
+      const parent = cb.closest('label,div,li,p,tr,td');
+      if (parent) labelText = parent.textContent;
+    }
     const combined = (attrs + ' ' + labelText).toLowerCase();
-    if (/privacy|個人情報|同意|agree|consent|acceptance|プライバシー/.test(combined)) {
+
+    // チェックすべきキーワード
+    const shouldCheck =
+      // プライバシー・個人情報系
+      /privacy|個人情報|プライバシー|個情|プライバシーポリシー/.test(combined) ||
+      // 同意・承認系
+      /同意|承認|agree|consent|acceptance|承諾|了承|確認しました|確認した|読みました/.test(combined) ||
+      // メルマガ・ニュースレター系（希望する系）
+      /メルマガ|メールマガジン|newsletter|mail.*magazine|magazine.*mail|ニュースレター|新着情報|お知らせ.*希望|希望.*お知らせ|配信.*希望|希望.*配信/.test(combined) ||
+      // required属性がある
+      cb.required ||
+      // aria-required
+      cb.getAttribute('aria-required') === 'true';
+
+    // チェックしてはいけないキーワード（除外）
+    const shouldNotCheck =
+      /不要|希望しない|不希望|いいえ|no.*thanks|unsubscribe|opt.*out|配信不要|受け取らない/.test(combined);
+
+    if (shouldCheck && !shouldNotCheck) {
       cb.checked = true;
       cb.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('✅ [Checkbox] Auto-checked:', labelText.trim().substring(0, 30) || attrs.substring(0, 30));
     }
   });
 
