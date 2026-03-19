@@ -2520,6 +2520,18 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="メールアドレス"]', confidence: 100 },
     message: { selector: 'textarea[name="お問い合わせ内容"]', confidence: 100 }
   },
+  'ma-ru-ya.jp/form/inquiry': {
+    company_url: 'https://ma-ru-ya.jp/',
+    name1: { selector: "input[name='item[0][answer][0]']", confidence: 100 },
+    name_kana1: { selector: "input[name='item[1][answer][0]']", confidence: 100 },
+    zipcode: { selector: "input[name='item[2][answer][0]']", confidence: 100 },
+    prefecture: { selector: "select[name='item[3][answer][0]']", confidence: 100 },
+    city: { selector: "input[name='item[4][answer][0]']", confidence: 100 },
+    street: { selector: "input[name='item[5][answer][0]']", confidence: 100 },
+    phone: { selector: "input[name='item[6][answer][0]']", confidence: 100 },
+    email: { selector: "input[name='item[7][answer][0]']", confidence: 100 },
+    message: { selector: "textarea[name='item[8][answer][0]']", confidence: 100 }
+  },
   'www.marunaka-shouyu.com/contact': {
     company_url: 'https://www.marunaka-shouyu.com/',
     name1: { selector: 'input[name="name01"]', confidence: 100 },
