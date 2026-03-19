@@ -1528,7 +1528,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (entries.length === 0) { alert('有効なURLがありません'); return; }
 
-    const tabsPerBatch = parseInt(document.getElementById('tabsPerBatchMain')?.value || '20');
+    const tabsPerBatch = 20;
     const autoClose = document.getElementById('autoCloseEnabledMain')?.checked ?? true;
     console.log('[Batch] entries:', entries.length, 'tabsPerBatch:', tabsPerBatch);
     let profile;
