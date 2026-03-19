@@ -1563,53 +1563,46 @@ function stopBatchMainPolling() {
 }
 
 function syncBatchMainUI() {
-  // batchStatusMain の表示はsrcに合わせる
-  const srcStatus = document.getElementById('batchStatus');
-  const dstStatus = document.getElementById('batchStatusMain');
-  if (srcStatus && dstStatus) dstStatus.style.display = srcStatus.style.display;
+  chrome.runtime.sendMessage({ action: 'getBatchStatus' }, status => {
+    if (chrome.runtime.lastError || !status) return;
 
-  const copyText = (srcId, dstId) => {
-    const s = document.getElementById(srcId);
-    const d = document.getElementById(dstId);
-    if (s && d) d.textContent = s.textContent;
-  };
-  const copyStyle = (srcId, dstId, prop) => {
-    const s = document.getElementById(srcId);
-    const d = document.getElementById(dstId);
-    if (s && d) d.style[prop] = s.style[prop];
-  };
+    const show = el => { if (el) el.style.display = 'block'; };
+    const hide = el => { if (el) el.style.display = 'none'; };
+    const setText = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    const setWidth = (id, pct) => { const e = document.getElementById(id); if (e) e.style.width = pct + '%'; };
 
-  // 検索フェーズ
-  const findPhase = document.getElementById('findingContactsPhase');
-  const findPhaseMain = document.getElementById('findingContactsPhaseMain');
-  if (findPhase && findPhaseMain) findPhaseMain.style.display = findPhase.style.display;
-  copyText('contactSearchProgress', 'contactSearchProgressMain');
-  copyText('validUrlCount', 'validUrlCountMain');
-  copyText('skippedUrlCount', 'skippedUrlCountMain');
-  copyStyle('contactSearchBar', 'contactSearchBarMain', 'width');
+    const statusDiv = document.getElementById('batchStatusMain');
+    if (statusDiv) statusDiv.style.display = status.isRunning ? 'block' : 'none';
 
-  // タブフェーズ
-  const tabPhase = document.getElementById('openingTabsPhase');
-  const tabPhaseMain = document.getElementById('openingTabsPhaseMain');
-  if (tabPhase && tabPhaseMain) tabPhaseMain.style.display = tabPhase.style.display;
-  copyText('batchProgress', 'batchProgressMain');
-  copyText('openTabsCount', 'openTabsCountMain');
-  copyStyle('batchProgressBar', 'batchProgressBarMain', 'width');
-  copyText('batchSummaryText', 'batchSummaryTextMain');
+    if (status.processingPhase === 'finding_contacts') {
+      show(document.getElementById('findingContactsPhaseMain'));
+      hide(document.getElementById('openingTabsPhaseMain'));
+      const processed = (status.validCount || 0) + (status.skippedCount || 0);
+      const total = status.total || 1;
+      setText('contactSearchProgressMain', processed + '/' + total);
+      setText('validUrlCountMain', status.validCount || 0);
+      setText('skippedUrlCountMain', status.skippedCount || 0);
+      setWidth('contactSearchBarMain', Math.round(processed / total * 100));
+      setText('batchSummaryTextMain', '🔍 コンタクトページ検索中... ' + processed + '/' + total + '件');
+    } else if (status.processingPhase === 'opening_tabs') {
+      hide(document.getElementById('findingContactsPhaseMain'));
+      show(document.getElementById('openingTabsPhaseMain'));
+      const cur = status.currentIndex || 0;
+      const tot = status.validCount || 1;
+      setText('batchProgressMain', cur + '/' + tot);
+      setText('openTabsCountMain', status.openTabs || 0);
+      setWidth('batchProgressBarMain', Math.round(cur / tot * 100));
+      setText('batchSummaryTextMain', '📨 タブ送信中... ' + cur + '/' + tot + '件');
+    }
 
-  // ボタン状態
-  const startBtn = document.getElementById('startBatch');
-  const nextBtn = document.getElementById('nextBatch');
-  const stopBtn = document.getElementById('stopBatch');
-  const sm = document.getElementById('startBatchMain');
-  const nm = document.getElementById('nextBatchMain');
-  const stm = document.getElementById('stopBatchMain');
-  if (sm && startBtn) sm.disabled = startBtn.disabled;
-  if (nm && nextBtn) nm.disabled = nextBtn.disabled;
-  if (stm && stopBtn) stm.disabled = stopBtn.disabled;
-
-  // 完了したらポーリング停止
-  if (startBtn && !startBtn.disabled) stopBatchMainPolling();
+    if (!status.isRunning) {
+      stopBatchMainPolling();
+      document.getElementById('startBatchMain').disabled = false;
+      document.getElementById('nextBatchMain').disabled = true;
+      document.getElementById('stopBatchMain').disabled = true;
+      setText('batchSummaryTextMain', '✅ バッチ完了 (有効: ' + (status.validCount||0) + '件 / スキップ: ' + (status.skippedCount||0) + '件)');
+    }
+  });
 }
 
 // =============================================================================
