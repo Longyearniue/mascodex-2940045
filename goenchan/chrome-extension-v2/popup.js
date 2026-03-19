@@ -1477,6 +1477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // バッチ開始
   document.getElementById('startBatchMain')?.addEventListener('click', async () => {
+    try {
     const urlsText = document.getElementById('batchUrlsMain')?.value?.trim() || '';
     if (!urlsText) { alert('URLを入力してください'); return; }
 
@@ -1493,11 +1494,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tabsPerBatch = parseInt(document.getElementById('tabsPerBatchMain')?.value || '20');
     const autoClose = document.getElementById('autoCloseEnabledMain')?.checked ?? true;
-    const profile = await getCurrentProfileWithTemplate();
+    console.log('[Batch] entries:', entries.length, 'tabsPerBatch:', tabsPerBatch);
+    let profile;
+    try {
+      profile = await getCurrentProfileWithTemplate();
+      console.log('[Batch] profile loaded:', profile.name, profile.email);
+    } catch(pe) {
+      alert('プロフィール取得エラー: ' + pe.message);
+      return;
+    }
 
     await chrome.storage.local.set({ batchUrls: urlsText, batchAutoCloseEnabled: autoClose });
 
-    await chrome.runtime.sendMessage({
+    console.log('[Batch] Sending startBatch message...');
+    const resp = await chrome.runtime.sendMessage({
       action: 'startBatch',
       urls: entries.map(e => e.url),
       entries: entries,
@@ -1505,11 +1515,17 @@ document.addEventListener('DOMContentLoaded', () => {
       tabsPerBatch: tabsPerBatch,
       autoCloseEnabled: autoClose
     });
+    console.log('[Batch] startBatch response:', resp);
+    if (!resp || !resp.success) {
+      alert('バッチ開始失敗: ' + JSON.stringify(resp));
+      return;
+    }
 
     document.getElementById('startBatchMain').disabled = true;
     document.getElementById('nextBatchMain').disabled = false;
     document.getElementById('stopBatchMain').disabled = false;
     startBatchMainPolling();
+    } catch(e) { alert('バッチ開始エラー: ' + e.message); console.error(e); }
   });
 
   document.getElementById('nextBatchMain')?.addEventListener('click', () => {
