@@ -3015,6 +3015,16 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="your-email_confirm"]', confidence: 100 },
     phone: { selector: 'input[name="your-tel"]', confidence: 100 },
   },
+  'www.mccfoods.co.jp/contact': {
+    company_url: 'https://www.mccfoods.co.jp/',
+    name: { selector: 'input[name="name"]', confidence: 100 },
+    nameKana: { selector: 'input[name="readname"]', confidence: 100 },
+    phone: { selector: 'input[name="tel"]', confidence: 100 },
+    email: { selector: 'input[name="mail"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="mail_check"]', confidence: 100 },
+    prefecture: { selector: 'select[name="prefectures"]', confidence: 100 },
+    message: { selector: 'textarea[name="content"]', confidence: 100 },
+  },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
     name1: { selector: 'input[name="氏名"]', confidence: 100 },
