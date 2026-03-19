@@ -1720,13 +1720,18 @@ function scoreContactLink(url, linkText) {
   return score;
 }
 
-// 方法2: footer優先DOM解析
+// 方法2: header + footer DOM解析
 async function findContactByFooterScan(html, baseUrl) {
   if (!html) return null;
   let domain;
   try { domain = new URL(baseUrl).hostname; } catch(e) { return null; }
+
+  // header と footer を抽出して優先スキャン、なければ全体
+  const headerMatch = html.match(/<header[\s\S]*?<\/header>/i);
   const footerMatch = html.match(/<footer[\s\S]*?<\/footer>/i);
-  const scanHtml = footerMatch ? footerMatch[0] : html;
+  const priorityHtml = (headerMatch ? headerMatch[0] : '') + (footerMatch ? footerMatch[0] : '');
+  const scanHtml = priorityHtml || html;
+
   const links = [...scanHtml.matchAll(/<a[^>]+href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
   const candidates = [];
   for (const [, href, rawText] of links) {
