@@ -1167,8 +1167,10 @@ function inferFieldTypeFromLabel(label) {
     return 'name_kana';
   }
   if (/会社|企業|法人|company|corporation/.test(l)) return 'company';
-  if (/^姓$|^せい$|last.*name|surname|family.*name|名字|みょうじ/.test(l)) return 'last_name';
-  if (/^名$|^めい$|first.*name|given.*name|^名前$/.test(l)) return 'first_name';
+  // 姓のみ（単独）: 「姓」「sei」「last」含むがfull/氏名でない
+  if (/姓|^sei$|lastname|last_name|surname|family.*name|名字|みょうじ/.test(l) && !/氏名|フリガナ|kana/.test(l)) return 'last_name';
+  // 名のみ（単独）: 「名」含むが「お名前」「氏名」「会社名」でない
+  if ((/^名$|^mei$|firstname|first_name|given.*name/.test(l) || (l === '名')) && !/氏名|お名前|会社名|企業名|フリガナ|kana/.test(l)) return 'first_name';
   if (/名前|氏名|お名前|姓名|fullname|yourname/.test(l)) return 'name';
   if (/メール|email|mail/.test(l)) return 'email';
   if (/電話|tel|phone|携帯/.test(l)) return 'phone';
@@ -1357,6 +1359,7 @@ async function autoFillForm(profile) {
   }
 
   // Layer 0: Fingerprint engine
+  const fpFilledEls = new Set(); // 指紋エンジンが埋めたフィールドを記録
   const fpSystem = detectFormSystem();
   if (fpSystem) {
     const fields = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), textarea, select');
@@ -1365,9 +1368,43 @@ async function autoFillForm(profile) {
       const fieldType = fpSystem.mapper(el);
       if (!fieldType) return;
       const value = getProfileValue(profile, fieldType);
-      if (value) fillField(el, value, el.type, fieldType);
+      if (value) { fillField(el, value, el.type, fieldType); fpFilledEls.add(el); }
     });
   }
+
+  // 指紋エンジンで埋めたフィールドをスキップするヘルパー
+  const isAlreadyFilled = el => fpFilledEls.has(el);
+
+  // Layer 0b: 姓/名フィールド専用検出（label/placeholder解析）
+  document.querySelectorAll('input[type="text"], input:not([type])').forEach(el => {
+    if (!isVisible(el) || isAlreadyFilled(el)) return;
+    const label = getFieldLabel ? getFieldLabel(el) : '';
+    const cleaned = label.replace(/[（）()\[\]【】*＊\s　必須required]/g, '').trim();
+    const attrs = (el.name + ' ' + el.id + ' ' + el.placeholder).toLowerCase();
+
+    let fieldType = null;
+    // 姓判定
+    if (/^姓$|^せい$/.test(cleaned) || /^last.?name$|^sei$|^family.?name$/.test(attrs)) {
+      fieldType = 'last_name';
+    }
+    // 名判定（「名」単独、かつ「お名前」「氏名」「会社名」でない）
+    else if (/^名$|^めい$/.test(cleaned) || /^first.?name$|^mei$|^given.?name$/.test(attrs)) {
+      fieldType = 'first_name';
+    }
+    // 姓カナ
+    else if (/^セイ$|^せい$/.test(cleaned) && /kana|furi|カナ|かな/.test(label.toLowerCase())) {
+      fieldType = 'last_name_kana';
+    }
+    // 名カナ
+    else if (/^メイ$|^めい$/.test(cleaned) && /kana|furi|カナ|かな/.test(label.toLowerCase())) {
+      fieldType = 'first_name_kana';
+    }
+
+    if (fieldType) {
+      const value = getProfileValue(profile, fieldType);
+      if (value) { fillField(el, value, el.type, fieldType); fpFilledEls.add(el); }
+    }
+  });
 
   // Check for pre-configured site mappings FIRST
   let siteMapping = null;
