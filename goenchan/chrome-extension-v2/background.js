@@ -128,7 +128,7 @@ ${profileText}
         if (screenshotDataUrl) {
           const base64 = screenshotDataUrl.split(',')[1];
           const mediaType = screenshotDataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
-          contentArr.unshift({ type: 'image_url', image_url: { url: \`data:\${mediaType};base64,\${base64}\` } });
+          contentArr.unshift({ type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } });
         }
 
         let values = null;
@@ -138,7 +138,7 @@ ${profileText}
           try {
             const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': \`Bearer \${apiKey}\` },
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
               body: JSON.stringify({
                 model,
                 max_tokens: 1024,
@@ -152,7 +152,7 @@ ${profileText}
             const match = text.match(/\[.*?\]/s);
             if (!match) { lastError = 'No JSON array: ' + text.substring(0,100); continue; }
             values = JSON.parse(match[0]);
-            console.log(\`🤖 [AI attempt \${attempt+1}] Success: \${values.length} values\`);
+            console.log(`🤖 [AI attempt ${attempt+1}] Success: ${values.length} values`);
             break;
           } catch (e) { lastError = e.message; console.log('[AI] Error:', e.message); }
         }
@@ -180,9 +180,7 @@ ${profileText}
   if (message.action === 'aiVisionClassifyFields') {
     message.screenshotDataUrl = message.imageDataUrl;
     message.action = 'aiClassifyFields';
-    // aiClassifyFields として再処理
-    const apiKeyData2 = await chrome.storage.sync.get(['deepseekApiKey']).catch(()=>({}));
-    // fallback: forward as new message
+    // forward as aiClassifyFields
     chrome.runtime.sendMessage(message, sendResponse);
     return true;
   }
