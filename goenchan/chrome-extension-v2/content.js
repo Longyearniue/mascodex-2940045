@@ -1362,7 +1362,11 @@ async function autoFillForm(profile) {
 
     if (fieldType) {
       const value = getProfileValue(profile, fieldType);
-      if (value) { fillField(el, value, el.type, fieldType); fpFilledEls.add(el); }
+      if (value) {
+        fillField(el, value, el.type, fieldType);
+        el.dataset.autofilledSplit = '1'; // 後続レイヤーの上書きを防ぐ
+        fpFilledEls.add(el);
+      }
     }
   });
 
@@ -4196,6 +4200,8 @@ function setNativeValue(el, value) {
 }
 
 function fillField(field, value, type, fieldType = null) {
+  // Layer 0b で姓/名分割済みフィールドは上書きしない
+  if (field.dataset.autofilledSplit === '1') return;
   if (type === 'checkbox' || type === 'radio') {
     field.checked = !!value;
   } else if (type === 'select' || field.tagName === 'SELECT') {
