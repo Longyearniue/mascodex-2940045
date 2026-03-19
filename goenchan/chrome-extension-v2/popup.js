@@ -264,7 +264,7 @@ document.getElementById('saveProfile').addEventListener('click', async () => {
 
   const deepseekApiKey = document.getElementById('deepseekApiKey').value.trim();
   await chrome.storage.sync.set({ profile, autoFillEnabled, deepseekApiKey });
-  showStatus('✅ プロフィールを保存しました！', 'success');
+  const ps = document.getElementById('profileStatus'); if (ps) { ps.textContent = '✅ プロフィールを保存しました！'; ps.className = 'status show status-success'; setTimeout(() => ps.classList.remove('show'), 3000); }
 });
 
 // Auto Fill button
