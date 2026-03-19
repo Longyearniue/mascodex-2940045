@@ -1467,8 +1467,10 @@ function getPlatformMappings(platform) {
       message: ['textarea[name*="contents"]', 'textarea[name*="body"]']
     },
     'wordpress': {
-      name: ['input[name*="your-name"]', 'input[name*="fullname"]'],
-      email: ['input[name*="your-email"]', 'input[name*="email"]'],
+      name: ['input[name*="your-name"]:not([name*="kana"])', 'input[name*="fullname"]'],
+      nameKana: ['input[name*="your-name-kana"]', 'input[name*="kana"]'],
+      email: ['input[name*="your-email"]:not([name*="confirm"])', 'input[name*="email"]:not([name*="confirm"])'],
+      email_confirm: ['input[name*="your-email_confirm"]', 'input[name*="email_confirm"]', 'input[name*="email-confirm"]'],
       phone: ['input[name*="your-tel"]', 'input[name*="tel"]'],
       message: ['textarea[name*="your-message"]', 'textarea[name*="message"]']
     },
@@ -3004,6 +3006,14 @@ const SITE_MAPPINGS = {
     email: { selector: 'input[name="email"]', confidence: 100 },
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 },
+  },
+  'yamaguchi-sk.net/contact': {
+    company_url: 'https://yamaguchi-sk.net/',
+    name: { selector: 'input[name="your-name"]', confidence: 100 },
+    nameKana: { selector: 'input[name="your-name-kana"]', confidence: 100 },
+    email: { selector: 'input[name="your-email"]', confidence: 100 },
+    email_confirm: { selector: 'input[name="your-email_confirm"]', confidence: 100 },
+    phone: { selector: 'input[name="your-tel"]', confidence: 100 },
   },
   'www.yokoo.co.jp': {
     company_url: 'https://www.yokoo.co.jp/',
