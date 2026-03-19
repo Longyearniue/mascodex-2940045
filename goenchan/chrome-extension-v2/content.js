@@ -2550,6 +2550,15 @@ const SITE_MAPPINGS = {
     email_confirm: { selector: 'input[name="email02"]', confidence: 100 },
     message: { selector: 'textarea[name="contents"]', confidence: 100 }
   },
+  'suigei.co.jp/contact': {
+    company_url: 'https://suigei.co.jp/',
+    name1: { selector: 'input[name="text-name"]', confidence: 100 },
+    company: { selector: 'input[name="text-company"]', confidence: 100 },
+    address: { selector: 'input[name="text-add"]', confidence: 100 },
+    phone: { selector: 'input[name="text-tel"]', confidence: 100 },
+    email: { selector: 'input[name="text-mail"]', confidence: 100 },
+    message: { selector: 'textarea[name="textarea"]', confidence: 100 }
+  },
   'shop.sakekaika.co.jp/ssl/contact': {
     company_url: 'https://shop.sakekaika.co.jp/',
     name1: { selector: 'input[name="name"]', confidence: 100 },
