@@ -5172,6 +5172,24 @@ function parseAddress(fullAddress) {
 }
 
 function getProfileValue(profile, key) {
+  // エイリアス正規化: tel1→phone1, email_confirm→emailConfirm など
+  const keyAliases = {
+    tel1: 'phone1', tel2: 'phone2', tel3: 'phone3',
+    phone: 'phone',
+    email_confirm: 'emailConfirm', confirm_email: 'emailConfirm', mail_confirm: 'emailConfirm',
+    zip1: 'zipcode1', zip2: 'zipcode2', zip: 'zipcode',
+    addr: 'address', pref: 'prefecture',
+    sei: 'lastName', mei: 'firstName',
+    sei_kana: 'lastNameKana', mei_kana: 'firstNameKana',
+  };
+  if (keyAliases[key]) key = keyAliases[key];
+
+  // emailConfirm: メールアドレス確認
+  if (key === 'emailConfirm') return profile.email || '';
+
+  // phone: 電話番号全体
+  if (key === 'phone') return profile.phone || '';
+
   // nameKana: 全体フリガナ（姓名一体）
   if (key === 'nameKana' || key === 'name_kana' || key === 'kana') {
     const fullKana = ((profile.lastNameKana || profile.last_name_kana || '') + ' ' + (profile.firstNameKana || profile.first_name_kana || '')).trim();
