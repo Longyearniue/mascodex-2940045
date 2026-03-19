@@ -1635,15 +1635,16 @@ function syncBatchMainUI() {
       setText('skippedUrlCountMain', status.skippedCount || 0);
       setWidth('contactSearchBarMain', Math.round(processed / total * 100));
       setText('batchSummaryTextMain', '🔍 コンタクトページ検索中... ' + processed + '/' + total + '件');
-    } else if (status.processingPhase === 'opening_tabs') {
+    } else if (status.processingPhase === 'running' || status.processingPhase === 'opening_tabs') {
       hide(document.getElementById('findingContactsPhaseMain'));
       show(document.getElementById('openingTabsPhaseMain'));
       const cur = status.currentIndex || 0;
       const tot = status.validCount || 1;
+      const openCnt = status.openTabs || 0;
       setText('batchProgressMain', cur + '/' + tot);
-      setText('openTabsCountMain', status.openTabs || 0);
+      setText('openTabsCountMain', openCnt);
       setWidth('batchProgressBarMain', Math.round(cur / tot * 100));
-      setText('batchSummaryTextMain', '📨 タブ送信中... ' + cur + '/' + tot + '件');
+      setText('batchSummaryTextMain', '📨 タブ送信中... ' + cur + '/' + tot + '件 (開中: ' + openCnt + ')');
     }
 
     if (!status.isRunning) {
