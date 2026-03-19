@@ -1483,8 +1483,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el && d.batchUrls) el.value = d.batchUrls;
   });
 
-  // バッチ開始
-  document.getElementById('startBatchMain')?.addEventListener('click', async () => {
+  // バッチ開始（二重登録防止）
+  const _startBtn = document.getElementById('startBatchMain');
+  if (_startBtn && !_startBtn._bound) {
+  _startBtn._bound = true;
+  _startBtn.addEventListener('click', async () => {
     try {
     const urlsText = document.getElementById('batchUrlsMain')?.value?.trim() || '';
     if (!urlsText) { alert('URLを入力してください'); return; }
@@ -1549,6 +1552,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nextBatchMain').disabled = true;
     document.getElementById('stopBatchMain').disabled = true;
   });
+  } // end if !_bound
 });
 
 let batchMainPollTimer = null;

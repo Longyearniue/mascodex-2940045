@@ -1562,6 +1562,7 @@ async function findContactUrlFromSitemap(baseUrl) {
     new URL('/sitemap.html', baseUrl).href
   ];
   const contactPattern = /contact|inquiry|otoiawase|toiawase|form|mail|お問|問合/i;
+  const skipPattern = /\.css|\.(js|png|jpg|gif|svg|ico|woff|ttf|pdf|zip)(\?|$)/i;
 
   const results = await Promise.allSettled(
     sitemapUrls.map(su => fetchWithTimeout(su, {
@@ -1579,7 +1580,7 @@ async function findContactUrlFromSitemap(baseUrl) {
     const hrefMatch = text.matchAll(/href=["']([^"']+)["']/g);
     for (const m of hrefMatch) locs.push(m[1]);
 
-    const match = locs.find(u => contactPattern.test(u));
+    const match = locs.find(u => contactPattern.test(u) && !skipPattern.test(u));
     if (match) return match.startsWith('http') ? match : new URL(match, baseUrl).href;
   }
   return null;
