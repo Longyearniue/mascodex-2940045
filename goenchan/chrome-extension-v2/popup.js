@@ -1392,18 +1392,39 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // バッチ開始
-  document.getElementById('startBatchMain')?.addEventListener('click', () => {
-    const urls = document.getElementById('batchUrlsMain')?.value || '';
-    const tabs = document.getElementById('tabsPerBatchMain')?.value || '10';
+  document.getElementById('startBatchMain')?.addEventListener('click', async () => {
+    const urlsText = document.getElementById('batchUrlsMain')?.value?.trim() || '';
+    if (!urlsText) { alert('URLを入力してください'); return; }
+
+    const entries = urlsText.split('\n').map(line => line.trim()).filter(Boolean).map(line => {
+      const parts = line.split(',').map(p => p.trim());
+      if (parts.length >= 2 && parts[1].startsWith('http')) {
+        return { companyName: parts[0], url: parts[1], fax: parts[2]||'', prefecture: parts[3]||'', city: parts[4]||'' };
+      }
+      if (line.startsWith('http')) return { url: line, companyName: '', fax: '', prefecture: '', city: '' };
+      return null;
+    }).filter(e => e && e.url);
+
+    if (entries.length === 0) { alert('有効なURLがありません'); return; }
+
+    const tabsPerBatch = parseInt(document.getElementById('tabsPerBatchMain')?.value || '20');
     const autoClose = document.getElementById('autoCloseEnabledMain')?.checked ?? true;
-    // プロフィールタブのUIに値を同期してから既存ロジックを呼ぶ
-    const sub = document.getElementById('batchUrls');
-    const subTabs = document.getElementById('tabsPerBatch');
-    const subClose = document.getElementById('autoCloseEnabled');
-    if (sub) sub.value = urls;
-    if (subTabs) subTabs.value = tabs;
-    if (subClose) subClose.checked = autoClose;
-    document.getElementById('startBatch')?.click();
+    const profile = getCurrentProfile();
+
+    await chrome.storage.local.set({ batchUrls: urlsText, batchAutoCloseEnabled: autoClose });
+
+    await chrome.runtime.sendMessage({
+      action: 'startBatch',
+      urls: entries.map(e => e.url),
+      entries: entries,
+      profile: profile,
+      tabsPerBatch: tabsPerBatch,
+      autoCloseEnabled: autoClose
+    });
+
+    document.getElementById('startBatchMain').disabled = true;
+    document.getElementById('nextBatchMain').disabled = false;
+    document.getElementById('stopBatchMain').disabled = false;
     startBatchMainPolling();
   });
 
