@@ -127,23 +127,26 @@ function startBatchStatusInterval() {
 
 // Setup collapsible sections
 function setupCollapsibles() {
-  document.getElementById('profileToggle').addEventListener('click', () => {
+  document.getElementById('profileToggle')?.addEventListener('click', () => {
     const content = document.getElementById('profileContent');
     const toggle = document.getElementById('profileToggle');
+    if (!content || !toggle) return;
     content.classList.toggle('show');
     toggle.textContent = content.classList.contains('show') ? '▼ Profile Settings' : '▶ Profile Settings';
   });
 
-  document.getElementById('bulkCrawlerToggle').addEventListener('click', () => {
+  document.getElementById('bulkCrawlerToggle')?.addEventListener('click', () => {
     const content = document.getElementById('bulkCrawlerContent');
     const toggle = document.getElementById('bulkCrawlerToggle');
+    if (!content || !toggle) return;
     content.classList.toggle('show');
     toggle.textContent = content.classList.contains('show') ? '▼ Bulk Site Crawler' : '▶ Bulk Site Crawler';
   });
 
-  document.getElementById('batchModeToggle').addEventListener('click', () => {
+  document.getElementById('batchModeToggle')?.addEventListener('click', () => {
     const content = document.getElementById('batchModeContent');
     const toggle = document.getElementById('batchModeToggle');
+    if (!content || !toggle) return;
     content.classList.toggle('show');
     toggle.textContent = content.classList.contains('show') ? '▼ Batch Mode (一括送信)' : '▶ Batch Mode (一括送信)';
   });
