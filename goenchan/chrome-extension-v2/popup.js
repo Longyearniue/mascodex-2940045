@@ -1219,6 +1219,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         ⏳ 処理中: <strong>${s.pending}</strong>件
       `;
     }
+  } else if (message.action === 'contactSearchStep') {
+    const el = document.getElementById('contactSearchCurrentUrl');
+    if (el) el.textContent = `${message.label}  ―  ${message.url}`;
+    // Main タブの同要素も更新
+    const elMain = document.getElementById('contactSearchCurrentUrlMain');
+    if (elMain) elMain.textContent = `${message.label}  ―  ${message.url}`;
+
   } else if (message.action === 'batchPhaseUpdate') {
     document.getElementById('batchStatus').style.display = 'block';
 

@@ -1827,44 +1827,59 @@ async function findContactByAI(html, baseUrl, apiKey) {
 
 // 統合オーケストレーター（Google検索除く）
 async function findContactPageEnhanced(baseUrl) {
-  console.log('[Contact Finder+] Starting for:', baseUrl);
+  const short = baseUrl.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 40);
+
+  const notify = (step, label) => {
+    chrome.runtime.sendMessage({
+      action: 'contactSearchStep',
+      url: short,
+      step,
+      label
+    }).catch(() => {});
+  };
 
   // Step 1: 既存の高速チェック（サイトマップ + 並列HEAD）
+  notify(1, `📡 サイトマップ確認中`);
   let url = null;
   try { url = await findContactPageClientSide(baseUrl); } catch(e) {}
-  if (url) { console.log('[Contact Finder+] ✅ Step1 sitemap/HEAD:', url); return url; }
+  if (url) { notify(1, `✅ サイトマップで発見`); return url; }
 
   // Step 2: HTMLを1回取得して以降のステップで共有
+  notify(2, `🌐 HTMLを取得中`);
   let html = '';
   try {
     const res = await fetch(baseUrl, { headers: { 'User-Agent': 'Mozilla/5.0' }, signal: AbortSignal.timeout(6000) });
     html = await res.text();
   } catch(e) {}
 
-  // Step 3: footer DOM解析 + ブルートフォース を並列
+  // Step 3: header/footer DOM解析 + ブルートフォース を並列
+  notify(3, `🦶 header/footer + ブルートフォース`);
   const [footerResult, bruteResult] = await Promise.allSettled([
     findContactByFooterScan(html, baseUrl),
     findContactByBruteForce(baseUrl),
   ]);
   url = (footerResult.status === 'fulfilled' ? footerResult.value : null)
       || (bruteResult.status === 'fulfilled' ? bruteResult.value : null);
-  if (url) { console.log('[Contact Finder+] ✅ Step3 footer/brute:', url); return url; }
+  if (url) { notify(3, `✅ header/footer/brute で発見`); return url; }
 
   // Step 4: Wayback Machine
+  notify(4, `🕰️ Wayback Machine 検索中`);
   try { url = await findContactByWayback(baseUrl); } catch(e) {}
-  if (url) { console.log('[Contact Finder+] ✅ Step4 Wayback:', url); return url; }
+  if (url) { notify(4, `✅ Wayback で発見`); return url; }
 
   // Step 5: AI リンクスコアリング
+  notify(5, `🤖 AI リンク解析中`);
   try {
     const storage = await chrome.storage.sync.get(['anthropicApiKey']);
     url = await findContactByAI(html, baseUrl, storage.anthropicApiKey);
   } catch(e) {}
-  if (url) { console.log('[Contact Finder+] ✅ Step5 AI:', url); return url; }
+  if (url) { notify(5, `✅ AI で発見`); return url; }
 
   // Step 6: 既存の humanStyle フォールバック
+  notify(6, `🧭 ナビゲーション探索中`);
   try { url = await findContactPageHumanStyle(baseUrl); } catch(e) {}
-  if (url) { console.log('[Contact Finder+] ✅ Step6 humanStyle:', url); return url; }
+  if (url) { notify(6, `✅ ナビゲーションで発見`); return url; }
 
-  console.log('[Contact Finder+] ❌ Not found:', baseUrl);
+  notify(0, `❌ 未発見`);
   return null;
 }
