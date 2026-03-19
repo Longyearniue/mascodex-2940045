@@ -1333,17 +1333,23 @@ async function autoFillForm(profile) {
         }
       }
 
-      // Fallback: fetch from API if no pre-generated message
-      if (!globalSalesLetter) {
+      // ユーザーが原稿タブでメッセージを設定済みの場合はAPIをスキップ
+      const hasUserTemplate = profile.message && profile.message.trim().length > 0;
+      if (hasUserTemplate) {
+        console.log('📝 Using user template from 原稿 tab, skipping API');
+        globalSalesLetter = null; // APIを使わない
+      } else if (!globalSalesLetter) {
+        // 原稿なし＆バッチ事前生成もない場合のみAPIを呼ぶ
         globalSalesLetter = await fetchSalesLetter(companyUrl);
       }
 
       if (globalSalesLetter) {
         console.log('✅ Sales letter ready, length:', globalSalesLetter.length);
-        // Also update profile.message so it's used by all layers
         profile = { ...profile, message: globalSalesLetter };
+      } else if (hasUserTemplate) {
+        console.log('✅ Using user-set message template');
       } else {
-        console.log('⚠️ No sales letter returned, using profile.message as fallback');
+        console.log('⚠️ No message available');
       }
     } catch (error) {
       console.error('❌ Error fetching sales letter:', error);
