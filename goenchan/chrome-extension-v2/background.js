@@ -1,5 +1,31 @@
 // Background script for batch mode tab management
 
+// ============================================================
+// SERVICE WORKER キープアライブ（バッチ中はスリープさせない）
+// ============================================================
+const KEEPALIVE_ALARM = 'goen-keepalive';
+
+chrome.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name === KEEPALIVE_ALARM) {
+    // バッチ動作中のみ継続
+    if (batchState && batchState.isRunning) {
+      console.log('[KeepAlive] Service worker kept alive, batch running...');
+    } else {
+      chrome.alarms.clear(KEEPALIVE_ALARM);
+    }
+  }
+});
+
+function startKeepAlive() {
+  chrome.alarms.create(KEEPALIVE_ALARM, { periodInMinutes: 0.4 }); // 24秒ごと
+  console.log('[KeepAlive] Started');
+}
+
+function stopKeepAlive() {
+  chrome.alarms.clear(KEEPALIVE_ALARM);
+  console.log('[KeepAlive] Stopped');
+}
+
 // Worker API endpoint
 const WORKER_API_URL = 'https://crawler-worker-teamb.taiichifox.workers.dev';
 
@@ -306,6 +332,7 @@ ${profileText}
 // Start batch process
 async function startBatchProcess(urls, profile, tabsPerBatch, autoCloseEnabled = true, entries = null) {
   console.log('[Batch] Starting batch process with', urls.length, 'URLs');
+  startKeepAlive();
   console.log('[Batch] Auto-close enabled:', autoCloseEnabled);
   if (entries) {
     console.log('[Batch] CSV entries provided:', entries.length);
@@ -367,6 +394,7 @@ async function startBatchProcess(urls, profile, tabsPerBatch, autoCloseEnabled =
     console.log('[Batch] No contact pages found for any URL');
     batchState.isRunning = false;
     batchState.processingPhase = 'idle';
+    stopKeepAlive();
     await chrome.storage.local.set({ batchMode: false });
 
     chrome.runtime.sendMessage({
@@ -1073,6 +1101,7 @@ async function openNextBatch() {
     console.log(`[Batch] startIndex: ${startIndex}, validUrls.length: ${batchState.validUrls.length}`);
     batchState.isRunning = false;
     batchState.processingPhase = 'idle';
+    stopKeepAlive();
     await chrome.storage.local.set({ batchMode: false });
 
     // Notify popup
@@ -1139,6 +1168,7 @@ function markTabCompleted(tabId) {
 
 // Stop batch process
 async function stopBatchProcess() {
+  stopKeepAlive();
   console.log('[Batch] Stopping batch process');
   batchState.isRunning = false;
   batchState.processingPhase = 'idle';
