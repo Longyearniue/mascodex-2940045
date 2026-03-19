@@ -2048,6 +2048,9 @@ async function autoFillForm(profile) {
     await pass6FillFromIntercepted(profile);
   }
 
+  // Pass 7: AI最終確認 — 空の必須フィールドをAIが検出してバナー表示
+  await pass7AIVerify(profile);
+
   // Record learning data for future visits
   await recordLearning(profile);
 
@@ -4546,11 +4549,12 @@ function detectFieldType(field) {
         }
       }
       // Check for patterns indicating first, second, or third field
-      else if (attrs.match(/tel.*1|phone.*1|電話.*1|前|first/i)) {
+      // tel01/phone01 は分割なし全体フィールドなので除外（tel1/tel_1 のみ対象）
+      else if (attrs.match(/tel[_-]1|phone[_-]1|tel1(?!1)|phone1(?!1)|電話.*1|前|first/i) && !attrs.match(/tel0[123]/i)) {
         bestMatch = 'phone1';
-      } else if (attrs.match(/tel.*2|phone.*2|電話.*2|中|middle|second/i)) {
+      } else if (attrs.match(/tel[_-]2|phone[_-]2|tel2(?!2)|phone2(?!2)|電話.*2|中|middle|second/i) && !attrs.match(/tel0[123]/i)) {
         bestMatch = 'phone2';
-      } else if (attrs.match(/tel.*3|phone.*3|電話.*3|後|last|third/i)) {
+      } else if (attrs.match(/tel[_-]3|phone[_-]3|tel3(?!3)|phone3(?!3)|電話.*3|後|last|third/i) && !attrs.match(/tel0[123]/i)) {
         bestMatch = 'phone3';
       }
       // If still ambiguous, check label
@@ -5682,4 +5686,86 @@ async function pass6FillFromIntercepted(profile) {
   } catch (e) {
     console.log('🔍 [Pass 6] Fill error:', e.message);
   }
+}
+
+// =============================================================================
+// PASS 7: AI最終確認 — 空フィールドを検出してバナーで警告
+// =============================================================================
+async function pass7AIVerify(profile) {
+  // 全可視フィールドを収集
+  const allFields = Array.from(document.querySelectorAll(
+    'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="file"]), textarea, select'
+  )).filter(el => isVisible(el));
+
+  // 空フィールドを抽出（checkboxやradioで選択済みは除外）
+  const emptyFields = allFields.filter(el => {
+    if (el.type === 'checkbox' || el.type === 'radio') return false;
+    if (el.tagName.toLowerCase() === 'select') return el.selectedIndex <= 0;
+    return !el.value || !el.value.trim();
+  });
+
+  if (emptyFields.length === 0) return; // 全部埋まっている
+
+  // 各空フィールドの情報を収集
+  const fieldInfos = emptyFields.map(el => {
+    const label = getFieldLabel(el) || el.placeholder || el.name || el.id || '不明';
+    const required = el.required || el.getAttribute('aria-required') === 'true' || el.closest('.required, [class*="required"]') !== null;
+    return { el, label, required, name: el.name || el.id };
+  });
+
+  const requiredEmpty = fieldInfos.filter(f => f.required);
+
+  // APIキーがあれば AI に何を入れるべきか聞く
+  let aiSuggestions = [];
+  try {
+    const storage = await new Promise(r => chrome.storage.sync.get(['anthropicApiKey'], r));
+    const apiKey = storage.anthropicApiKey;
+    if (apiKey && fieldInfos.length > 0) {
+      const fieldList = fieldInfos.map(f => `- ${f.label}（name="${f.name}"）${f.required ? ' ※必須' : ''}`).join('\n');
+      const profileSummary = `名前: ${profile.name || ''}, 会社: ${profile.company || ''}, メール: ${profile.email || ''}, 電話: ${profile.phone || ''}, 住所: ${profile.prefecture || ''}${profile.city || ''}`;
+      const prompt = `フォームに以下の空フィールドが残っています。プロフィール情報をもとに、各フィールドに何を入力すべきか日本語で短く説明してください（入力値候補も）。\n\nプロフィール: ${profileSummary}\n\n空フィールド:\n${fieldList}\n\n各フィールドを「フィールド名: 説明（候補値）」形式で返してください。`;
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
+      });
+      const data = await res.json();
+      const text = data.content?.[0]?.text || '';
+      if (text) aiSuggestions = text.split('\n').filter(l => l.trim());
+    }
+  } catch(e) {}
+
+  // バナーに空フィールドリストとAI提案を表示
+  const existingAI = document.getElementById('goenchan-ai-verify-banner');
+  if (existingAI) existingAI.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'goenchan-ai-verify-banner';
+  const reqLabel = requiredEmpty.length > 0 ? `<span style="color:#ffcdd2">⚠️ 必須${requiredEmpty.length}件未入力</span>` : '';
+  const fieldRows = fieldInfos.map(f =>
+    `<div style="padding:2px 0; color:${f.required ? '#ffcdd2' : '#fff9c4'}">${f.required ? '★' : '○'} ${f.label}</div>`
+  ).join('');
+  const aiRows = aiSuggestions.length > 0
+    ? `<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;font-size:10px;opacity:0.9">${aiSuggestions.map(s => `<div>${s}</div>`).join('')}</div>`
+    : '';
+
+  banner.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:8px">
+      <div style="flex:1">
+        <div style="font-weight:bold;margin-bottom:4px">🤖 AI確認: 空フィールド ${fieldInfos.length}件 ${reqLabel}</div>
+        <div style="font-size:11px">${fieldRows}</div>
+        ${aiRows}
+      </div>
+      <button onclick="document.getElementById('goenchan-ai-verify-banner').remove()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0">×</button>
+    </div>
+  `;
+  banner.style.cssText = `
+    position:fixed; bottom:60px; right:16px; z-index:2147483647;
+    background:#e65100; color:white; padding:12px 14px; border-radius:8px;
+    max-width:360px; box-shadow:0 4px 16px rgba(0,0,0,0.4);
+    font-family:sans-serif; font-size:12px; line-height:1.5;
+  `;
+  document.body.appendChild(banner);
+  // 20秒後に自動消去
+  setTimeout(() => banner.remove(), 20000);
 }
