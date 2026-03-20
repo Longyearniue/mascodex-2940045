@@ -38,3 +38,26 @@ bd sync               # Sync with git
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 
+
+---
+
+## ⚠️ mascodex.com デプロイルール（必須）
+
+### index.htmlを変更したら必ずやること
+1. **git add + git commit** してからデプロイ
+2. コミットなしにデプロイしない
+3. `bash deploy-pages.sh` は必ず成功まで確認する
+
+### デプロイ前に守られていること確認
+- `What's Happening Now` セクション
+- `Live Map` セクション（`social.mascodex.com/map`のiframe）
+- JSの構文エラーなし
+
+### deploy-pages.shには自動ガードが入っている
+上記が欠けていると**デプロイが自動で止まる**。
+エラーが出たら中断して原因を調査すること。
+
+### よくある破壊パターン
+- JS内でシングルクォートをテンプレートリテラル内に入れる → 構文エラー
+- 未コミットの変更がある状態でデプロイ → 次回デプロイで消える
+- deploy-pages.shを使わずに `wrangler pages deploy` を直接実行 → ガードをスキップ
