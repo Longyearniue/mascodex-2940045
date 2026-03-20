@@ -272,7 +272,7 @@
         const el = document.getElementById('ticker-content');
         if (el) {
           el.innerHTML = '<a href="'+href+'" target="_blank" class="ticker-new" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:8px;">'
-            + '<img src="'+img+'" onerror="this.style.display='none'" style="width:22px;height:22px;border-radius:50%;flex-shrink:0;" loading="lazy">'
+            + '<img src="'+img+'" onerror="this.style.display=\'none\'" style="width:22px;height:22px;border-radius:50%;flex-shrink:0;" loading="lazy">'
             + '<strong style="color:#a78bfa;flex-shrink:0;">'+name+'</strong>'
             + '<span style="opacity:.45;font-size:.78rem;flex-shrink:0;">'+city+'</span>'
             + '<span style="opacity:.85;overflow:hidden;text-overflow:ellipsis;">'+text+(text.length>=130?'...':'')+'</span>'
