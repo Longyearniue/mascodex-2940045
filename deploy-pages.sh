@@ -5,6 +5,40 @@ DEPLOY="/tmp/mascodex-pages-deploy"
 
 echo "🚀 mascodex deploy starting..."
 
+# ── GUARD: デプロイ前必須要素チェック ────────────
+echo ""
+echo "🔒 デプロイ前ガード..."
+
+# JS構文チェック
+python3 -c "
+import re, sys, subprocess, tempfile, os
+with open('$REPO/index.html') as f:
+    html = f.read()
+scripts = re.findall(r'<script[^>]*>(.*?)</script>', html, re.DOTALL)
+if scripts:
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as tf:
+        tf.write(scripts[0]); tname = tf.name
+    r = subprocess.run(['node', '--check', tname], capture_output=True)
+    os.unlink(tname)
+    if r.returncode != 0:
+        print('❌ JS構文エラー:', r.stderr.decode()[:300]); sys.exit(1)
+    print('  ✅ JS構文OK')
+"
+
+# 必須要素チェック関数
+check_required() {
+  local file="$1" keyword="$2" desc="$3"
+  if ! grep -q "$keyword" "$file" 2>/dev/null; then
+    echo "❌ 必須要素なし: $desc"; echo "   ($file に '$keyword' が見つかりません)"; exit 1
+  fi
+  echo "  ✅ $desc"
+}
+check_required "$REPO/index.html" "Happening Now"         "What's Happening Now セクション"
+check_required "$REPO/index.html" "live-posts"            "ライブフィード要素"
+check_required "$REPO/index.html" "social.mascodex.com/map" "Live Mapセクション"
+check_required "$REPO/index.html" "loadLiveFeed"          "ライブフィード関数"
+echo "✅ ガード通過"
+
 # ── 0. デプロイ前スモークテスト（本番チェック）──
 echo ""
 echo "🔍 [1/4] デプロイ前チェック（現在の本番）..."
