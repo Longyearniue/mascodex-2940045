@@ -76,6 +76,84 @@ async function fetchSalesLetter(companyUrl) {
   }
 }
 
+// =============================================================================
+// AGENT TAKEOVER MODE
+// =============================================================================
+
+// フィールドの意味を推測
+function classifyField(input) {
+  const combined = [input.name, input.id, input.placeholder, input.type,
+    input.labels?.[0]?.textContent].join(' ').toLowerCase();
+  if (/compan|corp|org|会社|法人/.test(combined)) return 'company';
+  if (/name|氏名|お名前|担当/.test(combined)) return 'name';
+  if (/email|mail|メール/.test(combined)) return 'email';
+  if (/tel|phone|電話|fax/.test(combined)) return 'tel';
+  if (/subject|件名|題名/.test(combined)) return 'subject';
+  if (/message|content|body|お問|内容|本文|textarea/.test(combined)) return 'message';
+  return 'other';
+}
+
+// 送信ボタンを探す
+function findSubmitButton() {
+  const candidates = [
+    ...document.querySelectorAll('button[type=submit], input[type=submit]'),
+    ...[...document.querySelectorAll('button, a, div, span')].filter(el =>
+      /送信|確認|submit|send|next|次へ/i.test(el.textContent)
+    )
+  ];
+  return candidates[0] || null;
+}
+
+// Agent Takeover Mode本体
+async function agentTakeover(profile, options = {}) {
+  const { confirmBeforeSubmit = true } = options;
+
+  // 全inputフィールドを収集
+  const fields = [...document.querySelectorAll('input:not([type=hidden]):not([type=submit]), textarea, select')];
+
+  // 各フィールドに入力
+  for (const field of fields) {
+    const type = classifyField(field);
+    let value = '';
+    switch (type) {
+      case 'company': value = profile.myCompany || ''; break;
+      case 'name': value = profile.myName || ''; break;
+      case 'email': value = profile.myEmail || ''; break;
+      case 'tel': value = profile.myTel || ''; break;
+      case 'subject': value = profile.subject || 'ご提案のご連絡'; break;
+      case 'message': value = profile.salesLetter || ''; break;
+      default: continue;
+    }
+    if (!value) continue;
+
+    // React/Vue対応入力
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set
+      || Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
+    if (nativeInputValueSetter) nativeInputValueSetter.call(field, value);
+    else field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  // 送信ボタン処理
+  const submitBtn = findSubmitButton();
+  if (!submitBtn) {
+    return { success: false, error: '送信ボタンが見つかりません' };
+  }
+
+  // 送信ボタンをハイライト
+  submitBtn.style.outline = '3px solid #ff6b35';
+  submitBtn.style.boxShadow = '0 0 10px rgba(255,107,53,0.8)';
+
+  if (confirmBeforeSubmit) {
+    return { success: true, needsConfirm: true, submitReady: true };
+  } else {
+    submitBtn.click();
+    return { success: true, submitted: true };
+  }
+}
+
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'autoFill') {
@@ -109,6 +187,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       highlightSubmitButton();
       sendResponse(result);
     });
+    return true;
+  } else if (message.action === 'AGENT_TAKEOVER') {
+    agentTakeover(message.profile, message.options || {}).then(result => {
+      sendResponse(result);
+    });
+    return true;
+  } else if (message.action === 'CONFIRM_SUBMIT') {
+    const submitBtn = findSubmitButton();
+    if (submitBtn) {
+      submitBtn.style.outline = '';
+      submitBtn.style.boxShadow = '';
+      submitBtn.click();
+      sendResponse({ success: true, submitted: true });
+    } else {
+      sendResponse({ success: false, error: '送信ボタンが見つかりません' });
+    }
     return true;
   } else if (message.action === 'inspectForm') {
     const formData = inspectForm();
@@ -1647,15 +1741,25 @@ async function autoFillForm(profile) {
       // 変数置換
       const today = new Date();
       const dateStr = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
-      const companyName = profile.companyName || profile.company || '';
+      // ===== 変数マッピング =====
+      // 相手データ（target_* はバッチのCSV/スクレイプから、後方互換でcompanyNameも使用）
+      const targetCompanyName  = profile.target_companyName  || profile.companyName || '';
+      const targetProductName  = profile.target_productName  || '';
+      const targetPrefecture   = profile.target_prefecture   || '';
+      // 自社データ（プロフィールから）
+      const selfName           = profile.name || '';
+      const selfCompanyName    = profile.company || '';
+      const selfDesc           = tplData.tplSelfDesc || '';
+
       let msg = tplData.tplBody
-        .replace(/\{\{会社名\}\}/g, companyName)
-        .replace(/\{\{商品名\}\}/g, profile.productName || '')
-        .replace(/\{\{都道府県\}\}/g, profile.prefecture || '')
-        .replace(/\{\{担当者名\}\}/g, profile.name || '')
+        .replace(/\{\{会社名\}\}/g,   targetCompanyName)   // 相手社名
+        .replace(/\{\{商品名\}\}/g,   targetProductName)   // 相手の商品・サービス
+        .replace(/\{\{都道府県\}\}/g, targetPrefecture)    // 相手の都道府県
+        .replace(/\{\{担当者名\}\}/g, selfName)            // 自社担当者名
+        .replace(/\{\{自社名\}\}/g,   selfCompanyName)     // 自社名
+        .replace(/\{\{自社説明\}\}/g, selfDesc)            // 自社説明
         .replace(/\{\{URL\}\}/g, window.location.origin)
-        .replace(/\{\{日付\}\}/g, dateStr)
-        .replace(/\{\{自社説明\}\}/g, tplData.tplSelfDesc || '');
+        .replace(/\{\{日付\}\}/g, dateStr);
       profile = { ...profile, message: msg };
       console.log('📝 Template loaded from 原稿 tab, length:', msg.length);
     } else if (profile.message) {
@@ -1828,6 +1932,50 @@ async function autoFillForm(profile) {
 
     // Don't return early - continue to auto-detection for unmapped fields
     console.log(`📊 Site mapping filled ${results.length} fields, continuing to auto-detection...`);
+  }
+
+  // =============================================================================
+  // CLOUD MAPPINGS: クラウドからマッピングを自動取得してローカルにマージ
+  // =============================================================================
+  try {
+    const cloudRes = await fetch(`https://crawler-worker-teamb.taiichifox.workers.dev/shared-mappings?url=${encodeURIComponent(url)}`);
+    if (cloudRes.ok) {
+      const cloudData = await cloudRes.json();
+      if (cloudData.success && cloudData.mappings && Object.keys(cloudData.mappings).length > 0) {
+        const localData = await chrome.storage.sync.get(['formMappings']);
+        const localMappings = localData.formMappings || {};
+        let merged = false;
+        for (const [key, mapping] of Object.entries(cloudData.mappings)) {
+          if (!localMappings[key]) {
+            localMappings[key] = mapping;
+            merged = true;
+          }
+        }
+        if (merged) {
+          await chrome.storage.sync.set({ formMappings: localMappings });
+          console.log('☁️ Cloud mappings merged into local storage');
+        }
+      }
+    }
+  } catch (e) {
+    // クラウドマッピング取得エラーは静かに無視
+  }
+
+  // =============================================================================
+  // COMMUNITY MAPPINGS: コミュニティ学習データからマッピングをマージ
+  // =============================================================================
+  try {
+    const communityRes = await fetch(`https://crawler-worker-teamb.taiichifox.workers.dev/community-mappings?host=${encodeURIComponent(hostname)}`);
+    if (communityRes.ok) {
+      const communityData = await communityRes.json();
+      if (communityData.success && communityData.mappings && communityData.mappings.length > 0) {
+        // コミュニティデータをwindowに保持（pass7AIVerifyなどで参照可能）
+        window.__goenchanCommunityMappings = communityData.mappings;
+        console.log(`🌐 Community mappings loaded: ${communityData.mappings.length} fields (confidence-filtered)`);
+      }
+    }
+  } catch (e) {
+    // コミュニティマッピング取得エラーは静かに無視
   }
 
   // Load stored user mappings
@@ -4086,7 +4234,7 @@ Object.assign(SITE_MAPPINGS, GENERATED_MAPPINGS);
 // AUTO-LOAD: Load shared mappings from cloud (community-contributed)
 (async function loadSharedMappings() {
   try {
-    const response = await fetch('https://goenchan-worker.taiichifox.workers.dev/shared-mappings');
+    const response = await fetch('https://crawler-worker-teamb.taiichifox.workers.dev/shared-mappings');
     if (response.ok) {
       const data = await response.json();
       if (data.success && data.mappings) {
@@ -6050,10 +6198,10 @@ async function pass7AIVerify(profile) {
       const fieldList = fieldInfos.map(f => `- ${f.label}（name="${f.name}"）${f.required ? ' ※必須' : ''}`).join('\n');
       const profileSummary = `名前: ${profile.name || ''}, 会社: ${profile.company || ''}, メール: ${profile.email || ''}, 電話: ${profile.phone || ''}, 住所: ${profile.prefecture || ''}${profile.city || ''}`;
       const prompt = `フォームに以下の空フィールドが残っています。プロフィール情報をもとに、各フィールドに何を入力すべきか日本語で短く説明してください（入力値候補も）。\n\nプロフィール: ${profileSummary}\n\n空フィールド:\n${fieldList}\n\n各フィールドを「フィールド名: 説明（候補値）」形式で返してください。`;
-      const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      const res = await fetch('https://crawler-worker-teamb.taiichifox.workers.dev/form-verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: 'deepseek-chat', max_tokens: 400, messages: [{ role: 'user', content: prompt }] })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, max_tokens: 400 })
       });
       const data = await res.json();
       const text = data.choices?.[0]?.message?.content || '';
@@ -6061,39 +6209,174 @@ async function pass7AIVerify(profile) {
     }
   } catch(e) {}
 
+  // =============================================================================
+  // NGフィールドをAIが自動修正 (mode: "fix")
+  // =============================================================================
+  let autoFixedCount = 0;
+  const autoFixedFields = [];
+  try {
+    if (fieldInfos.length > 0) {
+      const ngFields = fieldInfos.map(f => ({
+        name: f.name,
+        label: f.label,
+        currentValue: f.el.value || '',
+        error: f.required ? '必須フィールドが空です' : 'フィールドが空です'
+      }));
+
+      const profileData = {};
+      for (const key of ['name', 'lastName', 'firstName', 'company', 'email', 'phone', 'fax', 'postalCode', 'prefecture', 'city', 'address', 'building', 'url', 'position', 'department']) {
+        if (profile[key]) profileData[key] = profile[key];
+      }
+
+      const fixRes = await fetch('https://crawler-worker-teamb.taiichifox.workers.dev/form-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'fix', fields: ngFields, profile: profileData })
+      });
+      const fixData = await fixRes.json();
+
+      if (fixData.ok && fixData.fixes && fixData.fixes.length > 0) {
+        for (const fix of fixData.fixes) {
+          if (!fix.correctedValue) continue;
+          // フィールドを name or label で特定
+          const targetInfo = fieldInfos.find(f => f.name === fix.field || f.label === fix.field);
+          if (!targetInfo) continue;
+
+          const el = targetInfo.el;
+          // 値を設定 (React/Vue対応: nativeInputValueSetter + dispatchEvent)
+          const nativeSetter = Object.getOwnPropertyDescriptor(
+            el.tagName.toLowerCase() === 'textarea' ? HTMLTextAreaElement.prototype :
+            el.tagName.toLowerCase() === 'select' ? HTMLSelectElement.prototype :
+            HTMLInputElement.prototype, 'value'
+          )?.set;
+
+          if (el.tagName.toLowerCase() === 'select') {
+            // select要素: optionを検索
+            const options = Array.from(el.options);
+            const match = options.find(o =>
+              o.value === fix.correctedValue || o.textContent.trim() === fix.correctedValue
+            );
+            if (match) {
+              el.value = match.value;
+            } else {
+              continue; // マッチするオプションなし
+            }
+          } else if (nativeSetter) {
+            nativeSetter.call(el, fix.correctedValue);
+          } else {
+            el.value = fix.correctedValue;
+          }
+
+          // React/Vue の change detection を発火
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
+
+          autoFixedCount++;
+          autoFixedFields.push({ field: fix.field, correctedValue: fix.correctedValue, reason: fix.reason });
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('AI auto-fix failed:', e);
+  }
+
   // バナーに空フィールドリストとAI提案を表示
   const existingAI = document.getElementById('goenchan-ai-verify-banner');
   if (existingAI) existingAI.remove();
 
   const banner = document.createElement('div');
   banner.id = 'goenchan-ai-verify-banner';
-  const reqLabel = requiredEmpty.length > 0 ? `<span style="color:#ffcdd2">⚠️ 必須${requiredEmpty.length}件未入力</span>` : '';
-  const fieldRows = fieldInfos.map(f =>
-    `<div style="padding:2px 0; color:${f.required ? '#ffcdd2' : '#fff9c4'}">${f.required ? '★' : '○'} ${f.label}</div>`
-  ).join('');
-  const aiRows = aiSuggestions.length > 0
-    ? `<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;font-size:10px;opacity:0.9">${aiSuggestions.map(s => `<div>${s}</div>`).join('')}</div>`
-    : '';
 
-  banner.innerHTML = `
-    <div style="display:flex;align-items:flex-start;gap:8px">
-      <div style="flex:1">
-        <div style="font-weight:bold;margin-bottom:4px">🤖 AI確認: 空フィールド ${fieldInfos.length}件 ${reqLabel}</div>
-        <div style="font-size:11px">${fieldRows}</div>
-        ${aiRows}
+  // 自動修正があった場合は修正バナーを優先表示
+  if (autoFixedCount > 0) {
+    const fixRows = autoFixedFields.map(f =>
+      `<div style="padding:2px 0; color:#c8e6c9">✅ ${f.field}: ${f.correctedValue} <span style="opacity:0.7">(${f.reason})</span></div>`
+    ).join('');
+    // 修正後もまだ空のフィールドがあるか確認
+    const stillEmpty = fieldInfos.filter(f => {
+      const el = f.el;
+      if (el.tagName.toLowerCase() === 'select') return el.selectedIndex <= 0;
+      return !el.value || !el.value.trim();
+    });
+    const stillEmptyRows = stillEmpty.length > 0
+      ? `<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.3);padding-top:6px"><div style="font-weight:bold;margin-bottom:4px;color:#ffcdd2">⚠️ 未修正: ${stillEmpty.length}件</div>${stillEmpty.map(f => `<div style="padding:2px 0;color:#ffcdd2">${f.required ? '★' : '○'} ${f.label}</div>`).join('')}</div>`
+      : '';
+
+    banner.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-weight:bold;margin-bottom:4px">🔧 AIが${autoFixedCount}件のフィールドを自動修正しました</div>
+          <div style="font-size:11px">${fixRows}</div>
+          ${stillEmptyRows}
+        </div>
+        <button onclick="document.getElementById('goenchan-ai-verify-banner').remove()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0">×</button>
       </div>
-      <button onclick="document.getElementById('goenchan-ai-verify-banner').remove()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0">×</button>
-    </div>
-  `;
-  banner.style.cssText = `
-    position:fixed; bottom:60px; right:16px; z-index:2147483647;
-    background:#e65100; color:white; padding:12px 14px; border-radius:8px;
-    max-width:360px; box-shadow:0 4px 16px rgba(0,0,0,0.4);
-    font-family:sans-serif; font-size:12px; line-height:1.5;
-  `;
+    `;
+    banner.style.cssText = `
+      position:fixed; bottom:60px; right:16px; z-index:2147483647;
+      background:#2e7d32; color:white; padding:12px 14px; border-radius:8px;
+      max-width:400px; box-shadow:0 4px 16px rgba(0,0,0,0.4);
+      font-family:sans-serif; font-size:12px; line-height:1.5;
+    `;
+  } else {
+    const reqLabel = requiredEmpty.length > 0 ? `<span style="color:#ffcdd2">⚠️ 必須${requiredEmpty.length}件未入力</span>` : '';
+    const fieldRows = fieldInfos.map(f =>
+      `<div style="padding:2px 0; color:${f.required ? '#ffcdd2' : '#fff9c4'}">${f.required ? '★' : '○'} ${f.label}</div>`
+    ).join('');
+    const aiRows = aiSuggestions.length > 0
+      ? `<div style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;font-size:10px;opacity:0.9">${aiSuggestions.map(s => `<div>${s}</div>`).join('')}</div>`
+      : '';
+
+    banner.innerHTML = `
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-weight:bold;margin-bottom:4px">🤖 AI確認: 空フィールド ${fieldInfos.length}件 ${reqLabel}</div>
+          <div style="font-size:11px">${fieldRows}</div>
+          ${aiRows}
+        </div>
+        <button onclick="document.getElementById('goenchan-ai-verify-banner').remove()" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0 4px;flex-shrink:0">×</button>
+      </div>
+    `;
+    banner.style.cssText = `
+      position:fixed; bottom:60px; right:16px; z-index:2147483647;
+      background:#e65100; color:white; padding:12px 14px; border-radius:8px;
+      max-width:360px; box-shadow:0 4px 16px rgba(0,0,0,0.4);
+      font-family:sans-serif; font-size:12px; line-height:1.5;
+    `;
+  }
+
   if (document.body) document.body.appendChild(banner);
   // 20秒後に自動消去
   setTimeout(() => banner?.remove(), 20000);
+
+  // =============================================================================
+  // 検証結果をクラウドに蓄積（auto-fixedステータスも含む）
+  // =============================================================================
+  try {
+    const verifyResults = fieldInfos.map(f => {
+      const fixed = autoFixedFields.find(af => af.field === f.name || af.field === f.label);
+      if (fixed) {
+        return { field: f.label, status: 'auto-fixed', value: fixed.correctedValue };
+      }
+      return {
+        field: f.label,
+        status: f.required ? 'required_empty' : 'empty',
+        value: ''
+      };
+    });
+    await fetch('https://crawler-worker-teamb.taiichifox.workers.dev/verify-results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: window.location.href,
+        results: verifyResults,
+        timestamp: Date.now()
+      })
+    });
+  } catch (e) {
+    // 送信エラーは静かに無視
+  }
 }
 
 // ==================== フォーム検証ボタン ====================
@@ -6177,17 +6460,25 @@ function injectVerifyButton() {
         return;
       }
       if (response && response.success) {
-        btn.textContent = '✅ Claude Code起動中';
-        btn.style.background = '#2563eb';
+        const issues = response.result && response.result.issues;
+        if (issues && issues.length > 0) {
+          btn.textContent = `⚠️ ${issues.length}件の問題`;
+          btn.style.background = '#f59e0b';
+          btn.title = issues.map(i => `${i.field}: ${i.message}`).join('\n');
+        } else {
+          btn.textContent = '✅ 検証OK';
+          btn.style.background = '#16a34a';
+        }
         setTimeout(() => {
           btn.textContent = '🔍 フォーム検証';
           btn.style.background = '#16a34a';
+          btn.removeAttribute('title');
           btn.disabled = false;
-        }, 8000);
+        }, 6000);
       } else {
-        btn.textContent = '❌ サーバー未起動';
+        btn.textContent = '❌ 検証失敗';
         btn.style.background = '#dc2626';
-        btn.title = 'node form-verifier-server.js を起動してください\ncd ~/mascodex-2940045/goenchan/chrome-extension-v2\nnode form-verifier-server.js';
+        btn.title = response && response.error ? response.error : '通信エラー';
         btn.disabled = false;
         setTimeout(() => {
           btn.textContent = '🔍 フォーム検証';

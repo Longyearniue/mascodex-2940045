@@ -698,7 +698,7 @@ document.getElementById('startBulkCrawl').addEventListener('click', async () => 
 
       let response;
       try {
-        response = await fetch('https://goenchan-worker.taiichifox.workers.dev/bulk-crawler', {
+        response = await fetch('https://crawler-worker-teamb.taiichifox.workers.dev/bulk-crawler', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -977,7 +977,7 @@ async function uploadToSharedMappings(mappings) {
     }
 
     // Upload to cloud
-    const response = await fetch('https://goenchan-worker.taiichifox.workers.dev/shared-mappings', {
+    const response = await fetch('https://crawler-worker-teamb.taiichifox.workers.dev/shared-mappings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1393,6 +1393,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById(tabId).classList.add('active');
+      // 検証ダッシュボードタブを開いたら自動ロード
+      if (tabId === 'verifyDashTab') loadVerifyDashboard();
     });
   });
 
@@ -1599,6 +1601,31 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nextBatchMain').disabled = true;
     document.getElementById('stopBatchMain').disabled = true;
   });
+
+  // リセットボタン: バッチ状態を完全クリア
+  document.getElementById('resetBatchMain')?.addEventListener('click', async () => {
+    if (!confirm('バッチ進捗をリセットしますか？\n（現在の進捗は消えます）')) return;
+    // バックグラウンドに停止を送信
+    await chrome.runtime.sendMessage({ action: 'stopBatch' }).catch(() => {});
+    // ローカルストレージのバッチ状態を全クリア
+    await chrome.storage.local.remove([
+      'batchMode', 'batchStateSnapshot', 'batchCurrentIndex',
+      'batchValidUrls', 'batchContactPages', 'batchProfile',
+      'batchGeneratedMessages', 'processStatus'
+    ]);
+    stopBatchMainPolling();
+    // UIリセット
+    document.getElementById('startBatchMain').disabled = false;
+    document.getElementById('nextBatchMain').disabled = true;
+    document.getElementById('stopBatchMain').disabled = true;
+    document.getElementById('batchStatusMain').style.display = 'none';
+    const prog = document.getElementById('batchProgressMain');
+    if (prog) prog.textContent = '0/0';
+    const bar = document.getElementById('batchProgressBarMain');
+    if (bar) bar.style.width = '0%';
+    console.log('[Batch] Reset complete');
+    alert('✅ リセット完了！新しいバッチを開始できます。');
+  });
   } // end if !_bound
 });
 
@@ -1762,3 +1789,261 @@ function showLearnedStatus(message, type) {
   el.className = `status show status-${type}`;
   setTimeout(() => el.classList.remove('show'), 3000);
 }
+
+// =============================================================================
+// 検証ダッシュボード
+// =============================================================================
+async function loadVerifyDashboard() {
+  const loading = document.getElementById('verifyDashLoading');
+  const empty = document.getElementById('verifyDashEmpty');
+  const table = document.getElementById('verifyDashTable');
+  const tbody = document.getElementById('verifyDashBody');
+  if (!loading || !empty || !table || !tbody) return;
+
+  loading.style.display = 'block';
+  empty.style.display = 'none';
+  table.style.display = 'none';
+
+  try {
+    // 現在のタブのURLを取得
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.url) {
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+
+    const res = await fetch(`https://crawler-worker-teamb.taiichifox.workers.dev/verify-results?url=${encodeURIComponent(tab.url)}&aggregate=true`);
+    const data = await res.json();
+
+    loading.style.display = 'none';
+
+    if (!data.success || !data.fields || data.fields.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+
+    // テーブルにレンダリング
+    tbody.innerHTML = '';
+    // 成功率でソート（低い順）
+    data.fields.sort((a, b) => a.successRate - b.successRate);
+
+    for (const field of data.fields) {
+      const tr = document.createElement('tr');
+      const isLowSuccess = field.successRate < 50;
+      tr.style.background = isLowSuccess ? '#ffebee' : '';
+
+      const rateColor = field.successRate >= 80 ? '#2e7d32' : field.successRate >= 50 ? '#e65100' : '#c62828';
+      const errors = field.commonErrors.join(', ') || '-';
+
+      tr.innerHTML = `
+        <td style="padding: 5px 4px; border-bottom: 1px solid #eee; ${isLowSuccess ? 'color: #c62828; font-weight: bold;' : ''}">${field.name}</td>
+        <td style="padding: 5px 4px; border-bottom: 1px solid #eee; text-align: center;">${field.totalChecks}</td>
+        <td style="padding: 5px 4px; border-bottom: 1px solid #eee; text-align: center; color: ${rateColor}; font-weight: bold;">${field.successRate}%</td>
+        <td style="padding: 5px 4px; border-bottom: 1px solid #eee; font-size: 10px; color: #666;">${errors}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    table.style.display = 'table';
+  } catch (e) {
+    loading.style.display = 'none';
+    empty.textContent = 'データの取得に失敗しました';
+    empty.style.display = 'block';
+  }
+}
+
+// 更新ボタン
+document.getElementById('refreshVerifyDash')?.addEventListener('click', loadVerifyDashboard);
+
+// =============================================================================
+// AGENT TAKEOVER MODE
+// =============================================================================
+
+// Toggle switch styling
+const takeoverToggle = document.getElementById('takeoverToggle');
+const takeoverPanel = document.getElementById('takeoverPanel');
+const takeoverSlider = document.getElementById('takeoverSlider');
+const takeoverStatusLabel = document.getElementById('takeoverStatusLabel');
+
+takeoverToggle?.addEventListener('change', () => {
+  const on = takeoverToggle.checked;
+  takeoverPanel.style.display = on ? 'block' : 'none';
+  takeoverStatusLabel.textContent = on ? 'ON' : 'OFF';
+  takeoverStatusLabel.style.color = on ? '#ff6b35' : '#888';
+  takeoverSlider.style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+  takeoverSlider.parentElement.previousElementSibling.nextElementSibling.style.background = on ? '#ff6b35' : '#555';
+  // Restore state if ON
+  if (on) refreshTakeoverState();
+});
+
+// CSV parse
+function parseTakeoverCsv(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const header = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/^["']|["']$/g, ''));
+  const urlIdx = header.indexOf('url');
+  const companyIdx = header.indexOf('company_name');
+  const categoryIdx = header.indexOf('category');
+  if (urlIdx === -1) return [];
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (!cols[urlIdx]) continue;
+    rows.push({
+      url: cols[urlIdx],
+      company_name: companyIdx >= 0 ? (cols[companyIdx] || '') : '',
+      category: categoryIdx >= 0 ? (cols[categoryIdx] || '') : ''
+    });
+  }
+  return rows;
+}
+
+// CSV file input
+document.getElementById('takeoverCsvFile')?.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const rows = parseTakeoverCsv(text);
+  if (rows.length === 0) {
+    document.getElementById('takeoverCsvInfo').textContent = '❌ 有効な行が見つかりません（url列が必要）';
+    return;
+  }
+  document.getElementById('takeoverCsvInfo').textContent = `✅ ${rows.length}件読み込み済み`;
+
+  // Save to background
+  chrome.runtime.sendMessage({ action: 'TAKEOVER_SET_CSV', rows }, (resp) => {
+    if (resp?.success) {
+      addTakeoverLog(`CSV読込: ${rows.length}件`);
+      refreshTakeoverState();
+    }
+  });
+});
+
+// Refresh takeover state from storage
+async function refreshTakeoverState() {
+  chrome.runtime.sendMessage({ action: 'GET_NEXT_COMPANY' }, (resp) => {
+    if (!resp?.success) return;
+    const total = resp.total || 0;
+    const idx = resp.done ? total : resp.index;
+    document.getElementById('takeoverProgress').textContent = `${idx} / ${total}`;
+    const pct = total > 0 ? (idx / total * 100) : 0;
+    document.getElementById('takeoverProgressBar').style.width = pct + '%';
+
+    const nextBtn = document.getElementById('takeoverNext');
+    const skipBtn = document.getElementById('takeoverSkip');
+    if (resp.done) {
+      nextBtn.disabled = true;
+      skipBtn.disabled = true;
+      document.getElementById('takeoverCurrentCompany').textContent = '✅ 全件完了';
+    } else {
+      nextBtn.disabled = false;
+      skipBtn.disabled = false;
+      document.getElementById('takeoverCurrentCompany').textContent = resp.current?.company_name || '';
+    }
+  });
+}
+
+// Log helper
+const takeoverLogs = [];
+function addTakeoverLog(msg) {
+  const time = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  takeoverLogs.unshift(`[${time}] ${msg}`);
+  if (takeoverLogs.length > 5) takeoverLogs.pop();
+  const logEl = document.getElementById('takeoverLog');
+  if (logEl) {
+    logEl.innerHTML = takeoverLogs.map(l => `<div>${l}</div>`).join('');
+  }
+}
+
+// 「次の会社へ」ボタン
+document.getElementById('takeoverNext')?.addEventListener('click', async () => {
+  chrome.runtime.sendMessage({ action: 'GET_NEXT_COMPANY' }, async (resp) => {
+    if (!resp?.success || resp.done) {
+      addTakeoverLog('全件処理済み');
+      return;
+    }
+
+    const company = resp.current;
+    addTakeoverLog(`開始: ${company.company_name || company.url}`);
+
+    // Get profile from storage
+    const profileData = await chrome.storage.sync.get(null);
+    const profile = {
+      myCompany: profileData.company || '',
+      myName: profileData.name || '',
+      myEmail: profileData.email || '',
+      myTel: profileData.phone || '',
+      subject: profileData.subject || 'ご提案のご連絡',
+      salesLetter: profileData.message || ''
+    };
+
+    // Open URL in active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    await chrome.tabs.update(tab.id, { url: company.url });
+
+    // Wait for page load then send AGENT_TAKEOVER
+    chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
+      if (tabId === tab.id && changeInfo.status === 'complete') {
+        chrome.tabs.onUpdated.removeListener(listener);
+        setTimeout(() => {
+          chrome.tabs.sendMessage(tab.id, {
+            action: 'AGENT_TAKEOVER',
+            profile,
+            options: { confirmBeforeSubmit: true }
+          }, (result) => {
+            if (result?.needsConfirm) {
+              document.getElementById('takeoverConfirm').disabled = false;
+              addTakeoverLog(`入力完了: ${company.company_name || company.url} → 送信待ち`);
+            } else if (result?.error) {
+              addTakeoverLog(`⚠ ${company.company_name}: ${result.error}`);
+            }
+            refreshTakeoverState();
+          });
+        }, 2500);
+      }
+    });
+  });
+});
+
+// 「送信確認」ボタン
+document.getElementById('takeoverConfirm')?.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  chrome.tabs.sendMessage(tab.id, { action: 'CONFIRM_SUBMIT' }, (result) => {
+    document.getElementById('takeoverConfirm').disabled = true;
+    if (result?.submitted) {
+      addTakeoverLog('✅ 送信完了');
+      chrome.runtime.sendMessage({ action: 'MARK_DONE', status: 'done' }, () => {
+        refreshTakeoverState();
+      });
+    } else {
+      addTakeoverLog('❌ 送信失敗: ' + (result?.error || 'unknown'));
+    }
+  });
+});
+
+// 「スキップ」ボタン
+document.getElementById('takeoverSkip')?.addEventListener('click', () => {
+  addTakeoverLog('⏭ スキップ');
+  document.getElementById('takeoverConfirm').disabled = true;
+  chrome.runtime.sendMessage({ action: 'MARK_DONE', status: 'skipped' }, () => {
+    refreshTakeoverState();
+  });
+});
+
+// 「リセット」ボタン
+document.getElementById('takeoverReset')?.addEventListener('click', () => {
+  chrome.storage.local.remove(['takeoverQueue', 'takeoverIndex', 'takeoverResults'], () => {
+    document.getElementById('takeoverProgress').textContent = '0 / 0';
+    document.getElementById('takeoverProgressBar').style.width = '0%';
+    document.getElementById('takeoverCurrentCompany').textContent = '';
+    document.getElementById('takeoverConfirm').disabled = true;
+    document.getElementById('takeoverNext').disabled = true;
+    document.getElementById('takeoverSkip').disabled = true;
+    document.getElementById('takeoverCsvInfo').textContent = '';
+    takeoverLogs.length = 0;
+    document.getElementById('takeoverLog').innerHTML = '<div style="color: #555;">ログなし</div>';
+    addTakeoverLog('リセット完了');
+  });
+});

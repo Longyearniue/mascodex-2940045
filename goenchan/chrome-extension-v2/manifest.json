@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Contact Form Auto-Filler Pro",
-  "version": "2.48.0",
-  "description": "Advanced form auto-filler with pattern recognition, bulk crawler, and batch mode",
+  "version": "4.0.0",
+  "description": "Advanced form auto-filler with pattern recognition, bulk crawler, batch mode, and Agent Takeover",
   "permissions": [
     "activeTab",
     "storage",

@@ -31,6 +31,34 @@ const WORKER_API_URL = 'https://crawler-worker-teamb.taiichifox.workers.dev';
 
 // Fetch with timeout utility
 async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  // Chrome Service Worker cannot fetch external sites directly (CORS).
+  // Route non-Worker external GETs through the proxy endpoint.
+  const isWorkerUrl = url.startsWith(WORKER_API_URL);
+  const isChromeUrl = url.startsWith('chrome') || url.startsWith('extension');
+  const isGet = !options.method || options.method === 'GET';
+  if (!isWorkerUrl && !isChromeUrl && isGet) {
+    try {
+      const proxyUrl = `${WORKER_API_URL}/proxy-fetch?url=${encodeURIComponent(url)}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      const proxyResp = await fetch(proxyUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (proxyResp.ok) {
+        const data = await proxyResp.json();
+        // Return a Response-like object
+        return {
+          ok: data.ok,
+          status: data.status || 0,
+          text: async () => data.html || '',
+          json: async () => { try { return JSON.parse(data.html || '{}'); } catch(e) { return {}; } },
+          headers: { get: () => null }
+        };
+      }
+    } catch(e) {
+      throw new Error(`Proxy fetch failed: ${e.message}`);
+    }
+  }
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -314,13 +342,18 @@ ${profileText}
     handleVerificationResult(message.verification, message.url, sender.tab?.id);
     sendResponse({ success: true });
   } else if (message.action === 'verifyForm') {
-    // フォーム検証: ローカルサーバー(7788)にPOSTしてClaude Codeを起動
-    fetch('http://localhost:7788/verify-form', {
+    // フォーム検証: Worker経由でDeepSeekに送信（ローカルサーバー不要）
+    fetch(`${WORKER_API_URL}/form-verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(message.data || message)
+      body: JSON.stringify({
+        fields: (message.data || message).fields || [],
+        profile: (message.data || message).profileUsed || {},
+        url: (message.data || message).url || '',
+        formHtml: (message.data || message).formHtml || ''
+      })
     }).then(r => r.json()).then(res => {
-      sendResponse({ success: true, message: res.message });
+      sendResponse({ success: true, result: res });
     }).catch(err => {
       sendResponse({ success: false, error: err.message });
     });
@@ -1238,13 +1271,21 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
           // 原稿はcontent.jsがchrome.storage.syncから直接読む。ここでは上書きしない
           // ただし会社名・都道府県・商品名はCSVエントリから注入する
           const entry = batchState.urlEntryMap ? batchState.urlEntryMap[originalUrl] : null;
+          // 相手（ターゲット）情報: CSVエントリ or スクレイプから
+          const targetCompany = entry?.companyName || '';
+          const targetPrefecture = entry?.prefecture || '';
+          const targetCity = entry?.city || '';
+          const targetProductName = entry?.productName || entry?.product || '';
+
           const profileWithMessage = {
             ...storage.batchProfile,
-            ...(entry ? {
-              companyName: entry.companyName || storage.batchProfile?.companyName || '',
-              prefecture: entry.prefecture || storage.batchProfile?.prefecture || '',
-              city: entry.city || storage.batchProfile?.city || '',
-            } : {})
+            // 相手データ (target_* prefix で自社データと分離)
+            target_companyName: targetCompany,
+            target_prefecture: targetPrefecture,
+            target_city: targetCity,
+            target_productName: targetProductName,
+            // 後方互換: companyName は相手社名
+            companyName: targetCompany,
           };
           console.log('[Batch] Sending profile to tab, companyName:', profileWithMessage.companyName, 'prefecture:', profileWithMessage.prefecture);
 
@@ -1982,3 +2023,54 @@ async function findContactPageEnhanced(baseUrl) {
   notify(0, `❌ 未発見`);
   return null;
 }
+
+// =============================================================================
+// AGENT TAKEOVER MODE - Background handlers
+// =============================================================================
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'TAKEOVER_SET_CSV') {
+    const rows = message.rows; // [{url, company_name, category}, ...]
+    chrome.storage.local.set({
+      takeoverQueue: rows,
+      takeoverIndex: 0,
+      takeoverResults: []
+    }, () => {
+      sendResponse({ success: true, total: rows.length });
+    });
+    return true;
+  }
+
+  if (message.action === 'GET_NEXT_COMPANY') {
+    chrome.storage.local.get(['takeoverQueue', 'takeoverIndex'], (data) => {
+      const queue = data.takeoverQueue || [];
+      const idx = data.takeoverIndex || 0;
+      if (idx >= queue.length) {
+        sendResponse({ success: true, done: true, total: queue.length });
+      } else {
+        sendResponse({ success: true, done: false, current: queue[idx], index: idx, total: queue.length });
+      }
+    });
+    return true;
+  }
+
+  if (message.action === 'MARK_DONE') {
+    chrome.storage.local.get(['takeoverQueue', 'takeoverIndex', 'takeoverResults'], (data) => {
+      const idx = data.takeoverIndex || 0;
+      const results = data.takeoverResults || [];
+      results.push({
+        index: idx,
+        url: (data.takeoverQueue || [])[idx]?.url || '',
+        company: (data.takeoverQueue || [])[idx]?.company_name || '',
+        status: message.status, // 'done' | 'skipped' | 'failed'
+        timestamp: Date.now()
+      });
+      chrome.storage.local.set({
+        takeoverIndex: idx + 1,
+        takeoverResults: results
+      }, () => {
+        sendResponse({ success: true, nextIndex: idx + 1 });
+      });
+    });
+    return true;
+  }
+});
