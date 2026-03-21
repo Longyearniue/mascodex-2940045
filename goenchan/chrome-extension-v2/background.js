@@ -2053,6 +2053,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  // GET_NEXT_N_COMPANIES: N件分まとめて返す（インデックスを進める）
+  if (message.action === 'GET_NEXT_N_COMPANIES') {
+    chrome.storage.local.get(['takeoverQueue', 'takeoverIndex'], (data) => {
+      const queue = data.takeoverQueue || [];
+      const idx = data.takeoverIndex || 0;
+      const count = message.count || 10;
+      const items = queue.slice(idx, idx + count);
+      chrome.storage.local.set({ takeoverIndex: idx + items.length }, () => {
+        sendResponse({ success: true, items, nextIndex: idx + items.length, total: queue.length });
+      });
+    });
+    return true;
+  }
+
   if (message.action === 'MARK_DONE') {
     chrome.storage.local.get(['takeoverQueue', 'takeoverIndex', 'takeoverResults'], (data) => {
       const idx = data.takeoverIndex || 0;
