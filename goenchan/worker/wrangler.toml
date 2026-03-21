@@ -14,5 +14,8 @@ routes = [
   { pattern = "api.goenchan.com/*", zone_name = "goenchan.com" }
 ]
 
+[vars]
+DEEPSEEK_API_KEY = ""
+
 [env.development]
 # Development environment runs locally

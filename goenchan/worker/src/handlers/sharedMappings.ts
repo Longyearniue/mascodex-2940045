@@ -29,12 +29,33 @@ const MIN_CONFIDENCE = 50; // Only share high-quality mappings
 
 /**
  * GET /shared-mappings
- * Retrieve all shared mappings
+ * Retrieve shared mappings. If ?url=xxx is provided, filter by URL hostname.
  */
-export async function getSharedMappings(env: any): Promise<Response> {
+export async function getSharedMappings(env: any, request?: Request): Promise<Response> {
   try {
     const stored = await env.SHARED_MAPPINGS?.get(SHARED_MAPPINGS_KEY, { type: 'json' });
-    const mappings = stored || {};
+    const allMappings = stored || {};
+
+    let mappings = allMappings;
+
+    // Filter by URL if provided
+    if (request) {
+      const reqUrl = new URL(request.url);
+      const filterUrl = reqUrl.searchParams.get('url');
+      if (filterUrl) {
+        try {
+          const filterHostname = new URL(filterUrl).hostname;
+          mappings = {} as { [key: string]: SharedMapping };
+          for (const [key, value] of Object.entries(allMappings)) {
+            if (key.includes(filterHostname)) {
+              (mappings as any)[key] = value;
+            }
+          }
+        } catch {
+          // Invalid URL param, return all
+        }
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,

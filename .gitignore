@@ -25,3 +25,4 @@ japan-bars-combined.csv
 .env.local
 .env.production
 *.secret
+logs/

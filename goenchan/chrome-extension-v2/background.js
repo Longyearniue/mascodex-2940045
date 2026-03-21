@@ -2074,3 +2074,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
+// ===== SIDE PANEL =====
+// アイコンクリック時にサイドパネルを開く
+chrome.action.onClicked.addListener(async (tab) => {
+  await chrome.sidePanel.open({ tabId: tab.id });
+});
