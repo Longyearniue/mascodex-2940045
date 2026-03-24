@@ -179,14 +179,14 @@
 
     function getCharUrl(zip) {
       if (isJP(zip)) return `${MASCODEX}/c/${zip.replace('JP','')}`;
-      if (isIN(zip)) return `${MASCODEX}/in/c/${zip}`;
-      if (isAU(zip)) return `${MASCODEX}/au/c/${zip}`;
+      if (isIN(zip)) return `${MASCODEX}/in/c/${zip.replace("IN","")}`;
+      if (isAU(zip)) return `${MASCODEX}/au/c/${zip.replace("AU","")}`;
       return `${MASCODEX}/us/c/${zip}`;
     }
     function getImgUrl(zip) {
       if (isJP(zip)) return `${MASCODEX}/img/jp/${zip.replace('JP','')}_01.png`;
-      if (isIN(zip)) return `${MASCODEX}/img/in/${zip}_01.png`;
-      if (isAU(zip)) return `${MASCODEX}/img/au/${zip}_01.png`;
+      if (isIN(zip)) return `${MASCODEX}/img/in/${zip.replace("IN","")}_01.png`;
+      if (isAU(zip)) return `${MASCODEX}/img/au/${zip.replace("AU","")}_01.png`;
       return `${MASCODEX}/img/us/${zip}_01.png`;
     }
 
